@@ -142,7 +142,6 @@ function displayLatestProducts(products) {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    loadGames();
     loadFeaturedProducts();
     loadLatestProducts();
 });

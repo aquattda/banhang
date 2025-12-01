@@ -33,7 +33,8 @@ const AdminAPI = {
     // Orders
     getAllOrders: async (params = {}) => {
         const queryString = new URLSearchParams(params).toString();
-        const response = await fetch(`/api/orders?${queryString}`, {
+        const url = `/api/orders/all${queryString ? '?' + queryString : ''}`;
+        const response = await fetch(url, {
             headers: getAuthHeaders()
         });
         return response.json();

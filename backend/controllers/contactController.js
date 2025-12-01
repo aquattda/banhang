@@ -10,7 +10,7 @@ const createContact = async (req, res) => {
         }
         
         const [result] = await db.query(
-            'INSERT INTO contact_messages (name, email, phone, message) VALUES (?, ?, ?, ?)',
+            'INSERT INTO contacts (name, email, phone, message) VALUES (?, ?, ?, ?)',
             [name, email, phone, message]
         );
         
@@ -26,7 +26,7 @@ const getAllContacts = async (req, res) => {
     try {
         const { status } = req.query;
         
-        let query = 'SELECT * FROM contact_messages';
+        let query = 'SELECT * FROM contacts';
         const params = [];
         
         if (status) {
@@ -51,7 +51,7 @@ const updateContactStatus = async (req, res) => {
         const { status } = req.body;
         
         await db.query(
-            'UPDATE contact_messages SET status = ? WHERE id = ?',
+            'UPDATE contacts SET status = ? WHERE contact_id = ?',
             [status, id]
         );
         

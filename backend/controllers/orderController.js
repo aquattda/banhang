@@ -81,7 +81,7 @@ const createOrder = async (req, res) => {
             
             // Update stock
             await connection.query(
-                'UPDATE products SET stock = stock - ? WHERE id = ?',
+                'UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?',
                 [item.quantity, item.product_id]
             );
         }

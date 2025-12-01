@@ -57,7 +57,7 @@ const updateGame = async (req, res) => {
         const { name, slug, description, thumbnail_url, is_active } = req.body;
         
         await db.query(
-            'UPDATE games SET name = ?, slug = ?, description = ?, thumbnail_url = ?, is_active = ? WHERE id = ?',
+            'UPDATE games SET name = ?, slug = ?, description = ?, thumbnail_url = ?, is_active = ? WHERE game_id = ?',
             [name, slug, description, thumbnail_url, is_active, id]
         );
         
@@ -72,7 +72,7 @@ const updateGame = async (req, res) => {
 const deleteGame = async (req, res) => {
     try {
         const { id } = req.params;
-        await db.query('DELETE FROM games WHERE id = ?', [id]);
+        await db.query('DELETE FROM games WHERE game_id = ?', [id]);
         res.json({ success: true, message: 'Game deleted' });
     } catch (error) {
         console.error('Delete game error:', error);

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Sản phẩm - Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <span class="logo-icon">🎮</span>
+                <span>GameShop Admin</span>
+            </div>
+            
+            <nav class="admin-nav">
+                <a href="/admin/dashboard.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/admin/orders.html" class="nav-item">
+                    <span>🛒</span> Đơn hàng
+                </a>
+                <a href="/admin/products.html" class="nav-item active">
+                    <span>🛍️</span> Sản phẩm
+                </a>
+                <a href="#" onclick="logout()" class="nav-item">
+                    <span>🚪</span> Đăng xuất
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <header class="admin-header">
+                <h1>Quản lý Sản phẩm</h1>
+                <button class="btn btn-primary" onclick="showAddProduct()" style="padding: 12px 24px; font-size: 16px;">➕ Thêm sản phẩm</button>
+            </header>
+
+            <!-- Filter Section -->
+            <div class="dashboard-section">
+                <div class="filter-bar">
+                    <input 
+                        type="text" 
+                        id="search-product" 
+                        class="form-select" 
+                        placeholder="🔍 Tìm tên sản phẩm..."
+                        style="min-width: 250px;"
+                        onkeyup="handleSearchEnter(event)"
+                    >
+                    
+                    <select id="filter-game" class="form-select">
+                        <option value="">Tất cả game</option>
+                    </select>
+
+                    <select id="filter-active" class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="1">Đang bán</option>
+                        <option value="0">Ngừng bán</option>
+                    </select>
+
+                    <button class="btn btn-primary" onclick="loadProducts()">🔍 Lọc</button>
+                    <button class="btn btn-secondary" onclick="resetFilters()">✖️ Xóa bộ lọc</button>
+                </div>
+
+                <!-- Products Table -->
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Game</th>
+                            <th>Giá</th>
+                            <th>Đơn vị</th>
+                            <th>Tồn kho</th>
+                            <th>Nổi bật</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table">
+                        <tr><td colspan="10" style="text-align: center;">Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="product-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="modal-title">Thêm sản phẩm mới</h2>
+                <button class="close-btn" onclick="closeModal()">✖</button>
+            </div>
+            <form id="product-form" onsubmit="handleSubmit(event)">
+                <input type="hidden" id="product-id">
+                
+                <div class="form-group">
+                    <label>Game <span style="color: red;">*</span></label>
+                    <select id="form-game" class="form-control" required onchange="loadCategories()">
+                        <option value="">-- Chọn game --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Danh mục <span style="color: red;">*</span></label>
+                    <select id="form-category" class="form-control" required>
+                        <option value="">-- Chọn game trước --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Tên sản phẩm <span style="color: red;">*</span></label>
+                    <input type="text" id="form-name" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mô tả</label>
+                    <textarea id="form-description" class="form-control" rows="4"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Giá (VNĐ) <span style="color: red;">*</span></label>
+                        <input type="number" id="form-price" class="form-control" required min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Đơn vị <span style="color: red;">*</span></label>
+                        <select id="form-unit" class="form-control" required>
+                            <option value="triệu">Triệu</option>
+                            <option value="K">K (1000)</option>
+                            <option value="Robux">Robux</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>URL hình ảnh</label>
+                    <input type="url" id="form-image" class="form-control" placeholder="https://...">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tồn kho</label>
+                        <input type="number" id="form-stock" class="form-control" value="999" min="0">
+                    </div>
+
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 28px;">
+                        <label style="margin: 0;">
+                            <input type="checkbox" id="form-featured"> Sản phẩm nổi bật
+                        </label>
+                        <label style="margin: 0;">
+                            <input type="checkbox" id="form-active" checked> Đang bán
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy</button>
+                    <button type="submit" class="btn btn-primary">💾 Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        let allGames = [];
+        let allCategories = [];
+        let currentProducts = [];
+
+        async function loadGamesAndCategories() {
+            try {
+                const [gamesResult, categoriesResult] = await Promise.all([
+                    API.get('/api/games'),
+                    API.get('/api/categories')
+                ]);
+
+                if (gamesResult.success) {
+                    allGames = gamesResult.data;
+                    const gameSelects = ['filter-game', 'form-game'];
+                    gameSelects.forEach(selectId => {
+                        const select = document.getElementById(selectId);
+                        if (selectId === 'filter-game') {
+                            select.innerHTML = '<option value="">Tất cả game</option>';
+                        } else {
+                            select.innerHTML = '<option value="">-- Chọn game --</option>';
+                        }
+                        allGames.forEach(game => {
+                            select.innerHTML += `<option value="${game.game_id}">${game.name}</option>`;
+                        });
+                    });
+                }
+
+                if (categoriesResult.success) {
+                    allCategories = categoriesResult.data;
+                }
+            } catch (error) {
+                console.error('Error loading games/categories:', error);
+            }
+        }
+
+        function loadCategories() {
+            const gameId = document.getElementById('form-game').value;
+            const categorySelect = document.getElementById('form-category');
+            
+            if (!gameId) {
+                categorySelect.innerHTML = '<option value="">-- Chọn game trước --</option>';
+                return;
+            }
+
+            const categories = allCategories.filter(cat => cat.game_id == gameId);
+            categorySelect.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+            categories.forEach(cat => {
+                categorySelect.innerHTML += `<option value="${cat.category_id}">${cat.name}</option>`;
+            });
+        }
+
+        function handleSearchEnter(event) {
+            if (event.key === 'Enter') {
+                loadProducts();
+            }
+        }
+
+        async function loadProducts() {
+            const auth = checkAdminAuth();
+            if (!auth) return;
+
+            const searchTerm = document.getElementById('search-product').value.trim().toLowerCase();
+            const gameId = document.getElementById('filter-game').value;
+            const isActive = document.getElementById('filter-active').value;
+
+            try {
+                const result = await API.get('/api/products');
+                
+                if (!result.success || !result.data) {
+                    document.getElementById('products-table').innerHTML = 
+                        '<tr><td colspan="10" style="text-align: center;">Không có sản phẩm</td></tr>';
+                    return;
+                }
+
+                let products = result.data;
+
+                // Lọc theo tên
+                if (searchTerm) {
+                    products = products.filter(p => 
+                        p.name.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                // Lọc theo game
+                if (gameId) {
+                    products = products.filter(p => p.game_id == gameId);
+                }
+
+                // Lọc theo trạng thái
+                if (isActive !== '') {
+                    products = products.filter(p => p.is_active == isActive);
+                }
+
+                currentProducts = products;
+
+                if (products.length === 0) {
+                    document.getElementById('products-table').innerHTML = 
+                        '<tr><td colspan="10" style="text-align: center;">Không tìm thấy sản phẩm</td></tr>';
+                    return;
+                }
+
+                displayProducts(products);
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showNotification('Lỗi khi tải sản phẩm', 'error');
+            }
+        }
+
+        function displayProducts(products) {
+            const tbody = document.getElementById('products-table');
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td>${product.product_id}</td>
+                    <td><img src="${product.image_url || '../images/placeholder.jpg'}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
+                    <td>${product.name}</td>
+                    <td>${product.game_name || 'N/A'}</td>
+                    <td>${formatCurrency(product.price)}</td>
+                    <td>${product.unit}</td>
+                    <td>${product.stock_quantity}</td>
+                    <td>${product.is_featured ? '<span style="color: gold;">⭐</span>' : '-'}</td>
+                    <td>
+                        <span class="badge ${product.is_active ? 'badge-success' : 'badge-secondary'}">
+                            ${product.is_active ? 'Đang bán' : 'Ngừng bán'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-small btn-primary" onclick="editProduct(${product.product_id})">✏️</button>
+                        <button class="btn-small btn-danger" onclick="deleteProduct(${product.product_id}, '${product.name}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function resetFilters() {
+            document.getElementById('search-product').value = '';
+            document.getElementById('filter-game').value = '';
+            document.getElementById('filter-active').value = '';
+            loadProducts();
+        }
+
+        function showAddProduct() {
+            document.getElementById('modal-title').textContent = 'Thêm sản phẩm mới';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-id').value = '';
+            document.getElementById('form-category').innerHTML = '<option value="">-- Chọn game trước --</option>';
+            document.getElementById('form-active').checked = true;
+            document.getElementById('product-modal').style.display = 'flex';
+        }
+
+        function editProduct(productId) {
+            const product = currentProducts.find(p => p.product_id === productId);
+            if (!product) return;
+
+            document.getElementById('modal-title').textContent = 'Chỉnh sửa sản phẩm';
+            document.getElementById('product-id').value = product.product_id;
+            document.getElementById('form-game').value = product.game_id;
+            
+            // Load categories for selected game
+            loadCategories();
+            setTimeout(() => {
+                document.getElementById('form-category').value = product.category_id;
+            }, 100);
+
+            document.getElementById('form-name').value = product.name;
+            document.getElementById('form-description').value = product.description || '';
+            document.getElementById('form-price').value = product.price;
+            document.getElementById('form-unit').value = product.unit;
+            document.getElementById('form-image').value = product.image_url || '';
+            document.getElementById('form-stock').value = product.stock_quantity;
+            document.getElementById('form-featured').checked = product.is_featured;
+            document.getElementById('form-active').checked = product.is_active;
+
+            document.getElementById('product-modal').style.display = 'flex';
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const auth = checkAdminAuth();
+            if (!auth) return;
+
+            const productId = document.getElementById('product-id').value;
+            const productData = {
+                game_id: document.getElementById('form-game').value,
+                category_id: document.getElementById('form-category').value,
+                name: document.getElementById('form-name').value,
+                description: document.getElementById('form-description').value,
+                price: parseFloat(document.getElementById('form-price').value),
+                unit: document.getElementById('form-unit').value,
+                image_url: document.getElementById('form-image').value || null,
+                stock_quantity: parseInt(document.getElementById('form-stock').value),
+                is_featured: document.getElementById('form-featured').checked ? 1 : 0,
+                is_active: document.getElementById('form-active').checked ? 1 : 0
+            };
+
+            try {
+                let result;
+                if (productId) {
+                    result = await AdminAPI.updateProduct(productId, productData);
+                } else {
+                    result = await AdminAPI.createProduct(productData);
+                }
+
+                if (result.success) {
+                    showNotification(productId ? 'Cập nhật sản phẩm thành công' : 'Thêm sản phẩm thành công', 'success');
+                    closeModal();
+                    loadProducts();
+                } else {
+                    showNotification(result.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                showNotification('Lỗi khi lưu sản phẩm', 'error');
+            }
+        }
+
+        async function deleteProduct(productId, productName) {
+            if (!confirm(`Bạn có chắc muốn xóa sản phẩm "${productName}"?`)) return;
+
+            const auth = checkAdminAuth();
+            if (!auth) return;
+
+            try {
+                const result = await AdminAPI.deleteProduct(productId);
+                if (result.success) {
+                    showNotification('Xóa sản phẩm thành công', 'success');
+                    loadProducts();
+                } else {
+                    showNotification(result.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                showNotification('Lỗi khi xóa sản phẩm', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('product-modal').style.display = 'none';
+        }
+
+        function logout() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                AdminAPI.logout();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const auth = checkAdminAuth();
+            if (auth) {
+                loadGamesAndCategories();
+                loadProducts();
+            }
+        });
+
+        // Modal styling
+        const style = document.createElement('style');
+        style.textContent = `
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+            }
+            .modal-content {
+                background: white;
+                border-radius: 8px;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .modal-header h2 {
+                margin: 0;
+            }
+            .close-btn {
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: #666;
+            }
+            .close-btn:hover {
+                color: #000;
+            }
+            #product-form {
+                padding: 20px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 500;
+            }
+            .form-control {
+                width: 100%;
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            .form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            .modal-footer {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                padding-top: 15px;
+                border-top: 1px solid #e0e0e0;
+            }
+            .btn-small {
+                padding: 4px 8px;
+                font-size: 14px;
+                margin: 0 2px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .btn-danger {
+                background: #dc3545;
+                color: white;
+            }
+            .btn-danger:hover {
+                background: #c82333;
+            }
+            .badge {
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+            .badge-success {
+                background: #28a745;
+                color: white;
+            }
+            .badge-secondary {
+                background: #6c757d;
+                color: white;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

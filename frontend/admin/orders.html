@@ -23,13 +23,7 @@
                     <span>🛒</span> Đơn hàng
                 </a>
                 <a href="/admin/products.html" class="nav-item">
-                    <span>📦</span> Sản phẩm
-                </a>
-                <a href="/admin/games.html" class="nav-item">
-                    <span>🎮</span> Games
-                </a>
-                <a href="/admin/contacts.html" class="nav-item">
-                    <span>📧</span> Liên hệ
+                    <span>🛍️</span> Sản phẩm
                 </a>
                 <a href="#" onclick="logout()" class="nav-item">
                     <span>🚪</span> Đăng xuất
@@ -44,6 +38,15 @@
 
             <div class="dashboard-section">
                 <div class="filter-bar">
+                    <input 
+                        type="text" 
+                        id="search-order-code" 
+                        class="form-select" 
+                        placeholder="🔍 Tìm theo mã đơn hàng..."
+                        style="min-width: 250px;"
+                        onkeyup="handleSearchEnter(event)"
+                    >
+                    
                     <select id="filter-status" class="form-select">
                         <option value="">Tất cả trạng thái</option>
                         <option value="pending">Chờ xử lý</option>
@@ -52,8 +55,8 @@
                         <option value="cancelled">Đã hủy</option>
                     </select>
 
-                    <button class="btn btn-primary" onclick="loadOrders()">Lọc</button>
-                    <button class="btn btn-secondary" onclick="resetFilters()">Xóa bộ lọc</button>
+                    <button class="btn btn-primary" onclick="loadOrders()">🔍 Lọc</button>
+                    <button class="btn btn-secondary" onclick="resetFilters()">✖️ Xóa bộ lọc</button>
                 </div>
 
                 <div class="table-container">
@@ -92,15 +95,21 @@
     <script src="/js/app.js"></script>
     <script src="/admin/js/admin.js"></script>
     <script>
+        function handleSearchEnter(event) {
+            if (event.key === 'Enter') {
+                loadOrders();
+            }
+        }
+
         async function loadOrders() {
             const auth = checkAdminAuth();
             if (!auth) return;
 
+            const searchCode = document.getElementById('search-order-code').value.trim();
             const status = document.getElementById('filter-status').value;
-            const params = status ? { status } : {};
 
             try {
-                const result = await AdminAPI.getAllOrders(params);
+                const result = await AdminAPI.getAllOrders({ status, limit: 1000 });
                 
                 if (!result.success || !result.data || result.data.length === 0) {
                     document.getElementById('orders-table').innerHTML = `
@@ -109,7 +118,23 @@
                     return;
                 }
 
-                displayOrders(result.data);
+                let orders = result.data;
+
+                // Lọc theo mã đơn hàng nếu có
+                if (searchCode) {
+                    orders = orders.filter(order => 
+                        order.order_code.toLowerCase().includes(searchCode.toLowerCase())
+                    );
+                }
+
+                if (orders.length === 0) {
+                    document.getElementById('orders-table').innerHTML = `
+                        <tr><td colspan="8" style="text-align: center;">Không tìm thấy đơn hàng với mã "${searchCode}"</td></tr>
+                    `;
+                    return;
+                }
+
+                displayOrders(orders);
             } catch (error) {
                 console.error('Load orders error:', error);
                 showNotification('Lỗi khi tải đơn hàng', 'error');
@@ -181,10 +206,11 @@
                 document.getElementById('order-detail-content').innerHTML = `
                     <h2>Chi Tiết Đơn Hàng</h2>
                     <div style="margin: 20px 0;">
-                        <p><strong>Mã đơn:</strong> ${order.order_code}</p>
-                        <p><strong>Khách hàng:</strong> ${order.buyer_name}</p>
-                        <p><strong>SĐT:</strong> ${order.buyer_phone}</p>
-                        <p><strong>Email:</strong> ${order.buyer_email || 'N/A'}</p>
+        function resetFilters() {
+            document.getElementById('search-order-code').value = '';
+            document.getElementById('filter-status').value = '';
+            loadOrders();
+        }               <p><strong>Email:</strong> ${order.buyer_email || 'N/A'}</p>
                         <p><strong>Nickname game:</strong> ${order.game_nickname || 'N/A'}</p>
                         <p><strong>Server:</strong> ${order.game_server || 'N/A'}</p>
                         <p><strong>Tổng tiền:</strong> <span style="color: var(--primary-color); font-size: 20px;">${formatCurrency(order.total_amount)}</span></p>

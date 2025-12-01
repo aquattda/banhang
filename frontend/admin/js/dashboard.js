@@ -17,22 +17,41 @@ async function loadDashboard() {
 async function loadStats() {
     try {
         // Get all orders
-        const ordersResult = await AdminAPI.getAllOrders({ limit: 1000 });
-        const orders = ordersResult.data || [];
+        let totalOrders = 0;
+        let pendingOrders = 0;
+        let totalProducts = 0;
+        let newContacts = 0;
 
-        // Get all products
-        const productsResult = await AdminAPI.getAllProducts();
-        const products = productsResult.data || [];
+        try {
+            const ordersResult = await AdminAPI.getAllOrders({ limit: 1000 });
+            if (ordersResult.success && ordersResult.data) {
+                const orders = ordersResult.data;
+                totalOrders = orders.length;
+                pendingOrders = orders.filter(o => o.status === 'pending').length;
+            }
+        } catch (err) {
+            console.error('Load orders stats error:', err);
+        }
 
-        // Get contacts
-        const contactsResult = await AdminAPI.getAllContacts();
-        const contacts = contactsResult.data || [];
+        try {
+            const productsResult = await fetch('/api/products?limit=1000');
+            const productsData = await productsResult.json();
+            if (productsData.success && productsData.data) {
+                totalProducts = productsData.data.length;
+            }
+        } catch (err) {
+            console.error('Load products stats error:', err);
+        }
 
-        // Calculate stats
-        const totalOrders = orders.length;
-        const pendingOrders = orders.filter(o => o.status === 'pending').length;
-        const totalProducts = products.length;
-        const newContacts = contacts.filter(c => c.status === 'new').length;
+        try {
+            const contactsResult = await AdminAPI.getAllContacts();
+            if (contactsResult.success && contactsResult.data) {
+                const contacts = contactsResult.data;
+                newContacts = contacts.filter(c => c.status === 'new').length;
+            }
+        } catch (err) {
+            console.error('Load contacts stats error:', err);
+        }
 
         // Display stats
         document.getElementById('total-orders').textContent = totalOrders;
@@ -42,6 +61,7 @@ async function loadStats() {
 
     } catch (error) {
         console.error('Load stats error:', error);
+        showNotification('Lỗi khi tải thống kê', 'error');
     }
 }
 

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const {
+    getAllCategories,
     getCategoriesByGame,
     createCategory,
     updateCategory,
@@ -9,6 +10,7 @@ const {
 } = require('../controllers/categoryController');
 
 // Public routes
+router.get('/', getAllCategories);
 router.get('/game/:game_id', getCategoriesByGame);
 
 // Admin routes

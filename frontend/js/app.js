@@ -74,6 +74,58 @@ function updateCartCount() {
 
 // API calls
 const API = {
+    // Generic methods
+    get: async (url, useAuth = false) => {
+        const headers = { 'Content-Type': 'application/json' };
+        if (useAuth) {
+            const token = localStorage.getItem('admin_token');
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+        }
+        const response = await fetch(url, { headers });
+        return response.json();
+    },
+
+    post: async (url, data, useAuth = false) => {
+        const headers = { 'Content-Type': 'application/json' };
+        if (useAuth) {
+            const token = localStorage.getItem('admin_token');
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+        }
+        const response = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(data)
+        });
+        return response.json();
+    },
+
+    put: async (url, data, useAuth = false) => {
+        const headers = { 'Content-Type': 'application/json' };
+        if (useAuth) {
+            const token = localStorage.getItem('admin_token');
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+        }
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify(data)
+        });
+        return response.json();
+    },
+
+    delete: async (url, useAuth = false) => {
+        const headers = { 'Content-Type': 'application/json' };
+        if (useAuth) {
+            const token = localStorage.getItem('admin_token');
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+        }
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers
+        });
+        return response.json();
+    },
+
     // Games
     getGames: async () => {
         const response = await fetch(`${API_URL}/games`);
@@ -108,6 +160,11 @@ const API = {
     },
     
     // Categories
+    getAllCategories: async () => {
+        const response = await fetch(`${API_URL}/categories`);
+        return response.json();
+    },
+
     getCategoriesByGame: async (gameId) => {
         const response = await fetch(`${API_URL}/categories/game/${gameId}`);
         return response.json();

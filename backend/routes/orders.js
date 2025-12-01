@@ -10,10 +10,12 @@ const {
 
 // Public routes
 router.post('/', createOrder);
-router.get('/:order_code', getOrderByCode);
 
-// Admin routes
-router.get('/', authMiddleware, adminMiddleware, getAllOrders);
+// Admin routes (đặt trước để tránh conflict)
+router.get('/all', authMiddleware, adminMiddleware, getAllOrders);
 router.patch('/:id', authMiddleware, adminMiddleware, updateOrderStatus);
+
+// Public route (đặt sau)
+router.get('/:order_code', getOrderByCode);
 
 module.exports = router;

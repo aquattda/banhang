@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Mục Game - GameShop</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <style>
+        .games-section {
+            padding: 80px 0;
+        }
+        
+        .game-category {
+            margin-bottom: 60px;
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .category-icon {
+            font-size: 60px;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+        }
+        
+        .category-info h2 {
+            font-size: 36px;
+            color: var(--text-dark);
+            margin: 0 0 10px 0;
+        }
+        
+        .category-info p {
+            color: var(--text-light);
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .sub-games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .sub-game-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 3px solid transparent;
+        }
+        
+        .sub-game-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+            border-color: var(--primary-color);
+        }
+        
+        .sub-game-icon {
+            font-size: 70px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .sub-game-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+        
+        .sub-game-desc {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .standalone-game-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 25px;
+            padding: 50px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .standalone-game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.6);
+        }
+        
+        .standalone-icon {
+            font-size: 100px;
+            flex-shrink: 0;
+        }
+        
+        .standalone-info h3 {
+            font-size: 42px;
+            margin: 0 0 15px 0;
+        }
+        
+        .standalone-info p {
+            font-size: 18px;
+            opacity: 0.95;
+            margin: 0 0 25px 0;
+        }
+        
+        .products-count {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎮</span>
+                <span>GameShop</span>
+            </a>
+            
+            <button class="mobile-menu-toggle">☰</button>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/games.html" class="active">Danh mục game</a></li>
+                    <li><a href="/contact.html">Liên hệ</a></li>
+                </ul>
+            </nav>
+            
+            <a href="/cart.html" class="cart-icon">
+                🛒
+                <span class="cart-count">0</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="games-section">
+            <div class="container">
+                <h1 style="text-align: center; font-size: 48px; margin-bottom: 20px; color: var(--text-dark);">
+                    🎮 Danh Mục Game
+                </h1>
+                <p style="text-align: center; color: var(--text-light); font-size: 18px; margin-bottom: 60px;">
+                    Chọn game và khám phá các vật phẩm hot nhất
+                </p>
+
+                <!-- Roblox Category -->
+                <div class="game-category">
+                    <div class="category-header">
+                        <div class="category-icon">🎮</div>
+                        <div class="category-info">
+                            <h2>Roblox</h2>
+                            <p>Nền tảng game sáng tạo với hàng triệu trò chơi</p>
+                        </div>
+                    </div>
+
+                    <div class="sub-games-grid">
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=bloxfruits')">
+                            <div class="sub-game-icon">🍇</div>
+                            <h3 class="sub-game-name">BloxFruits</h3>
+                            <p class="sub-game-desc">Trái ác quỷ & Gamepass</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=king-legacy')">
+                            <div class="sub-game-icon">👑</div>
+                            <h3 class="sub-game-name">King Legacy</h3>
+                            <p class="sub-game-desc">Trái cây & Gamepass</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=strongest-battlegrounds')">
+                            <div class="sub-game-icon">💪</div>
+                            <h3 class="sub-game-name">The Strongest Battlegrounds</h3>
+                            <p class="sub-game-desc">Gamepass chiến đấu</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=code-roblox')">
+                            <div class="sub-game-icon">🎮</div>
+                            <h3 class="sub-game-name">Code Roblox</h3>
+                            <p class="sub-game-desc">Prime Gaming & Codes</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=sols-rng')">
+                            <div class="sub-game-icon">🎰</div>
+                            <h3 class="sub-game-name">Sol's RNG</h3>
+                            <p class="sub-game-desc">Gamepass may mắn</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=heroes-battlegrounds')">
+                            <div class="sub-game-icon">🦸</div>
+                            <h3 class="sub-game-name">Heroes Battlegrounds</h3>
+                            <p class="sub-game-desc">Gamepass siêu anh hùng</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=rivals')">
+                            <div class="sub-game-icon">🔫</div>
+                            <h3 class="sub-game-name">RIVALS</h3>
+                            <p class="sub-game-desc">Gamepass & Key Bundle</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=jujutsu-shenanigans')">
+                            <div class="sub-game-icon">⚡</div>
+                            <h3 class="sub-game-name">Jujutsu Shenanigans</h3>
+                            <p class="sub-game-desc">Gamepass Jujutsu</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=blue-lock-rivals')">
+                            <div class="sub-game-icon">⚽</div>
+                            <h3 class="sub-game-name">Blue Lock: Rivals</h3>
+                            <p class="sub-game-desc">Gamepass, Spins & Limiteds</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=forsaken')">
+                            <div class="sub-game-icon">🗡️</div>
+                            <h3 class="sub-game-name">Forsaken</h3>
+                            <p class="sub-game-desc">Gamepass phiêu lưu</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+
+                        <div class="sub-game-card" onclick="navigateTo('/product.html?game=fish-it')">
+                            <div class="sub-game-icon">🐟</div>
+                            <h3 class="sub-game-name">Fish It!</h3>
+                            <p class="sub-game-desc">Gamepass câu cá</p>
+                            <button class="btn btn-primary">Xem sản phẩm</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liên Quân Category -->
+                <div class="game-category">
+                    <div onclick="navigateTo('/product.html?game=lien-quan')" class="standalone-game-card">
+                        <div class="standalone-icon">⚔️</div>
+                        <div class="standalone-info">
+                            <h3>Liên Quân Mobile</h3>
+                            <p>Game MOBA số 1 Việt Nam - Quân Huy, Skin Tướng & nhiều hơn nữa</p>
+                            <span class="products-count">📦 Đang có sản phẩm hot</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🎮 GameShop</h3>
+                    <p>Nền tảng mua vật phẩm game uy tín, nhanh chóng và an toàn nhất Việt Nam.</p>
+                    <div class="social-links">
+                        <a href="#" title="Facebook">📘</a>
+                        <a href="#" title="Zalo">💬</a>
+                        <a href="#" title="Email">📧</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Liên Hệ</h3>
+                    <p>📞 Hotline: 0123-456-789</p>
+                    <p>📧 Email: support@gameshop.vn</p>
+                    <p>💬 Zalo: 0123-456-789</p>
+                    <p>🕐 Hỗ trợ: 8:00 - 22:00 hàng ngày</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Chính Sách</h3>
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="#">Chính sách bảo mật</a>
+                    <a href="#">Hướng dẫn mua hàng</a>
+                    <a href="#">Câu hỏi thường gặp</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>⚠️ Lưu ý: Trang web không thuộc sở hữu của Roblox, Garena, hay bất kỳ nhà phát triển game nào. Chúng tôi chỉ cung cấp dịch vụ nạp vật phẩm hợp lệ.</p>
+                <p>&copy; 2025 GameShop. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>

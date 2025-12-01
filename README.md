@@ -62,7 +62,7 @@ PORT=3000
 
 #### 4. Chạy server
 ```bash
-npm run dev
+c
 ```
 
 Hoặc chạy file `start.bat` (Windows)

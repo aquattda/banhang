@@ -1,5 +1,18 @@
 const db = require('../config/database');
 
+// Lấy tất cả categories
+const getAllCategories = async (req, res) => {
+    try {
+        const [categories] = await db.query(
+            'SELECT * FROM categories WHERE is_active = TRUE ORDER BY game_id, name'
+        );
+        res.json({ success: true, data: categories });
+    } catch (error) {
+        console.error('Get all categories error:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+};
+
 // Lấy categories theo game
 const getCategoriesByGame = async (req, res) => {
     try {
@@ -39,7 +52,7 @@ const updateCategory = async (req, res) => {
         const { game_id, name, description } = req.body;
         
         await db.query(
-            'UPDATE categories SET game_id = ?, name = ?, description = ? WHERE id = ?',
+            'UPDATE categories SET game_id = ?, name = ?, description = ? WHERE category_id = ?',
             [game_id, name, description, id]
         );
         
@@ -54,7 +67,7 @@ const updateCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        await db.query('DELETE FROM categories WHERE id = ?', [id]);
+        await db.query('DELETE FROM categories WHERE category_id = ?', [id]);
         res.json({ success: true, message: 'Category deleted' });
     } catch (error) {
         console.error('Delete category error:', error);
@@ -63,6 +76,7 @@ const deleteCategory = async (req, res) => {
 };
 
 module.exports = {
+    getAllCategories,
     getCategoriesByGame,
     createCategory,
     updateCategory,

@@ -16,8 +16,8 @@ const getProducts = async (req, res) => {
         let query = `
             SELECT p.*, g.name as game_name, g.slug as game_slug, c.name as category_name 
             FROM products p 
-            JOIN games g ON p.game_id = g.id 
-            JOIN categories c ON p.category_id = c.id 
+            JOIN games g ON p.game_id = g.game_id 
+            JOIN categories c ON p.category_id = c.category_id 
             WHERE p.is_active = TRUE
         `;
         const params = [];
@@ -64,7 +64,7 @@ const getFeaturedProducts = async (req, res) => {
         const [products] = await db.query(`
             SELECT p.*, g.name as game_name, g.slug as game_slug 
             FROM products p 
-            JOIN games g ON p.game_id = g.id 
+            JOIN games g ON p.game_id = g.game_id 
             WHERE p.is_active = TRUE AND p.is_featured = TRUE 
             ORDER BY p.created_at DESC 
             LIMIT 8
@@ -82,7 +82,7 @@ const getLatestProducts = async (req, res) => {
         const [products] = await db.query(`
             SELECT p.*, g.name as game_name, g.slug as game_slug 
             FROM products p 
-            JOIN games g ON p.game_id = g.id 
+            JOIN games g ON p.game_id = g.game_id 
             WHERE p.is_active = TRUE 
             ORDER BY p.created_at DESC 
             LIMIT 8
@@ -101,9 +101,9 @@ const getProductById = async (req, res) => {
         const [products] = await db.query(`
             SELECT p.*, g.name as game_name, g.slug as game_slug, c.name as category_name 
             FROM products p 
-            JOIN games g ON p.game_id = g.id 
-            JOIN categories c ON p.category_id = c.id 
-            WHERE p.id = ? AND p.is_active = TRUE
+            JOIN games g ON p.game_id = g.game_id 
+            JOIN categories c ON p.category_id = c.category_id 
+            WHERE p.product_id = ? AND p.is_active = TRUE
         `, [id]);
         
         if (products.length === 0) {
@@ -126,9 +126,9 @@ const createProduct = async (req, res) => {
         } = req.body;
         
         const [result] = await db.query(
-            `INSERT INTO products (game_id, category_id, name, description, price, unit, image_url, is_featured, stock, min_age) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [game_id, category_id, name, description, price, unit || 'gói', image_url, is_featured || false, stock || 999999, min_age || 0]
+            `INSERT INTO products (game_id, category_id, name, description, price, unit, image_url, is_featured, stock_quantity) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [game_id, category_id, name, description, price, unit || 'VNĐ', image_url, is_featured || false, stock || 999]
         );
         
         res.json({ success: true, message: 'Product created', productId: result.insertId });
@@ -149,8 +149,8 @@ const updateProduct = async (req, res) => {
         
         await db.query(
             `UPDATE products SET game_id = ?, category_id = ?, name = ?, description = ?, 
-             price = ?, unit = ?, image_url = ?, is_active = ?, is_featured = ?, stock = ?, min_age = ? 
-             WHERE id = ?`,
+             price = ?, unit = ?, image_url = ?, is_active = ?, is_featured = ?, stock_quantity = ?, min_age = ? 
+             WHERE product_id = ?`,
             [game_id, category_id, name, description, price, unit, image_url, is_active, is_featured, stock, min_age, id]
         );
         
@@ -165,7 +165,7 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        await db.query('DELETE FROM products WHERE id = ?', [id]);
+        await db.query('DELETE FROM products WHERE product_id = ?', [id]);
         res.json({ success: true, message: 'Product deleted' });
     } catch (error) {
         console.error('Delete product error:', error);
