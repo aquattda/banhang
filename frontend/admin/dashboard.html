@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - GameShop</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <span class="logo-icon">🎮</span>
+                <span>GameShop Admin</span>
+            </div>
+            
+            <nav class="admin-nav">
+                <a href="/admin/dashboard.html" class="nav-item active">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/admin/orders.html" class="nav-item">
+                    <span>🛒</span> Đơn hàng
+                </a>
+                <a href="/admin/products.html" class="nav-item">
+                    <span>📦</span> Sản phẩm
+                </a>
+                <a href="/admin/games.html" class="nav-item">
+                    <span>🎮</span> Games
+                </a>
+                <a href="/admin/contacts.html" class="nav-item">
+                    <span>📧</span> Liên hệ
+                </a>
+                <a href="#" onclick="logout()" class="nav-item">
+                    <span>🚪</span> Đăng xuất
+                </a>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <header class="admin-header">
+                <h1>Dashboard</h1>
+                <div class="admin-user">
+                    <span id="admin-name">Admin</span>
+                </div>
+            </header>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">🛒</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="total-orders">0</div>
+                        <div class="stat-label">Tổng đơn hàng</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="pending-orders">0</div>
+                        <div class="stat-label">Đơn chờ xử lý</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="total-products">0</div>
+                        <div class="stat-label">Sản phẩm</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📧</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="new-contacts">0</div>
+                        <div class="stat-label">Tin nhắn mới</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h2>Đơn hàng gần đây</h2>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày đặt</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-orders">
+                            <tr>
+                                <td colspan="6" style="text-align: center;">Đang tải...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script src="/admin/js/admin.js"></script>
+    <script src="/admin/js/dashboard.js"></script>
+</body>
+</html>

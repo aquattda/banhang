@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý đơn hàng - Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <span class="logo-icon">🎮</span>
+                <span>GameShop Admin</span>
+            </div>
+            
+            <nav class="admin-nav">
+                <a href="/admin/dashboard.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/admin/orders.html" class="nav-item active">
+                    <span>🛒</span> Đơn hàng
+                </a>
+                <a href="/admin/products.html" class="nav-item">
+                    <span>📦</span> Sản phẩm
+                </a>
+                <a href="/admin/games.html" class="nav-item">
+                    <span>🎮</span> Games
+                </a>
+                <a href="/admin/contacts.html" class="nav-item">
+                    <span>📧</span> Liên hệ
+                </a>
+                <a href="#" onclick="logout()" class="nav-item">
+                    <span>🚪</span> Đăng xuất
+                </a>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <header class="admin-header">
+                <h1>Quản Lý Đơn Hàng</h1>
+            </header>
+
+            <div class="dashboard-section">
+                <div class="filter-bar">
+                    <select id="filter-status" class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="pending">Chờ xử lý</option>
+                        <option value="processing">Đang xử lý</option>
+                        <option value="completed">Hoàn thành</option>
+                        <option value="cancelled">Đã hủy</option>
+                    </select>
+
+                    <button class="btn btn-primary" onclick="loadOrders()">Lọc</button>
+                    <button class="btn btn-secondary" onclick="resetFilters()">Xóa bộ lọc</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Liên hệ</th>
+                                <th>Tổng tiền</th>
+                                <th>Thanh toán</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày đặt</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table">
+                            <tr>
+                                <td colspan="8" style="text-align: center;">Đang tải...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div id="order-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="order-detail-content"></div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script src="/admin/js/admin.js"></script>
+    <script>
+        async function loadOrders() {
+            const auth = checkAdminAuth();
+            if (!auth) return;
+
+            const status = document.getElementById('filter-status').value;
+            const params = status ? { status } : {};
+
+            try {
+                const result = await AdminAPI.getAllOrders(params);
+                
+                if (!result.success || !result.data || result.data.length === 0) {
+                    document.getElementById('orders-table').innerHTML = `
+                        <tr><td colspan="8" style="text-align: center;">Không có đơn hàng</td></tr>
+                    `;
+                    return;
+                }
+
+                displayOrders(result.data);
+            } catch (error) {
+                console.error('Load orders error:', error);
+                showNotification('Lỗi khi tải đơn hàng', 'error');
+            }
+        }
+
+        function displayOrders(orders) {
+            document.getElementById('orders-table').innerHTML = orders.map(order => `
+                <tr>
+                    <td><strong>${order.order_code}</strong></td>
+                    <td>${order.buyer_name}</td>
+                    <td>
+                        📞 ${order.buyer_phone}<br>
+                        ${order.buyer_email ? `📧 ${order.buyer_email}` : ''}
+                    </td>
+                    <td><strong>${formatCurrency(order.total_amount)}</strong></td>
+                    <td>
+                        ${order.payment_method === 'bank_transfer' ? '🏦' : '💰'}<br>
+                        <small>${getPaymentStatusText(order.payment_status)}</small>
+                    </td>
+                    <td>
+                        <select class="form-select" style="min-width: 130px;" onchange="updateStatus(${order.id}, this.value)">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Chờ xử lý</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Đang xử lý</option>
+                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Hoàn thành</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Đã hủy</option>
+                        </select>
+                    </td>
+                    <td><small>${formatDate(order.created_at)}</small></td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="viewOrderDetail(${order.id})">Chi tiết</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateStatus(orderId, newStatus) {
+            if (!confirm('Cập nhật trạng thái đơn hàng?')) {
+                loadOrders();
+                return;
+            }
+
+            try {
+                const result = await AdminAPI.updateOrderStatus(orderId, { status: newStatus });
+                
+                if (result.success) {
+                    showNotification('Đã cập nhật trạng thái', 'success');
+                } else {
+                    showNotification('Lỗi khi cập nhật', 'error');
+                    loadOrders();
+                }
+            } catch (error) {
+                console.error('Update status error:', error);
+                showNotification('Lỗi khi cập nhật', 'error');
+                loadOrders();
+            }
+        }
+
+        async function viewOrderDetail(orderId) {
+            try {
+                const result = await AdminAPI.getAllOrders();
+                const order = result.data.find(o => o.id === orderId);
+                
+                if (!order) {
+                    showNotification('Không tìm thấy đơn hàng', 'error');
+                    return;
+                }
+
+                document.getElementById('order-detail-content').innerHTML = `
+                    <h2>Chi Tiết Đơn Hàng</h2>
+                    <div style="margin: 20px 0;">
+                        <p><strong>Mã đơn:</strong> ${order.order_code}</p>
+                        <p><strong>Khách hàng:</strong> ${order.buyer_name}</p>
+                        <p><strong>SĐT:</strong> ${order.buyer_phone}</p>
+                        <p><strong>Email:</strong> ${order.buyer_email || 'N/A'}</p>
+                        <p><strong>Nickname game:</strong> ${order.game_nickname || 'N/A'}</p>
+                        <p><strong>Server:</strong> ${order.game_server || 'N/A'}</p>
+                        <p><strong>Tổng tiền:</strong> <span style="color: var(--primary-color); font-size: 20px;">${formatCurrency(order.total_amount)}</span></p>
+                        <p><strong>Ghi chú:</strong> ${order.note || 'Không có'}</p>
+                    </div>
+                `;
+                
+                document.getElementById('order-modal').style.display = 'flex';
+            } catch (error) {
+                console.error('View order error:', error);
+                showNotification('Lỗi khi xem chi tiết', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('order-modal').style.display = 'none';
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-status').value = '';
+            loadOrders();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,110 @@
+/* Game Page Specific Styles */
+
+.game-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 20px;
+    margin: 30px 0;
+    box-shadow: var(--shadow-lg);
+}
+
+.game-info {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.game-icon-large {
+    font-size: 100px;
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.game-details h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.game-details p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.filters-section {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
+    margin-top: 30px;
+}
+
+.no-results p {
+    font-size: 20px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+}
+
+/* Product Cards in Grid */
+.product-card {
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+}
+
+.product-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.product-actions .btn {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .game-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .game-icon-large {
+        font-size: 70px;
+    }
+
+    .game-details h1 {
+        font-size: 28px;
+    }
+
+    .filters-section {
+        grid-template-columns: 1fr;
+    }
+}

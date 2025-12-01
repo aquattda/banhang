@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vật phẩm Game - GameShop</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/game.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎮</span>
+                <span>GameShop</span>
+            </a>
+            
+            <button class="mobile-menu-toggle">☰</button>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/games.html">Danh mục game</a></li>
+                    <li><a href="/contact.html">Liên hệ</a></li>
+                </ul>
+            </nav>
+            
+            <a href="/cart.html" class="cart-icon">
+                🛒
+                <span class="cart-count">0</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Game Info -->
+            <div class="game-header" id="game-header">
+                <div class="loading">Đang tải thông tin game...</div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label>🏷️ Loại vật phẩm:</label>
+                    <select id="filter-category" class="form-select">
+                        <option value="">Tất cả</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>💰 Mức giá:</label>
+                    <select id="filter-price" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="0-50000">Dưới 50.000đ</option>
+                        <option value="50000-100000">50.000đ - 100.000đ</option>
+                        <option value="100000-200000">100.000đ - 200.000đ</option>
+                        <option value="200000-999999999">Trên 200.000đ</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>📊 Sắp xếp:</label>
+                    <select id="filter-sort" class="form-select">
+                        <option value="name-asc">Tên A-Z</option>
+                        <option value="name-desc">Tên Z-A</option>
+                        <option value="price-asc">Giá tăng dần</option>
+                        <option value="price-desc">Giá giảm dần</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="applyFilters()">Áp dụng</button>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="products-grid" class="grid grid-3 mt-4">
+                <div class="loading">Đang tải sản phẩm...</div>
+            </div>
+
+            <!-- No Results -->
+            <div id="no-results" class="no-results" style="display:none;">
+                <p>😢 Không tìm thấy sản phẩm phù hợp</p>
+                <button class="btn btn-secondary" onclick="resetFilters()">Xóa bộ lọc</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🎮 GameShop</h3>
+                    <p>Nền tảng mua vật phẩm game uy tín, nhanh chóng và an toàn nhất Việt Nam.</p>
+                    <div class="social-links">
+                        <a href="#" title="Facebook">📘</a>
+                        <a href="#" title="Zalo">💬</a>
+                        <a href="#" title="Email">📧</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Liên Hệ</h3>
+                    <p>📞 Hotline: 0123-456-789</p>
+                    <p>📧 Email: support@gameshop.vn</p>
+                    <p>💬 Zalo: 0123-456-789</p>
+                    <p>🕐 Hỗ trợ: 8:00 - 22:00 hàng ngày</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Chính Sách</h3>
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="#">Chính sách bảo mật</a>
+                    <a href="#">Hướng dẫn mua hàng</a>
+                    <a href="#">Câu hỏi thường gặp</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>⚠️ Lưu ý: Trang web không thuộc sở hữu của Roblox, Garena, hay bất kỳ nhà phát triển game nào. Chúng tôi chỉ cung cấp dịch vụ nạp vật phẩm hợp lệ.</p>
+                <p>&copy; 2025 GameShop. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/app.js"></script>
+    <script src="/js/game.js"></script>
+</body>
+</html>

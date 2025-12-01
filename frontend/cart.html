@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng - GameShop</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/cart.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎮</span>
+                <span>GameShop</span>
+            </a>
+            <button class="mobile-menu-toggle">☰</button>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/games.html">Danh mục game</a></li>
+                    <li><a href="/contact.html">Liên hệ</a></li>
+                </ul>
+            </nav>
+            <a href="/cart.html" class="cart-icon">
+                🛒
+                <span class="cart-count">0</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1 class="page-title">🛒 Giỏ Hàng Của Bạn</h1>
+
+            <div class="cart-container">
+                <!-- Cart Items -->
+                <div class="cart-items-section">
+                    <div id="cart-items">
+                        <!-- Cart items will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Checkout Form -->
+                <div class="checkout-section">
+                    <div class="cart-summary">
+                        <h2>📋 Tổng Đơn Hàng</h2>
+                        <div class="summary-row">
+                            <span>Tạm tính:</span>
+                            <span id="subtotal">0đ</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Tổng cộng:</span>
+                            <span id="total">0đ</span>
+                        </div>
+                    </div>
+
+                    <form id="checkout-form" class="checkout-form">
+                        <h3>👤 Thông Tin Khách Hàng</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Họ và tên *</label>
+                            <input type="text" name="buyer_name" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại *</label>
+                            <input type="tel" name="buyer_phone" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="buyer_email" class="form-input">
+                        </div>
+
+                        <h3>🎮 Thông Tin Trong Game</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Nickname / UID trong game</label>
+                            <input type="text" name="game_nickname" class="form-input" placeholder="VD: PlayerName123">
+                            <small class="form-hint">Để nhận vật phẩm vào tài khoản game</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Server / Khu vực</label>
+                            <input type="text" name="game_server" class="form-input" placeholder="VD: Việt Nam, Asia">
+                        </div>
+
+                        <h3>💳 Phương Thức Thanh Toán</h3>
+                        
+                        <div class="payment-methods">
+                            <label class="payment-option">
+                                <input type="radio" name="payment_method" value="bank_transfer" checked>
+                                <div class="payment-card">
+                                    <span class="payment-icon">🏦</span>
+                                    <span>Chuyển khoản ngân hàng</span>
+                                </div>
+                            </label>
+
+                            <label class="payment-option">
+                                <input type="radio" name="payment_method" value="momo">
+                                <div class="payment-card">
+                                    <span class="payment-icon">💰</span>
+                                    <span>Ví MoMo</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div id="payment-info" class="payment-info">
+                            <!-- Payment info will be shown here -->
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Ghi chú (tùy chọn)</label>
+                            <textarea name="note" class="form-textarea" placeholder="VD: Giao nhanh giúp em ạ"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                            Xác Nhận Đặt Hàng 🎉
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🎮 GameShop</h3>
+                    <p>Nền tảng mua vật phẩm game uy tín, nhanh chóng và an toàn nhất Việt Nam.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Liên Hệ</h3>
+                    <p>📞 Hotline: 0123-456-789</p>
+                    <p>📧 Email: support@gameshop.vn</p>
+                    <p>💬 Zalo: 0123-456-789</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GameShop. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/cart.js"></script>
+</body>
+</html>

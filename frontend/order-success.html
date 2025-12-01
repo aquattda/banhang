@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt hàng thành công - GameShop</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .success-container {
+            max-width: 700px;
+            margin: 60px auto;
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+        .success-icon {
+            font-size: 100px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .success-title {
+            font-size: 32px;
+            color: var(--success);
+            margin-bottom: 15px;
+        }
+        .order-code-box {
+            background: linear-gradient(135deg, #51CF66, #69DB7C);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        .order-code {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .order-info {
+            background: var(--light-bg);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: left;
+            margin: 20px 0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .next-steps {
+            text-align: left;
+            margin: 30px 0;
+        }
+        .next-steps h3 {
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+        .next-steps ol {
+            padding-left: 20px;
+        }
+        .next-steps li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎮</span>
+                <span>GameShop</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="success-container" id="order-details">
+                <div class="loading">Đang tải thông tin đơn hàng...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 GameShop. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadOrderDetails() {
+            const orderCode = getUrlParameter('code');
+            
+            if (!orderCode) {
+                document.getElementById('order-details').innerHTML = `
+                    <div class="success-icon">❌</div>
+                    <h1 class="success-title">Không tìm thấy đơn hàng</h1>
+                    <a href="/" class="btn btn-primary mt-3">Về trang chủ</a>
+                `;
+                return;
+            }
+
+            try {
+                const result = await API.getOrderByCode(orderCode);
+                
+                if (result.success) {
+                    displayOrderSuccess(result.data);
+                } else {
+                    throw new Error('Order not found');
+                }
+            } catch (error) {
+                console.error('Load order error:', error);
+                document.getElementById('order-details').innerHTML = `
+                    <div class="success-icon">❌</div>
+                    <h1 class="success-title">Lỗi khi tải đơn hàng</h1>
+                    <a href="/" class="btn btn-primary mt-3">Về trang chủ</a>
+                `;
+            }
+        }
+
+        function displayOrderSuccess(order) {
+            const paymentMethods = {
+                'bank_transfer': '🏦 Chuyển khoản ngân hàng',
+                'momo': '💰 Ví MoMo'
+            };
+
+            document.getElementById('order-details').innerHTML = `
+                <div class="success-icon">🎉</div>
+                <h1 class="success-title">Đặt Hàng Thành Công!</h1>
+                <p>Cảm ơn bạn đã mua hàng tại GameShop</p>
+
+                <div class="order-code-box">
+                    <div>Mã đơn hàng của bạn</div>
+                    <div class="order-code">${order.order_code}</div>
+                </div>
+
+                <div class="order-info">
+                    <div class="info-row">
+                        <strong>👤 Tên khách hàng:</strong>
+                        <span>${order.buyer_name}</span>
+                    </div>
+                    <div class="info-row">
+                        <strong>📞 Số điện thoại:</strong>
+                        <span>${order.buyer_phone}</span>
+                    </div>
+                    <div class="info-row">
+                        <strong>💳 Phương thức thanh toán:</strong>
+                        <span>${paymentMethods[order.payment_method]}</span>
+                    </div>
+                    <div class="info-row">
+                        <strong>💰 Tổng tiền:</strong>
+                        <span style="color: var(--primary-color); font-size: 20px; font-weight: bold;">
+                            ${formatCurrency(order.total_amount)}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <strong>📊 Trạng thái:</strong>
+                        <span style="color: var(--warning);">⏳ ${getStatusText(order.status)}</span>
+                    </div>
+                </div>
+
+                <div class="next-steps">
+                    <h3>📋 Các bước tiếp theo:</h3>
+                    <ol>
+                        <li><strong>Thanh toán:</strong> Chuyển khoản theo thông tin đã cung cấp với nội dung: <strong>GAMESHOP ${order.buyer_phone}</strong></li>
+                        <li><strong>Xác nhận:</strong> Sau khi chuyển khoản, chụp ảnh bill và gửi qua Zalo: <strong>0123-456-789</strong> kèm mã đơn hàng</li>
+                        <li><strong>Nhận hàng:</strong> Đơn hàng sẽ được xử lý trong 5-15 phút sau khi xác nhận thanh toán</li>
+                    </ol>
+                </div>
+
+                <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+                    <a href="/" class="btn btn-secondary">Về trang chủ</a>
+                    <a href="https://zalo.me/0123456789" target="_blank" class="btn btn-primary">
+                        Liên hệ Zalo 💬
+                    </a>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                    ⚠️ Lưu ý: Vui lòng lưu lại mã đơn hàng <strong>${order.order_code}</strong> để tra cứu sau này
+                </div>
+            `;
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Chờ thanh toán',
+                'processing': 'Đang xử lý',
+                'completed': 'Hoàn thành',
+                'cancelled': 'Đã hủy'
+            };
+            return statusMap[status] || status;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadOrderDetails);
+    </script>
+</body>
+</html>

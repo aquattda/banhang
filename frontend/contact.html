@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liên hệ - GameShop</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .contact-container {
+            max-width: 1000px;
+            margin: 50px auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        .contact-info {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+        .contact-info h2 {
+            color: var(--text-dark);
+            margin-bottom: 25px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .contact-icon {
+            font-size: 30px;
+            min-width: 40px;
+        }
+        .contact-details h3 {
+            font-size: 16px;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+        .contact-details p {
+            color: var(--text-light);
+            margin: 0;
+        }
+        .contact-form {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+        .contact-form h2 {
+            color: var(--text-dark);
+            margin-bottom: 25px;
+        }
+        .faq-section {
+            max-width: 1000px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+        .faq-item {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-question {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+        .faq-answer {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+        @media (max-width: 768px) {
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎮</span>
+                <span>GameShop</span>
+            </a>
+            <button class="mobile-menu-toggle">☰</button>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/games.html">Danh mục game</a></li>
+                    <li><a href="/contact.html">Liên hệ</a></li>
+                </ul>
+            </nav>
+            <a href="/cart.html" class="cart-icon">
+                🛒
+                <span class="cart-count">0</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1 class="page-title">📞 Liên Hệ Với Chúng Tôi</h1>
+
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h2>Thông Tin Liên Hệ</h2>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">📞</div>
+                        <div class="contact-details">
+                            <h3>Hotline</h3>
+                            <p>0123-456-789</p>
+                            <p style="font-size: 12px;">Hỗ trợ 8:00 - 22:00 hàng ngày</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">💬</div>
+                        <div class="contact-details">
+                            <h3>Zalo</h3>
+                            <p>0123-456-789</p>
+                            <a href="https://zalo.me/0123456789" target="_blank" class="btn btn-primary btn-sm mt-1">
+                                Chat ngay
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">📘</div>
+                        <div class="contact-details">
+                            <h3>Facebook</h3>
+                            <p>fb.com/GameShopVN</p>
+                            <a href="#" target="_blank" class="btn btn-secondary btn-sm mt-1">
+                                Theo dõi
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-details">
+                            <h3>Email</h3>
+                            <p>support@gameshop.vn</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <h2>Gửi Tin Nhắn</h2>
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <label class="form-label">Họ và tên *</label>
+                            <input type="text" name="name" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại *</label>
+                            <input type="tel" name="phone" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Nội dung *</label>
+                            <textarea name="message" class="form-textarea" required placeholder="Bạn cần hỗ trợ gì?"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                            Gửi tin nhắn 📨
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="faq-section">
+                <h2 style="text-align: center; margin-bottom: 40px;">❓ Câu Hỏi Thường Gặp (FAQ)</h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">🕐 Thời gian xử lý đơn hàng bao lâu?</div>
+                    <div class="faq-answer">Đơn hàng sẽ được xử lý trong vòng 5-15 phút sau khi chúng tôi xác nhận thanh toán thành công.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">🔒 Tôi có cần cung cấp mật khẩu game không?</div>
+                    <div class="faq-answer">KHÔNG! Chúng tôi không bao giờ yêu cầu mật khẩu game của bạn. Chỉ cần Nickname/UID và Server.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">💳 Có những phương thức thanh toán nào?</div>
+                    <div class="faq-answer">Chúng tôi hỗ trợ chuyển khoản ngân hàng và ví điện tử MoMo.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">🔄 Tôi có thể hoàn tiền không?</div>
+                    <div class="faq-answer">Đơn hàng có thể được hoàn tiền nếu chưa xử lý. Vui lòng liên hệ Zalo ngay sau khi đặt hàng nếu muốn hủy.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">📱 Làm sao để tra cứu đơn hàng?</div>
+                    <div class="faq-answer">Bạn có thể liên hệ qua Zalo kèm mã đơn hàng để tra cứu tình trạng.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">✅ Sản phẩm có chính hãng không?</div>
+                    <div class="faq-answer">Tất cả vật phẩm đều được nạp chính hãng, an toàn và không vi phạm điều khoản của game.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🎮 GameShop</h3>
+                    <p>Nền tảng mua vật phẩm game uy tín, nhanh chóng và an toàn nhất Việt Nam.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Liên Hệ</h3>
+                    <p>📞 Hotline: 0123-456-789</p>
+                    <p>📧 Email: support@gameshop.vn</p>
+                    <p>💬 Zalo: 0123-456-789</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GameShop. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const contactData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                message: formData.get('message')
+            };
+
+            try {
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.textContent = 'Đang gửi...';
+                submitBtn.disabled = true;
+
+                const result = await API.sendContact(contactData);
+
+                if (result.success) {
+                    showNotification('Gửi tin nhắn thành công! Chúng tôi sẽ phản hồi sớm nhất.', 'success');
+                    e.target.reset();
+                } else {
+                    showNotification('Lỗi khi gửi tin nhắn', 'error');
+                }
+
+                submitBtn.textContent = 'Gửi tin nhắn 📨';
+                submitBtn.disabled = false;
+            } catch (error) {
+                console.error('Send contact error:', error);
+                showNotification('Lỗi khi gửi tin nhắn', 'error');
+                
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.textContent = 'Gửi tin nhắn 📨';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
