@@ -14,7 +14,10 @@ const getProducts = async (req, res) => {
         } = req.query;
         
         let query = `
-            SELECT p.*, g.name as game_name, g.slug as game_slug, c.name as category_name 
+            SELECT p.product_id as id, p.game_id, p.category_id, p.name, p.description, 
+                   p.price, p.unit, p.image_url, p.stock_quantity, p.is_featured, 
+                   p.is_active, p.created_at, p.updated_at,
+                   g.name as game_name, g.slug as game_slug, c.name as category_name 
             FROM products p 
             JOIN games g ON p.game_id = g.game_id 
             JOIN categories c ON p.category_id = c.category_id 
@@ -61,18 +64,23 @@ const getProducts = async (req, res) => {
 // Lấy sản phẩm nổi bật
 const getFeaturedProducts = async (req, res) => {
     try {
+        console.log('Fetching featured products...');
         const [products] = await db.query(`
-            SELECT p.*, g.name as game_name, g.slug as game_slug 
+            SELECT p.product_id as id, p.game_id, p.category_id, p.name, p.description, 
+                   p.price, p.unit, p.image_url, p.stock_quantity, p.is_featured, 
+                   p.is_active, p.created_at, p.updated_at,
+                   g.name as game_name, g.slug as game_slug 
             FROM products p 
             JOIN games g ON p.game_id = g.game_id 
-            WHERE p.is_active = TRUE AND p.is_featured = TRUE 
-            ORDER BY p.created_at DESC 
+            WHERE p.is_active = TRUE 
+            ORDER BY p.is_featured DESC, p.created_at DESC 
             LIMIT 8
         `);
+        console.log(`Found ${products.length} products`);
         res.json({ success: true, data: products });
     } catch (error) {
         console.error('Get featured products error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        res.status(500).json({ success: false, error: 'Server error', message: error.message });
     }
 };
 
@@ -80,7 +88,10 @@ const getFeaturedProducts = async (req, res) => {
 const getLatestProducts = async (req, res) => {
     try {
         const [products] = await db.query(`
-            SELECT p.*, g.name as game_name, g.slug as game_slug 
+            SELECT p.product_id as id, p.game_id, p.category_id, p.name, p.description, 
+                   p.price, p.unit, p.image_url, p.stock_quantity, p.is_featured, 
+                   p.is_active, p.created_at, p.updated_at,
+                   g.name as game_name, g.slug as game_slug 
             FROM products p 
             JOIN games g ON p.game_id = g.game_id 
             WHERE p.is_active = TRUE 
@@ -90,7 +101,7 @@ const getLatestProducts = async (req, res) => {
         res.json({ success: true, data: products });
     } catch (error) {
         console.error('Get latest products error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        res.status(500).json({ success: false, error: 'Server error', message: error.message });
     }
 };
 
@@ -99,7 +110,10 @@ const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
         const [products] = await db.query(`
-            SELECT p.*, g.name as game_name, g.slug as game_slug, c.name as category_name 
+            SELECT p.product_id as id, p.game_id, p.category_id, p.name, p.description, 
+                   p.price, p.unit, p.image_url, p.stock_quantity, p.is_featured, 
+                   p.is_active, p.created_at, p.updated_at,
+                   g.name as game_name, g.slug as game_slug, c.name as category_name 
             FROM products p 
             JOIN games g ON p.game_id = g.game_id 
             JOIN categories c ON p.category_id = c.category_id 

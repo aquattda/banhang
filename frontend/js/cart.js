@@ -52,9 +52,15 @@ function updateCartSummary() {
 
 function updateQuantity(productId, newQuantity) {
     if (newQuantity < 1) {
-        if (confirm('Bạn có muốn xóa sản phẩm này khỏi giỏ hàng?')) {
-            removeFromCart(productId);
-        }
+        showModal({
+            title: 'Xác nhận',
+            message: 'Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?',
+            icon: '🗑️',
+            confirmText: 'Xóa',
+            cancelText: 'Hủy',
+            showCancel: true,
+            onConfirm: () => removeFromCart(productId)
+        });
         return;
     }
 

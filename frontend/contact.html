@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liên hệ - GameShop</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/home.css">
     <style>
         .contact-container {
             max-width: 1000px;
@@ -87,23 +88,23 @@
 </head>
 <body>
     <header class="header">
-        <div class="container header-content">
-            <a href="/" class="logo">
-                <span class="logo-icon">🎮</span>
-                <span>GameShop</span>
-            </a>
-            <button class="mobile-menu-toggle">☰</button>
-            <nav>
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">🎮 <span>GameShop</span></a>
+                
                 <ul class="nav-menu">
                     <li><a href="/">Trang chủ</a></li>
-                    <li><a href="/games.html">Danh mục game</a></li>
-                    <li><a href="/contact.html">Liên hệ</a></li>
+                    <li><a href="/games.html">Danh mục Game</a></li>
+                    <li><a href="/contact.html" class="active">Liên hệ</a></li>
                 </ul>
+
+                <div class="nav-actions">
+                    <a href="/cart.html" class="cart-btn">
+                        🛒 Giỏ hàng
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                </div>
             </nav>
-            <a href="/cart.html" class="cart-icon">
-                🛒
-                <span class="cart-count">0</span>
-            </a>
         </div>
     </header>
 

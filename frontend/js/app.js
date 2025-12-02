@@ -64,7 +64,7 @@ const Cart = {
 // Update cart count in header
 function updateCartCount() {
     const cart = Cart.get();
-    const count = cart.reduce((total, item) => total + item.quantity, 0);
+    const count = cart.length; // Đếm số loại sản phẩm, không phải tổng số lượng
     const cartCountEl = document.querySelector('.cart-count');
     if (cartCountEl) {
         cartCountEl.textContent = count;
@@ -196,22 +196,122 @@ const API = {
     }
 };
 
+// Custom Modal Dialog
+function showModal(options) {
+    const {
+        title = 'Thông báo',
+        message = '',
+        icon = '✓',
+        confirmText = 'OK',
+        cancelText = 'Hủy',
+        onConfirm = () => {},
+        onCancel = () => {},
+        showCancel = false,
+        showSnooze = false, // Thêm option để hiện nút tắt thông báo
+        onSnooze = () => {}
+    } = options;
+
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-modal-overlay';
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+    modal.innerHTML = `
+        <div class="custom-modal-icon ${showCancel ? 'warning' : 'success'}">${icon}</div>
+        <h3 class="custom-modal-title">${title}</h3>
+        <p class="custom-modal-message">${message}</p>
+        <div class="custom-modal-buttons">
+            ${showCancel ? `<button class="custom-modal-btn cancel-btn">${cancelText}</button>` : ''}
+            <button class="custom-modal-btn confirm-btn">${confirmText}</button>
+        </div>
+        ${showSnooze ? '<button class="custom-modal-snooze">🔕 Đừng hiện lại trong 1 giờ</button>' : ''}
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    
+    // Animate in
+    setTimeout(() => {
+        overlay.classList.add('show');
+        modal.classList.add('show');
+    }, 10);
+    
+    // Button handlers
+    const confirmBtn = modal.querySelector('.confirm-btn');
+    const cancelBtn = modal.querySelector('.cancel-btn');
+    const snoozeBtn = modal.querySelector('.custom-modal-snooze');
+    
+    const closeModal = () => {
+        overlay.classList.remove('show');
+        modal.classList.remove('show');
+        setTimeout(() => overlay.remove(), 300);
+    };
+    
+    confirmBtn.addEventListener('click', () => {
+        onConfirm();
+        closeModal();
+    });
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            onCancel();
+            closeModal();
+        });
+    }
+    
+    if (snoozeBtn) {
+        snoozeBtn.addEventListener('click', () => {
+            onSnooze();
+            closeModal();
+        });
+    }
+    
+    // Click outside to close
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            onCancel();
+            closeModal();
+        }
+    });
+}
+
 // Notification system
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
-    notification.className = `alert alert-${type}`;
-    notification.style.position = 'fixed';
-    notification.style.top = '80px';
-    notification.style.right = '20px';
-    notification.style.zIndex = '9999';
-    notification.style.minWidth = '300px';
-    notification.style.animation = 'slideIn 0.3s ease';
-    notification.textContent = message;
+    notification.className = `custom-notification ${type}`;
+    
+    const icons = {
+        success: '✓',
+        error: '✗',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    notification.innerHTML = `
+        <div class="notification-icon">${icons[type] || icons.info}</div>
+        <div class="notification-content">
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close">×</button>
+    `;
     
     document.body.appendChild(notification);
     
+    // Animate in
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Close button
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    });
+    
+    // Auto close
     setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
+        notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
@@ -258,30 +358,3 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     initMobileMenu();
 });
-
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);

@@ -50,6 +50,13 @@ body {
     align-items: center;
 }
 
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
 .logo {
     font-size: 28px;
     font-weight: bold;
@@ -58,6 +65,7 @@ body {
     gap: 10px;
     text-decoration: none;
     color: white;
+    flex: 0 0 200px; /* Logo chiếm 200px bên trái */
 }
 
 .logo-icon {
@@ -68,6 +76,8 @@ body {
     display: flex;
     gap: 30px;
     list-style: none;
+    justify-content: center;
+    flex: 1; /* Menu chiếm phần giữa */
 }
 
 .nav-menu a {
@@ -82,6 +92,39 @@ body {
 
 .nav-menu a:hover {
     background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-menu a.active {
+    background-color: rgba(255, 255, 255, 0.3);
+    font-weight: 700;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 200px; /* Giỏ hàng chiếm 200px bên phải */
+}
+
+.cart-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    transition: all 0.3s;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cart-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .cart-icon {
@@ -405,6 +448,232 @@ body {
 .mb-2 { margin-bottom: 20px; }
 .mb-3 { margin-bottom: 30px; }
 .mb-4 { margin-bottom: 40px; }
+
+/* Custom Modal */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.custom-modal-overlay.show {
+    opacity: 1;
+}
+
+.custom-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 30px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.custom-modal.show {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.custom-modal-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 48px;
+    animation: bounceIn 0.6s ease;
+}
+
+.custom-modal-icon.success {
+    background: linear-gradient(135deg, #51CF66 0%, #37B24D 100%);
+    color: white;
+}
+
+.custom-modal-icon.warning {
+    background: linear-gradient(135deg, #FFA94D 0%, #FF8C42 100%);
+    color: white;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.custom-modal-title {
+    font-size: 24px;
+    color: #2C3E50;
+    margin: 0 0 10px 0;
+    font-weight: 700;
+}
+
+.custom-modal-message {
+    font-size: 16px;
+    color: #6C757D;
+    line-height: 1.6;
+    margin: 0 0 30px 0;
+}
+
+.custom-modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.custom-modal-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.custom-modal-btn.confirm-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.custom-modal-btn.confirm-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.custom-modal-btn.cancel-btn {
+    background: #E9ECEF;
+    color: #495057;
+}
+
+.custom-modal-btn.cancel-btn:hover {
+    background: #DEE2E6;
+    transform: translateY(-2px);
+}
+
+.custom-modal-snooze {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 2px dashed #CED4DA;
+    border-radius: 8px;
+    color: #6C757D;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.custom-modal-snooze:hover {
+    border-color: #FFA94D;
+    color: #FFA94D;
+    background: rgba(255, 169, 77, 0.05);
+}
+
+/* Custom Notification */
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 320px;
+    max-width: 400px;
+    z-index: 9999;
+    transform: translateX(450px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.custom-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.custom-notification.success .notification-icon {
+    background: linear-gradient(135deg, #51CF66 0%, #37B24D 100%);
+    color: white;
+}
+
+.custom-notification.error .notification-icon {
+    background: linear-gradient(135deg, #FF6B6B 0%, #EE5A52 100%);
+    color: white;
+}
+
+.custom-notification.warning .notification-icon {
+    background: linear-gradient(135deg, #FFA94D 0%, #FF8C42 100%);
+    color: white;
+}
+
+.custom-notification.info .notification-icon {
+    background: linear-gradient(135deg, #4ECDC4 0%, #44A8A0 100%);
+    color: white;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-message {
+    font-size: 15px;
+    color: #2C3E50;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.notification-close {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    color: #ADB5BD;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.notification-close:hover {
+    color: #495057;
+    transform: rotate(90deg);
+}
 
 .p-1 { padding: 10px; }
 .p-2 { padding: 20px; }

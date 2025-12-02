@@ -139,6 +139,108 @@
     color: #856404;
 }
 
+/* Products List View */
+.products-list-container {
+    margin: 40px 0;
+}
+
+.products-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+}
+
+.products-header h1 {
+    font-size: 32px;
+    color: var(--text-dark);
+    margin: 15px 0;
+}
+
+.products-header p {
+    color: var(--text-light);
+    font-size: 16px;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.product-card-image {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-card-image .no-image {
+    font-size: 80px;
+}
+
+.product-card-body {
+    padding: 20px;
+}
+
+.product-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 10px 0;
+    min-height: 48px;
+    line-height: 1.4;
+}
+
+.product-card-price {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 15px 0;
+}
+
+.breadcrumb {
+    color: var(--text-light);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.breadcrumb a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.breadcrumb a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     .product-container {
         grid-template-columns: 1fr;
@@ -158,5 +260,18 @@
 
     .product-price {
         font-size: 30px;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .product-card-image {
+        height: 180px;
+    }
+
+    .products-header h1 {
+        font-size: 24px;
     }
 }
