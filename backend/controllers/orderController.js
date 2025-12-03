@@ -7,19 +7,21 @@ const createOrder = async (req, res) => {
     try {
         await connection.beginTransaction();
         
+        console.log('=== CREATE ORDER REQUEST ===');
+        console.log('Body:', JSON.stringify(req.body, null, 2));
+        
         const {
             buyer_name,
             buyer_phone,
             buyer_email,
-            game_nickname,
-            game_server,
             payment_method,
             note,
             items // Array: [{ product_id, quantity }]
         } = req.body;
         
         // Validate
-        if (!buyer_name || !buyer_phone || !payment_method || !items || items.length === 0) {
+        if (!buyer_name || !buyer_phone || !items || items.length === 0) {
+            console.log('Validation failed:', { buyer_name, buyer_phone, items_length: items?.length });
             await connection.rollback();
             return res.status(400).json({ success: false, error: 'Missing required fields' });
         }
@@ -30,7 +32,7 @@ const createOrder = async (req, res) => {
         
         for (const item of items) {
             const [products] = await connection.query(
-                'SELECT id, name, price, stock FROM products WHERE id = ? AND is_active = TRUE',
+                'SELECT product_id, name, price, stock_quantity FROM products WHERE product_id = ? AND is_active = TRUE',
                 [item.product_id]
             );
             
@@ -42,7 +44,7 @@ const createOrder = async (req, res) => {
             const product = products[0];
             
             // Kiểm tra stock
-            if (product.stock < item.quantity) {
+            if (product.stock_quantity < item.quantity) {
                 await connection.rollback();
                 return res.status(400).json({ success: false, error: `Not enough stock for ${product.name}` });
             }
@@ -51,7 +53,7 @@ const createOrder = async (req, res) => {
             total_amount += subtotal;
             
             orderItems.push({
-                product_id: product.id,
+                product_id: product.product_id,
                 product_name: product.name,
                 quantity: item.quantity,
                 price: product.price,
@@ -64,9 +66,9 @@ const createOrder = async (req, res) => {
         
         // Insert order
         const [orderResult] = await connection.query(
-            `INSERT INTO orders (order_code, buyer_name, buyer_phone, buyer_email, game_nickname, game_server, 
-             total_amount, payment_method, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [order_code, buyer_name, buyer_phone, buyer_email, game_nickname, game_server, total_amount, payment_method, note]
+            `INSERT INTO orders (order_code, customer_name, customer_phone, customer_email, 
+             total_amount, notes) VALUES (?, ?, ?, ?, ?, ?)`,
+            [order_code, buyer_name, buyer_phone, buyer_email || '', total_amount, note || '']
         );
         
         const order_id = orderResult.insertId;
@@ -101,7 +103,8 @@ const createOrder = async (req, res) => {
     } catch (error) {
         await connection.rollback();
         console.error('Create order error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ success: false, error: 'Server error', message: error.message });
     } finally {
         connection.release();
     }
@@ -165,9 +168,22 @@ const getAllOrders = async (req, res) => {
 
 // Admin: Cập nhật trạng thái đơn hàng
 const updateOrderStatus = async (req, res) => {
+    const connection = await db.getConnection();
+    
     try {
+        await connection.beginTransaction();
+        
         const { id } = req.params;
         const { status, payment_status, note } = req.body;
+        
+        // Lấy trạng thái cũ của đơn hàng
+        const [orders] = await connection.query('SELECT status FROM orders WHERE order_id = ?', [id]);
+        if (orders.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+        
+        const oldStatus = orders[0].status;
         
         let query = 'UPDATE orders SET';
         const params = [];
@@ -184,22 +200,49 @@ const updateOrderStatus = async (req, res) => {
         }
         
         if (note !== undefined) {
-            updates.push(' note = ?');
+            updates.push(' notes = ?');
             params.push(note);
         }
         
         if (updates.length === 0) {
+            await connection.rollback();
             return res.status(400).json({ success: false, error: 'No fields to update' });
         }
         
-        query += updates.join(',') + ' WHERE id = ?';
+        query += updates.join(',') + ' WHERE order_id = ?';
         params.push(id);
         
-        await db.query(query, params);
+        await connection.query(query, params);
+        
+        // Nếu đơn hàng chuyển sang "completed", cập nhật sold_count và payment_status
+        if (status === 'completed' && oldStatus !== 'completed') {
+            // Tự động set thanh toán = đã thanh toán
+            await connection.query(
+                'UPDATE orders SET payment_status = "paid" WHERE order_id = ?',
+                [id]
+            );
+            
+            const [orderItems] = await connection.query(
+                'SELECT product_id, quantity FROM order_items WHERE order_id = ?',
+                [id]
+            );
+            
+            for (const item of orderItems) {
+                await connection.query(
+                    'UPDATE products SET sold_count = sold_count + ? WHERE product_id = ?',
+                    [item.quantity, item.product_id]
+                );
+            }
+        }
+        
+        await connection.commit();
         res.json({ success: true, message: 'Order updated' });
     } catch (error) {
+        await connection.rollback();
         console.error('Update order error:', error);
         res.status(500).json({ success: false, error: 'Server error' });
+    } finally {
+        connection.release();
     }
 };
 

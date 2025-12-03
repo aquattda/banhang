@@ -48,20 +48,19 @@
                         class="form-select" 
                         placeholder="🔍 Tìm tên sản phẩm..."
                         style="min-width: 250px;"
-                        onkeyup="handleSearchEnter(event)"
+                        oninput="loadProducts()"
                     >
                     
-                    <select id="filter-game" class="form-select">
+                    <select id="filter-game" class="form-select" onchange="loadProducts()">
                         <option value="">Tất cả game</option>
                     </select>
 
-                    <select id="filter-active" class="form-select">
+                    <select id="filter-active" class="form-select" onchange="loadProducts()">
                         <option value="">Tất cả trạng thái</option>
                         <option value="1">Đang bán</option>
                         <option value="0">Ngừng bán</option>
                     </select>
 
-                    <button class="btn btn-primary" onclick="loadProducts()">🔍 Lọc</button>
                     <button class="btn btn-secondary" onclick="resetFilters()">✖️ Xóa bộ lọc</button>
                 </div>
 
@@ -69,22 +68,23 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Hình ảnh</th>
-                            <th>Tên sản phẩm</th>
-                            <th>Game</th>
-                            <th>Giá</th>
-                            <th>Đơn vị</th>
-                            <th>Tồn kho</th>
-                            <th>Nổi bật</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
+                            <th style="width: 70px; text-align: center;">ID</th>
+                            <th style="width: 90px; text-align: center;">HÌNH ẢNH</th>
+                            <th style="min-width: 250px;">TÊN SẢN PHẨM</th>
+                            <th style="width: 170px; text-align: left;">GAME</th>
+                            <th style="width: 120px; text-align: right;">GIÁ</th>
+                            <th style="width: 130px; text-align: center;">TRẠNG THÁI</th>
+                            <th style="width: 130px; text-align: center;">THAO TÁC</th>
                         </tr>
                     </thead>
                     <tbody id="products-table">
-                        <tr><td colspan="10" style="text-align: center;">Đang tải...</td></tr>
+                        <tr><td colspan="7" style="text-align: center;">Đang tải...</td></tr>
                     </tbody>
                 </table>
+
+                <div class="pagination" id="products-pagination" style="margin-top: 20px; text-align: center;">
+                    <!-- Pagination will be rendered here -->
+                </div>
             </div>
         </main>
     </div>
@@ -174,6 +174,8 @@
         let allGames = [];
         let allCategories = [];
         let currentProducts = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
 
         async function loadGamesAndCategories() {
             try {
@@ -241,11 +243,14 @@
                 
                 if (!result.success || !result.data) {
                     document.getElementById('products-table').innerHTML = 
-                        '<tr><td colspan="10" style="text-align: center;">Không có sản phẩm</td></tr>';
+                        '<tr><td colspan="7" style="text-align: center;">Không có sản phẩm</td></tr>';
                     return;
                 }
 
                 let products = result.data;
+
+                // Sắp xếp theo product_id giảm dần (mới nhất trên cùng)
+                products.sort((a, b) => b.product_id - a.product_id);
 
                 // Lọc theo tên
                 if (searchTerm) {
@@ -265,10 +270,12 @@
                 }
 
                 currentProducts = products;
+                currentPage = 1;
 
                 if (products.length === 0) {
                     document.getElementById('products-table').innerHTML = 
-                        '<tr><td colspan="10" style="text-align: center;">Không tìm thấy sản phẩm</td></tr>';
+                        '<tr><td colspan="7" style="text-align: center;">Không tìm thấy sản phẩm</td></tr>';
+                    document.getElementById('products-pagination').innerHTML = '';
                     return;
                 }
 
@@ -280,34 +287,86 @@
         }
 
         function displayProducts(products) {
+            const totalPages = Math.ceil(products.length / itemsPerPage);
+            
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+            if (currentPage < 1) {
+                currentPage = 1;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedProducts = products.slice(startIndex, endIndex);
+
             const tbody = document.getElementById('products-table');
-            tbody.innerHTML = products.map(product => `
+            tbody.innerHTML = paginatedProducts.map(product => `
                 <tr>
-                    <td>${product.product_id}</td>
-                    <td><img src="${product.image_url || '../images/placeholder.jpg'}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
-                    <td>${product.name}</td>
-                    <td>${product.game_name || 'N/A'}</td>
-                    <td>${formatCurrency(product.price)}</td>
-                    <td>${product.unit}</td>
-                    <td>${product.stock_quantity}</td>
-                    <td>${product.is_featured ? '<span style="color: gold;">⭐</span>' : '-'}</td>
-                    <td>
+                    <td style="text-align: center; padding: 12px 8px;"><strong style="color: #667eea;">#${product.product_id || 'N/A'}</strong></td>
+                    <td style="text-align: center; padding: 8px;">
+                        <img src="${product.image_url || '../images/placeholder.jpg'}" 
+                             alt="${product.name}" 
+                             style="width: 55px; height: 55px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0; display: block; margin: 0 auto;">
+                    </td>
+                    <td style="padding: 12px 15px;">
+                        <strong style="color: #333; font-size: 14px;">${product.name}</strong>
+                        <br>
+                        <small style="color: #999; font-size: 12px;">${product.unit ? product.price + ' ' + product.unit : ''}</small>
+                    </td>
+                    <td style="padding: 12px 15px; color: #555;">${product.game_name || 'N/A'}</td>
+                    <td style="text-align: right; padding: 12px 15px;">
+                        <strong style="color: #28a745; font-size: 14px;">${formatCurrency(product.price)}</strong>
+                    </td>
+                    <td style="text-align: center; padding: 12px 8px;">
                         <span class="badge ${product.is_active ? 'badge-success' : 'badge-secondary'}">
-                            ${product.is_active ? 'Đang bán' : 'Ngừng bán'}
+                            ${product.is_active ? '✓ Đang bán' : '✕ Ngừng bán'}
                         </span>
                     </td>
-                    <td>
-                        <button class="btn-small btn-primary" onclick="editProduct(${product.product_id})">✏️</button>
-                        <button class="btn-small btn-danger" onclick="deleteProduct(${product.product_id}, '${product.name}')">🗑️</button>
+                    <td style="text-align: center; padding: 12px 8px;">
+                        <button class="btn-small btn-primary" onclick="editProduct(${product.product_id})" title="Chỉnh sửa">✏️</button>
+                        <button class="btn-small btn-danger" onclick="deleteProduct(${product.product_id}, '${product.name}')" title="Xóa">🗑️</button>
                     </td>
                 </tr>
             `).join('');
+
+            renderProductsPagination(products.length);
+        }
+
+        function renderProductsPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+            let paginationHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <button class="btn btn-secondary btn-sm" onclick="changeProductPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                        ← Trang trước
+                    </button>
+                    <span style="font-size: 14px;">
+                        Hiển thị ${startItem}-${endItem} trong tổng ${totalItems} sản phẩm | Trang ${currentPage}/${totalPages}
+                    </span>
+                    <button class="btn btn-secondary btn-sm" onclick="changeProductPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                        Trang sau →
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('products-pagination').innerHTML = paginationHTML;
+        }
+
+        function changeProductPage(page) {
+            const totalPages = Math.ceil(currentProducts.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            displayProducts(currentProducts);
         }
 
         function resetFilters() {
             document.getElementById('search-product').value = '';
             document.getElementById('filter-game').value = '';
             document.getElementById('filter-active').value = '';
+            currentPage = 1;
             loadProducts();
         }
 
@@ -498,12 +557,17 @@
                 border-top: 1px solid #e0e0e0;
             }
             .btn-small {
-                padding: 4px 8px;
-                font-size: 14px;
-                margin: 0 2px;
+                padding: 6px 12px;
+                font-size: 16px;
+                margin: 0 4px;
                 border: none;
-                border-radius: 4px;
+                border-radius: 6px;
                 cursor: pointer;
+                transition: all 0.2s;
+            }
+            .btn-small:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             }
             .btn-danger {
                 background: #dc3545;
@@ -513,10 +577,11 @@
                 background: #c82333;
             }
             .badge {
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 12px;
-                font-weight: 500;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-block;
             }
             .badge-success {
                 background: #28a745;
@@ -525,6 +590,43 @@
             .badge-secondary {
                 background: #6c757d;
                 color: white;
+            }
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            .data-table thead {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .data-table thead th {
+                padding: 14px 10px;
+                font-weight: 600;
+                color: white;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border-right: 1px solid rgba(255,255,255,0.1);
+            }
+            .data-table thead th:last-child {
+                border-right: none;
+            }
+            .data-table tbody tr {
+                border-bottom: 1px solid #f0f0f0;
+                transition: background 0.2s;
+            }
+            .data-table tbody tr:hover {
+                background: #f8f9ff;
+            }
+            .data-table tbody td {
+                vertical-align: middle;
+                border-right: 1px solid #f5f5f5;
+            }
+            .data-table tbody td:last-child {
+                border-right: none;
             }
         `;
         document.head.appendChild(style);

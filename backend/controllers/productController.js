@@ -14,14 +14,14 @@ const getProducts = async (req, res) => {
         } = req.query;
         
         let query = `
-            SELECT p.product_id as id, p.game_id, p.category_id, p.name, p.description, 
-                   p.price, p.unit, p.image_url, p.stock_quantity, p.is_featured, 
+            SELECT p.product_id, p.game_id, p.category_id, p.name, p.description, 
+                   p.price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
                    p.is_active, p.created_at, p.updated_at,
                    g.name as game_name, g.slug as game_slug, c.name as category_name 
             FROM products p 
             JOIN games g ON p.game_id = g.game_id 
             JOIN categories c ON p.category_id = c.category_id 
-            WHERE p.is_active = TRUE
+            WHERE 1=1
         `;
         const params = [];
         
@@ -66,17 +66,17 @@ const getFeaturedProducts = async (req, res) => {
     try {
         console.log('Fetching featured products...');
         const [products] = await db.query(`
-            SELECT p.product_id as id, p.game_id, p.category_id, p.name, p.description, 
-                   p.price, p.unit, p.image_url, p.stock_quantity, p.is_featured, 
+            SELECT p.product_id, p.game_id, p.category_id, p.name, p.description, 
+                   p.price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
                    p.is_active, p.created_at, p.updated_at,
                    g.name as game_name, g.slug as game_slug 
             FROM products p 
             JOIN games g ON p.game_id = g.game_id 
-            WHERE p.is_active = TRUE 
-            ORDER BY p.is_featured DESC, p.created_at DESC 
+            WHERE p.is_active = TRUE AND p.sold_count > 0
+            ORDER BY p.sold_count DESC 
             LIMIT 8
         `);
-        console.log(`Found ${products.length} products`);
+        console.log(`Found ${products.length} featured products with sales`);
         res.json({ success: true, data: products });
     } catch (error) {
         console.error('Get featured products error:', error);
@@ -88,8 +88,8 @@ const getFeaturedProducts = async (req, res) => {
 const getLatestProducts = async (req, res) => {
     try {
         const [products] = await db.query(`
-            SELECT p.product_id as id, p.game_id, p.category_id, p.name, p.description, 
-                   p.price, p.unit, p.image_url, p.stock_quantity, p.is_featured, 
+            SELECT p.product_id, p.game_id, p.category_id, p.name, p.description, 
+                   p.price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
                    p.is_active, p.created_at, p.updated_at,
                    g.name as game_name, g.slug as game_slug 
             FROM products p 
@@ -110,8 +110,8 @@ const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
         const [products] = await db.query(`
-            SELECT p.product_id as id, p.game_id, p.category_id, p.name, p.description, 
-                   p.price, p.unit, p.image_url, p.stock_quantity, p.is_featured, 
+            SELECT p.product_id, p.game_id, p.category_id, p.name, p.description, 
+                   p.price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
                    p.is_active, p.created_at, p.updated_at,
                    g.name as game_name, g.slug as game_slug, c.name as category_name 
             FROM products p 
@@ -136,19 +136,19 @@ const createProduct = async (req, res) => {
     try {
         const { 
             game_id, category_id, name, description, price, 
-            unit, image_url, is_featured, stock, min_age 
+            unit, image_url, is_featured, stock_quantity, is_active 
         } = req.body;
         
         const [result] = await db.query(
-            `INSERT INTO products (game_id, category_id, name, description, price, unit, image_url, is_featured, stock_quantity) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [game_id, category_id, name, description, price, unit || 'VNĐ', image_url, is_featured || false, stock || 999]
+            `INSERT INTO products (game_id, category_id, name, description, price, unit, image_url, is_featured, stock_quantity, is_active) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [game_id, category_id, name, description, price, unit || 'VNĐ', image_url, is_featured || 0, stock_quantity || 999, is_active !== undefined ? is_active : 1]
         );
         
         res.json({ success: true, message: 'Product created', productId: result.insertId });
     } catch (error) {
         console.error('Create product error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        res.status(500).json({ success: false, error: 'Server error', message: error.message });
     }
 };
 
@@ -158,20 +158,20 @@ const updateProduct = async (req, res) => {
         const { id } = req.params;
         const { 
             game_id, category_id, name, description, price, 
-            unit, image_url, is_active, is_featured, stock, min_age 
+            unit, image_url, is_active, is_featured, stock_quantity 
         } = req.body;
         
         await db.query(
             `UPDATE products SET game_id = ?, category_id = ?, name = ?, description = ?, 
-             price = ?, unit = ?, image_url = ?, is_active = ?, is_featured = ?, stock_quantity = ?, min_age = ? 
+             price = ?, unit = ?, image_url = ?, is_active = ?, is_featured = ?, stock_quantity = ? 
              WHERE product_id = ?`,
-            [game_id, category_id, name, description, price, unit, image_url, is_active, is_featured, stock, min_age, id]
+            [game_id, category_id, name, description, price, unit, image_url, is_active, is_featured, stock_quantity, id]
         );
         
         res.json({ success: true, message: 'Product updated' });
     } catch (error) {
         console.error('Update product error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        res.status(500).json({ success: false, error: 'Server error', message: error.message });
     }
 };
 

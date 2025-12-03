@@ -44,18 +44,23 @@
                         class="form-select" 
                         placeholder="🔍 Tìm theo mã đơn hàng..."
                         style="min-width: 250px;"
-                        onkeyup="handleSearchEnter(event)"
+                        oninput="loadOrders()"
                     >
                     
-                    <select id="filter-status" class="form-select">
+                    <select id="filter-status" class="form-select" onchange="loadOrders()">
                         <option value="">Tất cả trạng thái</option>
                         <option value="pending">Chờ xử lý</option>
-                        <option value="processing">Đang xử lý</option>
                         <option value="completed">Hoàn thành</option>
                         <option value="cancelled">Đã hủy</option>
                     </select>
 
-                    <button class="btn btn-primary" onclick="loadOrders()">🔍 Lọc</button>
+                    <select id="filter-payment-status" class="form-select" onchange="loadOrders()">
+                        <option value="">Tất cả thanh toán</option>
+                        <option value="unpaid">Chưa thanh toán</option>
+                        <option value="paid">Đã thanh toán</option>
+                        <option value="refunded">Đã hoàn tiền</option>
+                    </select>
+
                     <button class="btn btn-secondary" onclick="resetFilters()">✖️ Xóa bộ lọc</button>
                 </div>
 
@@ -79,6 +84,10 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <div class="pagination" id="pagination" style="margin-top: 20px; text-align: center;">
+                    <!-- Pagination will be rendered here -->
                 </div>
             </div>
         </main>
@@ -107,6 +116,7 @@
 
             const searchCode = document.getElementById('search-order-code').value.trim();
             const status = document.getElementById('filter-status').value;
+            const paymentStatus = document.getElementById('filter-payment-status').value;
 
             try {
                 const result = await AdminAPI.getAllOrders({ status, limit: 1000 });
@@ -115,10 +125,16 @@
                     document.getElementById('orders-table').innerHTML = `
                         <tr><td colspan="8" style="text-align: center;">Không có đơn hàng</td></tr>
                     `;
+                    document.getElementById('pagination').innerHTML = '';
                     return;
                 }
 
                 let orders = result.data;
+
+                // Lọc theo thanh toán
+                if (paymentStatus) {
+                    orders = orders.filter(order => order.payment_status === paymentStatus);
+                }
 
                 // Lọc theo mã đơn hàng nếu có
                 if (searchCode) {
@@ -127,10 +143,14 @@
                     );
                 }
 
+                // Reset to page 1 when filters change
+                currentPage = 1;
+
                 if (orders.length === 0) {
                     document.getElementById('orders-table').innerHTML = `
-                        <tr><td colspan="8" style="text-align: center;">Không tìm thấy đơn hàng với mã "${searchCode}"</td></tr>
+                        <tr><td colspan="8" style="text-align: center;">Không tìm thấy đơn hàng</td></tr>
                     `;
+                    document.getElementById('pagination').innerHTML = '';
                     return;
                 }
 
@@ -141,34 +161,94 @@
             }
         }
 
+        let currentPage = 1;
+        const itemsPerPage = 5;
+        let allOrders = [];
+
         function displayOrders(orders) {
-            document.getElementById('orders-table').innerHTML = orders.map(order => `
+            allOrders = orders;
+            const totalPages = Math.ceil(orders.length / itemsPerPage);
+            
+            // Ensure currentPage is within bounds
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+            if (currentPage < 1) {
+                currentPage = 1;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedOrders = orders.slice(startIndex, endIndex);
+
+            if (paginatedOrders.length === 0) {
+                document.getElementById('orders-table').innerHTML = `
+                    <tr><td colspan="8" style="text-align: center;">Không có đơn hàng</td></tr>
+                `;
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            document.getElementById('orders-table').innerHTML = paginatedOrders.map(order => `
                 <tr>
                     <td><strong>${order.order_code}</strong></td>
-                    <td>${order.buyer_name}</td>
+                    <td>${order.customer_name}</td>
                     <td>
-                        📞 ${order.buyer_phone}<br>
-                        ${order.buyer_email ? `📧 ${order.buyer_email}` : ''}
+                        📞 ${order.customer_phone}<br>
+                        ${order.customer_email ? `📧 ${order.customer_email}` : ''}
                     </td>
                     <td><strong>${formatCurrency(order.total_amount)}</strong></td>
                     <td>
-                        ${order.payment_method === 'bank_transfer' ? '🏦' : '💰'}<br>
-                        <small>${getPaymentStatusText(order.payment_status)}</small>
+                        <select class="form-select" style="min-width: 130px;" onchange="updatePaymentStatus(${order.order_id}, this.value)">
+                            <option value="unpaid" ${order.payment_status === 'unpaid' ? 'selected' : ''}>Chưa thanh toán</option>
+                            <option value="paid" ${order.payment_status === 'paid' ? 'selected' : ''}>Đã thanh toán</option>
+                            <option value="refunded" ${order.payment_status === 'refunded' ? 'selected' : ''}>Đã hoàn tiền</option>
+                        </select>
                     </td>
                     <td>
-                        <select class="form-select" style="min-width: 130px;" onchange="updateStatus(${order.id}, this.value)">
+                        <select class="form-select" style="min-width: 130px;" onchange="updateStatus(${order.order_id}, this.value)">
                             <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Chờ xử lý</option>
-                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Đang xử lý</option>
                             <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Hoàn thành</option>
                             <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Đã hủy</option>
                         </select>
                     </td>
                     <td><small>${formatDate(order.created_at)}</small></td>
                     <td>
-                        <button class="btn btn-primary btn-sm" onclick="viewOrderDetail(${order.id})">Chi tiết</button>
+                        <button class="btn btn-primary btn-sm" onclick="viewOrderDetail(${order.order_id})">Chi tiết</button>
                     </td>
                 </tr>
             `).join('');
+
+            renderPagination(orders.length);
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+            let paginationHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <button class="btn btn-secondary btn-sm" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                        ← Trang trước
+                    </button>
+                    <span style="font-size: 14px;">
+                        Hiển thị ${startItem}-${endItem} trong tổng ${totalItems} đơn hàng | Trang ${currentPage}/${totalPages}
+                    </span>
+                    <button class="btn btn-secondary btn-sm" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                        Trang sau →
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('pagination').innerHTML = paginationHTML;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(allOrders.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            displayOrders(allOrders);
         }
 
         async function updateStatus(orderId, newStatus) {
@@ -193,10 +273,33 @@
             }
         }
 
+        async function updatePaymentStatus(orderId, newPaymentStatus) {
+            if (!confirm('Cập nhật trạng thái thanh toán?')) {
+                loadOrders();
+                return;
+            }
+
+            try {
+                const result = await AdminAPI.updateOrderStatus(orderId, { payment_status: newPaymentStatus });
+                
+                if (result.success) {
+                    showNotification('Đã cập nhật thanh toán', 'success');
+                    loadOrders();
+                } else {
+                    showNotification('Lỗi khi cập nhật', 'error');
+                    loadOrders();
+                }
+            } catch (error) {
+                console.error('Update payment status error:', error);
+                showNotification('Lỗi khi cập nhật', 'error');
+                loadOrders();
+            }
+        }
+
         async function viewOrderDetail(orderId) {
             try {
                 const result = await AdminAPI.getAllOrders();
-                const order = result.data.find(o => o.id === orderId);
+                const order = result.data.find(o => o.order_id === orderId);
                 
                 if (!order) {
                     showNotification('Không tìm thấy đơn hàng', 'error');
@@ -206,15 +309,14 @@
                 document.getElementById('order-detail-content').innerHTML = `
                     <h2>Chi Tiết Đơn Hàng</h2>
                     <div style="margin: 20px 0;">
-        function resetFilters() {
-            document.getElementById('search-order-code').value = '';
-            document.getElementById('filter-status').value = '';
-            loadOrders();
-        }               <p><strong>Email:</strong> ${order.buyer_email || 'N/A'}</p>
-                        <p><strong>Nickname game:</strong> ${order.game_nickname || 'N/A'}</p>
-                        <p><strong>Server:</strong> ${order.game_server || 'N/A'}</p>
+                        <p><strong>Mã đơn hàng:</strong> ${order.order_code}</p>
+                        <p><strong>Tên khách hàng:</strong> ${order.customer_name}</p>
+                        <p><strong>Số điện thoại:</strong> ${order.customer_phone}</p>
+                        <p><strong>Email:</strong> ${order.customer_email || 'N/A'}</p>
                         <p><strong>Tổng tiền:</strong> <span style="color: var(--primary-color); font-size: 20px;">${formatCurrency(order.total_amount)}</span></p>
-                        <p><strong>Ghi chú:</strong> ${order.note || 'Không có'}</p>
+                        <p><strong>Trạng thái:</strong> ${getStatusBadge(order.status)}</p>
+                        <p><strong>Ghi chú:</strong> ${order.notes || 'Không có'}</p>
+                        <p><strong>Ngày đặt:</strong> ${new Date(order.created_at).toLocaleString('vi-VN')}</p>
                     </div>
                 `;
                 
@@ -231,7 +333,28 @@
 
         function resetFilters() {
             document.getElementById('filter-status').value = '';
+            document.getElementById('filter-payment-status').value = '';
+            document.getElementById('search-order-code').value = '';
+            currentPage = 1;
             loadOrders();
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'pending': '<span style="background: #ffc107; color: white; padding: 4px 12px; border-radius: 12px;">Chờ xử lý</span>',
+                'completed': '<span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 12px;">Hoàn thành</span>',
+                'cancelled': '<span style="background: #dc3545; color: white; padding: 4px 12px; border-radius: 12px;">Đã hủy</span>'
+            };
+            return badges[status] || status;
+        }
+
+        function getPaymentStatusText(status) {
+            const texts = {
+                'unpaid': '⏳ Chưa thanh toán',
+                'paid': '✅ Đã thanh toán',
+                'refunded': '↩️ Đã hoàn tiền'
+            };
+            return texts[status] || status;
         }
 
         document.addEventListener('DOMContentLoaded', loadOrders);

@@ -42,7 +42,7 @@ function displayGames(games) {
     };
     
     gamesContainer.innerHTML = games.map(game => `
-        <div class="card game-card" onclick="navigateTo('/game.html?slug=${game.slug}')">
+        <div class="card game-card" onclick="navigateTo('/game-detail.html?game_id=${game.game_id}')">
             <div class="game-card-icon">${gameIcons[game.slug] || '🎮'}</div>
             <h3 class="game-card-name">${game.name}</h3>
             <p class="game-card-desc">${game.description || ''}</p>
@@ -80,6 +80,7 @@ function displayFeaturedProducts(products) {
             <div class="card-body">
                 <span class="product-game-tag">${product.game_name}</span>
                 <h3 class="card-title">${product.name}</h3>
+                <div class="product-sold">🔥 Đã bán: <strong>${product.sold_count || 0}</strong></div>
                 <div class="card-price">${formatCurrency(product.price)}</div>
                 <button class="btn btn-primary" onclick="event.stopPropagation(); addToCartQuick(${product.id})">
                     Thêm vào giỏ 🛒
@@ -131,6 +132,7 @@ function displayLatestProducts(products) {
             <div class="card-body">
                 <span class="product-game-tag">${product.game_name}</span>
                 <h3 class="card-title">${product.name}</h3>
+                <div class="product-sold">📊 Đã bán: <strong>${product.sold_count || 0}</strong></div>
                 <div class="card-price">${formatCurrency(product.price)}</div>
                 <button class="btn btn-primary" onclick="event.stopPropagation(); addToCartQuick(${product.id})">
                     Thêm vào giỏ 🛒

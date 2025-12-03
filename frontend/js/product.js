@@ -146,7 +146,8 @@ function displayProduct(product) {
             <div class="product-info-section">
                 <div class="product-breadcrumb">
                     <a href="/">Trang chủ</a> / 
-                    <a href="/game.html?slug=${product.game_slug}">${product.game_name}</a> / 
+                    <a href="/game-detail.html?game_id=${product.game_id}">${product.game_name}</a> / 
+                    ${product.category_name ? `<a href="/product.html?game_id=${product.game_id}&category_id=${product.category_id}">${product.category_name}</a> / ` : ''}
                     ${product.name}
                 </div>
 
@@ -166,23 +167,12 @@ function displayProduct(product) {
                     <h3>🛒 Thêm vào giỏ hàng</h3>
                     
                     <div class="form-group">
-                        <label class="form-label">Nickname / UID trong game (tùy chọn)</label>
-                        <input type="text" id="game-nickname" class="form-input" placeholder="VD: PlayerName123">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Server / Khu vực (tùy chọn)</label>
-                        <input type="text" id="game-server" class="form-input" placeholder="VD: Việt Nam, Asia, Server 1">
-                    </div>
-
-                    <div class="form-group">
                         <label class="form-label">Số lượng</label>
                         <div class="quantity-control">
                             <button class="quantity-btn" onclick="changeQuantity(-1)">-</button>
                             <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="${product.stock}">
                             <button class="quantity-btn" onclick="changeQuantity(1)">+</button>
                         </div>
-                        <small style="color: var(--text-light);">Còn lại: ${product.stock} ${product.unit}</small>
                     </div>
 
                     <button class="btn btn-primary btn-lg" onclick="addToCart()" style="width: 100%;">
@@ -215,15 +205,8 @@ function changeQuantity(delta) {
 
 function addToCart() {
     const quantity = parseInt(document.getElementById('quantity').value);
-    const gameNickname = document.getElementById('game-nickname').value;
-    const gameServer = document.getElementById('game-server').value;
 
-    const gameInfo = {
-        nickname: gameNickname,
-        server: gameServer
-    };
-
-    Cart.add(currentProduct, quantity, gameInfo);
+    Cart.add(currentProduct, quantity);
     
     // Kiểm tra xem có đang bị tắt thông báo không
     const snoozeUntil = localStorage.getItem('cart_modal_snooze');

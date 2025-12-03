@@ -1,4 +1,7 @@
 // Dashboard page logic
+let currentDashboardPage = 1;
+const dashboardItemsPerPage = 10;
+let allRecentOrders = [];
 
 async function loadDashboard() {
     const auth = checkAdminAuth();
@@ -67,40 +70,18 @@ async function loadStats() {
 
 async function loadRecentOrders() {
     try {
-        const result = await AdminAPI.getAllOrders({ limit: 10 });
+        const result = await AdminAPI.getAllOrders({ limit: 1000 });
         
         if (!result.success || !result.data || result.data.length === 0) {
             document.getElementById('recent-orders').innerHTML = `
                 <tr><td colspan="6" style="text-align: center;">Chưa có đơn hàng</td></tr>
             `;
+            document.getElementById('dashboard-pagination').innerHTML = '';
             return;
         }
 
-        const orders = result.data;
-        
-        document.getElementById('recent-orders').innerHTML = orders.map(order => `
-            <tr>
-                <td><strong>${order.order_code}</strong></td>
-                <td>
-                    ${order.buyer_name}<br>
-                    <small style="color: var(--text-light);">${order.buyer_phone}</small>
-                </td>
-                <td><strong>${formatCurrency(order.total_amount)}</strong></td>
-                <td>
-                    <span class="status-badge ${getStatusBadgeClass(order.status)}">
-                        ${getStatusText(order.status)}
-                    </span>
-                </td>
-                <td><small>${formatDate(order.created_at)}</small></td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary btn-sm" onclick="window.location.href='/admin/order-detail.html?id=${order.id}'">
-                            Chi tiết
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+        allRecentOrders = result.data;
+        displayRecentOrders(allRecentOrders);
 
     } catch (error) {
         console.error('Load recent orders error:', error);
@@ -108,6 +89,76 @@ async function loadRecentOrders() {
             <tr><td colspan="6" style="text-align: center; color: var(--danger);">Lỗi khi tải đơn hàng</td></tr>
         `;
     }
+}
+
+function displayRecentOrders(orders) {
+    const totalPages = Math.ceil(orders.length / dashboardItemsPerPage);
+    
+    if (currentDashboardPage > totalPages && totalPages > 0) {
+        currentDashboardPage = totalPages;
+    }
+    if (currentDashboardPage < 1) {
+        currentDashboardPage = 1;
+    }
+
+    const startIndex = (currentDashboardPage - 1) * dashboardItemsPerPage;
+    const endIndex = startIndex + dashboardItemsPerPage;
+    const paginatedOrders = orders.slice(startIndex, endIndex);
+
+    document.getElementById('recent-orders').innerHTML = paginatedOrders.map(order => `
+        <tr>
+            <td><strong>${order.order_code}</strong></td>
+            <td>
+                ${order.customer_name}<br>
+                <small style="color: var(--text-light);">${order.customer_phone}</small>
+            </td>
+            <td><strong>${formatCurrency(order.total_amount)}</strong></td>
+            <td>
+                <span class="status-badge ${getStatusBadgeClass(order.status)}">
+                    ${getStatusText(order.status)}
+                </span>
+            </td>
+            <td><small>${formatDate(order.created_at)}</small></td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-primary btn-sm" onclick="window.location.href='/admin/orders.html'">
+                        Chi tiết
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    renderDashboardPagination(orders.length);
+}
+
+function renderDashboardPagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / dashboardItemsPerPage);
+    const startItem = (currentDashboardPage - 1) * dashboardItemsPerPage + 1;
+    const endItem = Math.min(currentDashboardPage * dashboardItemsPerPage, totalItems);
+
+    let paginationHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <button class="btn btn-secondary btn-sm" onclick="changeDashboardPage(${currentDashboardPage - 1})" ${currentDashboardPage === 1 ? 'disabled' : ''}>
+                ← Trang trước
+            </button>
+            <span style="font-size: 14px;">
+                Hiển thị ${startItem}-${endItem} trong tổng ${totalItems} đơn hàng | Trang ${currentDashboardPage}/${totalPages}
+            </span>
+            <button class="btn btn-secondary btn-sm" onclick="changeDashboardPage(${currentDashboardPage + 1})" ${currentDashboardPage === totalPages ? 'disabled' : ''}>
+                Trang sau →
+            </button>
+        </div>
+    `;
+
+    document.getElementById('dashboard-pagination').innerHTML = paginationHTML;
+}
+
+function changeDashboardPage(page) {
+    const totalPages = Math.ceil(allRecentOrders.length / dashboardItemsPerPage);
+    if (page < 1 || page > totalPages) return;
+    currentDashboardPage = page;
+    displayRecentOrders(allRecentOrders);
 }
 
 // Initialize

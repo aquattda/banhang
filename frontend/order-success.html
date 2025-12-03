@@ -151,15 +151,11 @@
                 <div class="order-info">
                     <div class="info-row">
                         <strong>👤 Tên khách hàng:</strong>
-                        <span>${order.buyer_name}</span>
+                        <span>${order.customer_name}</span>
                     </div>
                     <div class="info-row">
                         <strong>📞 Số điện thoại:</strong>
-                        <span>${order.buyer_phone}</span>
-                    </div>
-                    <div class="info-row">
-                        <strong>💳 Phương thức thanh toán:</strong>
-                        <span>${paymentMethods[order.payment_method]}</span>
+                        <span>${order.customer_phone}</span>
                     </div>
                     <div class="info-row">
                         <strong>💰 Tổng tiền:</strong>
@@ -176,7 +172,7 @@
                 <div class="next-steps">
                     <h3>📋 Các bước tiếp theo:</h3>
                     <ol>
-                        <li><strong>Thanh toán:</strong> Chuyển khoản theo thông tin đã cung cấp với nội dung: <strong>GAMESHOP ${order.buyer_phone}</strong></li>
+                        <li><strong>Thanh toán:</strong> Chuyển khoản theo thông tin đã cung cấp với nội dung: <strong>GAMESHOP ${order.customer_phone}</strong></li>
                         <li><strong>Xác nhận:</strong> Sau khi chuyển khoản, chụp ảnh bill và gửi qua Zalo: <strong>0123-456-789</strong> kèm mã đơn hàng</li>
                         <li><strong>Nhận hàng:</strong> Đơn hàng sẽ được xử lý trong 5-15 phút sau khi xác nhận thanh toán</li>
                     </ol>
