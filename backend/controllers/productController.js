@@ -165,7 +165,7 @@ const updateProduct = async (req, res) => {
             `UPDATE products SET game_id = ?, category_id = ?, name = ?, description = ?, 
              price = ?, unit = ?, image_url = ?, is_active = ?, is_featured = ?, stock_quantity = ? 
              WHERE product_id = ?`,
-            [game_id, category_id, name, description, price, unit, image_url, is_active, is_featured, stock_quantity, id]
+            [game_id, category_id, name, description, price, unit || 'VNĐ', image_url, is_active, is_featured, stock_quantity, id]
         );
         
         res.json({ success: true, message: 'Product updated' });
@@ -177,13 +177,91 @@ const updateProduct = async (req, res) => {
 
 // Admin: Xóa sản phẩm
 const deleteProduct = async (req, res) => {
+    const connection = await db.getConnection();
+    
     try {
+        await connection.beginTransaction();
+        
         const { id } = req.params;
-        await db.query('DELETE FROM products WHERE product_id = ?', [id]);
-        res.json({ success: true, message: 'Product deleted' });
+        
+        // Kiểm tra trạng thái sản phẩm
+        const [products] = await connection.query(
+            'SELECT is_active, name FROM products WHERE product_id = ?',
+            [id]
+        );
+        
+        if (products.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Không tìm thấy sản phẩm' 
+            });
+        }
+        
+        const product = products[0];
+        const isActive = product.is_active;
+        
+        // Kiểm tra xem sản phẩm có trong đơn hàng không
+        const [orderItems] = await connection.query(
+            'SELECT COUNT(*) as count FROM order_items WHERE product_id = ?',
+            [id]
+        );
+        
+        const hasOrders = orderItems[0].count > 0;
+        
+        console.log(`Delete product ${id}: is_active=${isActive}, hasOrders=${hasOrders}`);
+        
+        // Nếu sản phẩm đang bán (is_active = 1) và đã có trong đơn hàng
+        if (isActive === 1 && hasOrders) {
+            await connection.rollback();
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Không thể xóa sản phẩm đang bán và đã có đơn hàng. Vui lòng chuyển sang trạng thái "Ngừng bán" trước khi xóa.',
+                code: 'PRODUCT_IN_USE'
+            });
+        }
+        
+        // Nếu sản phẩm đã ngừng bán (is_active = 0) VÀ có trong đơn hàng
+        // => Xóa reference trong order_items trước (set product_id = NULL hoặc giữ tên sản phẩm)
+        if (isActive === 0 && hasOrders) {
+            // Cập nhật order_items: set product_id = NULL nhưng giữ lại product_name
+            await connection.query(
+                'UPDATE order_items SET product_id = NULL WHERE product_id = ?',
+                [id]
+            );
+            console.log(`Updated order_items: set product_id = NULL for product ${id}`);
+        }
+        
+        // Bây giờ có thể xóa sản phẩm an toàn
+        await connection.query('DELETE FROM products WHERE product_id = ?', [id]);
+        
+        await connection.commit();
+        
+        res.json({ 
+            success: true, 
+            message: 'Xóa sản phẩm thành công' 
+        });
+        
     } catch (error) {
+        await connection.rollback();
         console.error('Delete product error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        
+        // Xử lý lỗi foreign key constraint
+        if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Không thể xóa sản phẩm do ràng buộc dữ liệu. Vui lòng liên hệ quản trị viên.',
+                code: 'FOREIGN_KEY_CONSTRAINT'
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false, 
+            message: 'Lỗi hệ thống khi xóa sản phẩm',
+            error: error.message
+        });
+    } finally {
+        connection.release();
     }
 };
 

@@ -18,6 +18,7 @@ app.use('/images', express.static(path.join(__dirname, '../frontend/images')));
 
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/customer-auth', require('./routes/customer-auth'));
 app.use('/api/games', require('./routes/games'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/products', require('./routes/products'));

@@ -145,7 +145,7 @@ function displayProducts(products) {
 
     grid.innerHTML = products.map(product => `
         <div class="card product-card">
-            <div class="product-card-img" onclick="navigateTo('/product.html?id=${product.id}')">
+            <div class="product-card-img" onclick="navigateTo('/product.html?id=${product.product_id}')">
                 ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;">` : '🎁'}
             </div>
             <div class="card-body">
@@ -154,10 +154,10 @@ function displayProducts(products) {
                 <p class="card-text">${product.description ? product.description.substring(0, 80) + '...' : ''}</p>
                 <div class="card-price">${formatCurrency(product.price)}</div>
                 <div class="product-actions">
-                    <button class="btn btn-outline" onclick="navigateTo('/product.html?id=${product.id}')">
+                    <button class="btn btn-outline" onclick="navigateTo('/product.html?id=${product.product_id}')">
                         Chi tiết
                     </button>
-                    <button class="btn btn-primary" onclick="quickAddToCart(${product.id})">
+                    <button class="btn btn-primary" onclick="quickAddToCart(${product.product_id})">
                         Thêm vào giỏ
                     </button>
                 </div>

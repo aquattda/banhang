@@ -11,7 +11,7 @@
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="admin-logo">
-                <span class="logo-icon">🎮</span>
+                <span class="logo-icon"><img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="Logo" style="height: 35px; vertical-align: middle;"></span>
                 <span>GameShop Admin</span>
             </div>
             
@@ -191,30 +191,31 @@
 
             document.getElementById('orders-table').innerHTML = paginatedOrders.map(order => `
                 <tr>
-                    <td><strong>${order.order_code}</strong></td>
-                    <td>${order.customer_name}</td>
-                    <td>
-                        📞 ${order.customer_phone}<br>
-                        ${order.customer_email ? `📧 ${order.customer_email}` : ''}
+                    <td style="text-align: center;"><strong>${order.order_code}</strong></td>
+                    <td style="text-align: center;">${order.customer_name}</td>
+                    <td style="text-align: center; font-size: 13px;">
+                        ${order.customer_phone}<br>
+                        ${order.customer_email ? `${order.customer_email}` : ''}
                     </td>
-                    <td><strong>${formatCurrency(order.total_amount)}</strong></td>
-                    <td>
+                    <td style="text-align: center;"><strong>${formatCurrency(order.total_amount)}</strong></td>
+                    <td style="text-align: center;">
                         <select class="form-select" style="min-width: 130px;" onchange="updatePaymentStatus(${order.order_id}, this.value)">
                             <option value="unpaid" ${order.payment_status === 'unpaid' ? 'selected' : ''}>Chưa thanh toán</option>
                             <option value="paid" ${order.payment_status === 'paid' ? 'selected' : ''}>Đã thanh toán</option>
                             <option value="refunded" ${order.payment_status === 'refunded' ? 'selected' : ''}>Đã hoàn tiền</option>
                         </select>
                     </td>
-                    <td>
+                    <td style="text-align: center;">
                         <select class="form-select" style="min-width: 130px;" onchange="updateStatus(${order.order_id}, this.value)">
                             <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Chờ xử lý</option>
                             <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Hoàn thành</option>
                             <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Đã hủy</option>
                         </select>
                     </td>
-                    <td><small>${formatDate(order.created_at)}</small></td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" onclick="viewOrderDetail(${order.order_id})">Chi tiết</button>
+                    <td style="text-align: center;"><small>${formatDate(order.created_at)}</small></td>
+                    <td style="text-align: center;">
+                        <button class="btn btn-primary btn-sm" onclick="viewOrderDetail(${order.order_id})" style="margin-right: 5px;">Chi tiết</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.order_id})">Xóa</button>
                     </td>
                 </tr>
             `).join('');
@@ -252,7 +253,8 @@
         }
 
         async function updateStatus(orderId, newStatus) {
-            if (!confirm('Cập nhật trạng thái đơn hàng?')) {
+            const confirmed = await showConfirm('Bạn có chắc muốn cập nhật trạng thái đơn hàng?', 'Cập nhật trạng thái');
+            if (!confirmed) {
                 loadOrders();
                 return;
             }
@@ -274,7 +276,8 @@
         }
 
         async function updatePaymentStatus(orderId, newPaymentStatus) {
-            if (!confirm('Cập nhật trạng thái thanh toán?')) {
+            const confirmed = await showConfirm('Bạn có chắc muốn cập nhật trạng thái thanh toán?', 'Cập nhật thanh toán');
+            if (!confirmed) {
                 loadOrders();
                 return;
             }
@@ -298,26 +301,66 @@
 
         async function viewOrderDetail(orderId) {
             try {
-                const result = await AdminAPI.getAllOrders();
-                const order = result.data.find(o => o.order_id === orderId);
+                const result = await AdminAPI.getOrderById(orderId);
                 
-                if (!order) {
+                if (!result.success || !result.data) {
                     showNotification('Không tìm thấy đơn hàng', 'error');
                     return;
                 }
 
+                const order = result.data;
+                const items = order.items || [];
+
+                // Tạo bảng sản phẩm
+                const itemsTable = items.length > 0 ? `
+                    <table class="admin-table" style="margin-top: 20px;">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th style="text-align: center;">Số lượng</th>
+                                <th style="text-align: right;">Đơn giá</th>
+                                <th style="text-align: right;">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => `
+                                <tr>
+                                    <td><strong>${item.product_name}</strong></td>
+                                    <td style="text-align: center;">${item.quantity}</td>
+                                    <td style="text-align: right;">${formatCurrency(item.price)}</td>
+                                    <td style="text-align: right;"><strong>${formatCurrency(item.subtotal)}</strong></td>
+                                </tr>
+                            `).join('')}
+                            <tr style="border-top: 2px solid #667eea;">
+                                <td colspan="3" style="text-align: right; font-weight: bold; font-size: 16px; padding: 15px;">Tổng cộng:</td>
+                                <td style="text-align: right; font-weight: bold; font-size: 18px; color: #667eea; padding: 15px;">${formatCurrency(order.total_amount)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                ` : '<p style="color: #dc3545; margin-top: 15px;">Không có sản phẩm trong đơn hàng này</p>';
+
                 document.getElementById('order-detail-content').innerHTML = `
-                    <h2>Chi Tiết Đơn Hàng</h2>
-                    <div style="margin: 20px 0;">
-                        <p><strong>Mã đơn hàng:</strong> ${order.order_code}</p>
-                        <p><strong>Tên khách hàng:</strong> ${order.customer_name}</p>
-                        <p><strong>Số điện thoại:</strong> ${order.customer_phone}</p>
-                        <p><strong>Email:</strong> ${order.customer_email || 'N/A'}</p>
-                        <p><strong>Tổng tiền:</strong> <span style="color: var(--primary-color); font-size: 20px;">${formatCurrency(order.total_amount)}</span></p>
-                        <p><strong>Trạng thái:</strong> ${getStatusBadge(order.status)}</p>
-                        <p><strong>Ghi chú:</strong> ${order.notes || 'Không có'}</p>
-                        <p><strong>Ngày đặt:</strong> ${new Date(order.created_at).toLocaleString('vi-VN')}</p>
+                    <h2 style="color: #1e3c72; margin-bottom: 25px; border-bottom: 3px solid #667eea; padding-bottom: 10px;">Chi Tiết Đơn Hàng</h2>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                            <div>
+                                <p style="margin: 8px 0;"><strong style="color: #495057;">Mã đơn hàng:</strong> <span style="color: #667eea; font-weight: 600;">${order.order_code}</span></p>
+                                <p style="margin: 8px 0;"><strong style="color: #495057;">Khách hàng:</strong> ${order.customer_name}</p>
+                                <p style="margin: 8px 0;"><strong style="color: #495057;">Số điện thoại:</strong> ${order.customer_phone}</p>
+                                <p style="margin: 8px 0;"><strong style="color: #495057;">Email:</strong> ${order.customer_email || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p style="margin: 8px 0;"><strong style="color: #495057;">Trạng thái:</strong> ${getStatusBadge(order.status)}</p>
+                                <p style="margin: 8px 0;"><strong style="color: #495057;">Thanh toán:</strong> ${getPaymentStatusText(order.payment_status)}</p>
+                                <p style="margin: 8px 0;"><strong style="color: #495057;">Ngày đặt:</strong> ${new Date(order.created_at).toLocaleString('vi-VN')}</p>
+                                <p style="margin: 8px 0;"><strong style="color: #495057;">Ghi chú:</strong> ${order.notes || 'Không có'}</p>
+                            </div>
+                        </div>
                     </div>
+
+                    <h3 style="color: #1e3c72; margin: 25px 0 15px 0;">Danh Sách Sản Phẩm</h3>
+                    ${itemsTable}
                 `;
                 
                 document.getElementById('order-modal').style.display = 'flex';
@@ -357,6 +400,25 @@
             return texts[status] || status;
         }
 
+        async function deleteOrder(orderId) {
+            const confirmed = await showConfirm('Bạn có chắc muốn xóa đơn hàng này? Hành động này không thể hoàn tác!', 'Xóa đơn hàng');
+            if (!confirmed) return;
+
+            try {
+                const result = await AdminAPI.deleteOrder(orderId);
+                
+                if (result.success) {
+                    showNotification('Đã xóa đơn hàng thành công', 'success');
+                    loadOrders();
+                } else {
+                    showNotification(result.message || 'Lỗi khi xóa đơn hàng', 'error');
+                }
+            } catch (error) {
+                console.error('Delete order error:', error);
+                showNotification('Lỗi khi xóa đơn hàng', 'error');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', loadOrders);
     </script>
 
@@ -391,5 +453,8 @@
             cursor: pointer;
         }
     </style>
+
+    <script src="/admin/js/notifications.js"></script>
+    <script src="/admin/js/admin.js"></script>
 </body>
 </html>

@@ -103,7 +103,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    flex: 0 0 200px; /* Giỏ hàng chiếm 200px bên phải */
+    gap: 10px;
+    flex: 0 0 auto;
 }
 
 .cart-btn {
@@ -150,6 +151,64 @@ body {
     border-radius: 50%;
     min-width: 20px;
     text-align: center;
+}
+
+/* User Menu */
+.user-menu {
+    position: relative;
+}
+
+.user-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    min-width: 200px;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 12px 20px;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: all 0.3s;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.user-dropdown a:last-child {
+    border-bottom: none;
+}
+
+.user-dropdown a:hover {
+    background: #f8f9fa;
+    color: #667eea;
+    padding-left: 25px;
 }
 
 /* Mobile Menu Toggle */
@@ -285,6 +344,9 @@ body {
     box-shadow: var(--shadow);
     overflow: hidden;
     transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .card:hover {
@@ -296,29 +358,41 @@ body {
     width: 100%;
     height: 200px;
     object-fit: cover;
+    flex-shrink: 0;
 }
 
 .card-body {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .card-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     margin-bottom: 10px;
     color: var(--text-dark);
+    min-height: 50px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
 }
 
 .card-text {
     color: var(--text-light);
     margin-bottom: 15px;
+    flex-grow: 1;
 }
 
 .card-price {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     color: var(--primary-color);
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+    margin-top: auto;
 }
 
 /* Grid Layouts */
@@ -591,7 +665,7 @@ body {
 /* Custom Notification */
 .custom-notification {
     position: fixed;
-    top: 20px;
+    top: 80px;
     right: 20px;
     background: white;
     border-radius: 12px;

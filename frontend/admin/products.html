@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Sản phẩm - Admin</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
 </head>
 <body>
     <div class="admin-layout">
         <!-- Sidebar -->
         <aside class="admin-sidebar">
             <div class="admin-logo">
-                <span class="logo-icon">🎮</span>
+                <span class="logo-icon"><img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="Logo" style="height: 35px; vertical-align: middle;"></span>
                 <span>GameShop Admin</span>
             </div>
             
@@ -123,20 +123,13 @@
                     <textarea id="form-description" class="form-control" rows="4"></textarea>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Giá (VNĐ) <span style="color: red;">*</span></label>
-                        <input type="number" id="form-price" class="form-control" required min="0">
+                <div class="form-group">
+                    <label>Giá bán <span style="color: red;">*</span></label>
+                    <div class="price-input-wrapper">
+                        <input type="number" id="form-price" class="form-control price-input" required min="0" step="1000" placeholder="0">
+                        <span class="price-currency">VNĐ</span>
                     </div>
-
-                    <div class="form-group">
-                        <label>Đơn vị <span style="color: red;">*</span></label>
-                        <select id="form-unit" class="form-control" required>
-                            <option value="triệu">Triệu</option>
-                            <option value="K">K (1000)</option>
-                            <option value="Robux">Robux</option>
-                        </select>
-                    </div>
+                    <small class="form-text" style="color: #6c757d; margin-top: 5px; display: block;">Nhập giá theo đơn vị VNĐ (ví dụ: 50000)</small>
                 </div>
 
                 <div class="form-group">
@@ -168,8 +161,8 @@
         </div>
     </div>
 
-    <script src="../js/app.js"></script>
-    <script src="js/admin.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="/admin/js/admin.js"></script>
     <script>
         let allGames = [];
         let allCategories = [];
@@ -239,7 +232,7 @@
             const isActive = document.getElementById('filter-active').value;
 
             try {
-                const result = await API.get('/api/products');
+                const result = await API.get('/api/products?limit=1000');
                 
                 if (!result.success || !result.data) {
                     document.getElementById('products-table').innerHTML = 
@@ -396,7 +389,6 @@
             document.getElementById('form-name').value = product.name;
             document.getElementById('form-description').value = product.description || '';
             document.getElementById('form-price').value = product.price;
-            document.getElementById('form-unit').value = product.unit;
             document.getElementById('form-image').value = product.image_url || '';
             document.getElementById('form-stock').value = product.stock_quantity;
             document.getElementById('form-featured').checked = product.is_featured;
@@ -417,7 +409,6 @@
                 name: document.getElementById('form-name').value,
                 description: document.getElementById('form-description').value,
                 price: parseFloat(document.getElementById('form-price').value),
-                unit: document.getElementById('form-unit').value,
                 image_url: document.getElementById('form-image').value || null,
                 stock_quantity: parseInt(document.getElementById('form-stock').value),
                 is_featured: document.getElementById('form-featured').checked ? 1 : 0,
@@ -435,7 +426,13 @@
                 if (result.success) {
                     showNotification(productId ? 'Cập nhật sản phẩm thành công' : 'Thêm sản phẩm thành công', 'success');
                     closeModal();
-                    loadProducts();
+                    // Reset filters và reload
+                    document.getElementById('search-product').value = '';
+                    document.getElementById('filter-game').value = '';
+                    document.getElementById('filter-active').value = '';
+                    setTimeout(() => {
+                        loadProducts();
+                    }, 200);
                 } else {
                     showNotification(result.message || 'Có lỗi xảy ra', 'error');
                 }
@@ -446,7 +443,8 @@
         }
 
         async function deleteProduct(productId, productName) {
-            if (!confirm(`Bạn có chắc muốn xóa sản phẩm "${productName}"?`)) return;
+            const confirmed = await showConfirm(`Bạn có chắc muốn xóa sản phẩm "${productName}"?`, 'Xóa sản phẩm');
+            if (!confirmed) return;
 
             const auth = checkAdminAuth();
             if (!auth) return;
@@ -469,9 +467,12 @@
             document.getElementById('product-modal').style.display = 'none';
         }
 
-        function logout() {
-            if (confirm('Bạn có chắc muốn đăng xuất?')) {
-                AdminAPI.logout();
+        async function logout() {
+            const confirmed = await showConfirm('Bạn có chắc muốn đăng xuất?', 'Xác nhận đăng xuất');
+            if (confirmed) {
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_user');
+                window.location.href = '/admin/login.html';
             }
         }
 
@@ -631,5 +632,7 @@
         `;
         document.head.appendChild(style);
     </script>
+
+    <script src="/admin/js/notifications.js"></script>
 </body>
 </html>

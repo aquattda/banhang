@@ -224,6 +224,7 @@ async function handleCheckout(e) {
         buyer_email: formData.get('buyer_email') || '',
         payment_method: formData.get('payment_method'),
         note: formData.get('note') || '',
+        customer_id: (window.CustomerAuth && CustomerAuth.isLoggedIn()) ? CustomerAuth.getCustomer().customer_id : null,
         items: selectedItems
     };
 
@@ -272,10 +273,27 @@ async function handleCheckout(e) {
     }
 }
 
+// Auto-fill thông tin nếu đã đăng nhập
+function autoFillCustomerInfo() {
+    if (window.CustomerAuth && CustomerAuth.isLoggedIn()) {
+        const customer = CustomerAuth.getCustomer();
+        if (customer) {
+            const nameInput = document.getElementById('buyer_name');
+            const phoneInput = document.getElementById('buyer_phone');
+            const emailInput = document.getElementById('buyer_email');
+            
+            if (nameInput && !nameInput.value) nameInput.value = customer.name || '';
+            if (phoneInput && !phoneInput.value) phoneInput.value = customer.phone || '';
+            if (emailInput && !emailInput.value) emailInput.value = customer.email || '';
+        }
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadCart();
     updatePaymentInfo();
+    autoFillCustomerInfo();
 
     // Payment method change listener
     document.querySelectorAll('input[name="payment_method"]').forEach(radio => {

@@ -23,4 +23,25 @@ const adminMiddleware = (req, res, next) => {
     next();
 };
 
-module.exports = { authMiddleware, adminMiddleware };
+const customerAuthMiddleware = (req, res, next) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production');
+        
+        if (decoded.type !== 'customer') {
+            return res.status(403).json({ success: false, message: 'Truy cập không hợp lệ' });
+        }
+        
+        req.user = decoded;
+        next();
+    } catch (error) {
+        res.status(401).json({ success: false, message: 'Token không hợp lệ hoặc đã hết hạn' });
+    }
+};
+
+module.exports = { authMiddleware, adminMiddleware, customerAuthMiddleware };

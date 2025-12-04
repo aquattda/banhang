@@ -16,6 +16,7 @@ async function loadProductDetail() {
     
     // Nếu có id → hiển thị chi tiết 1 sản phẩm
     if (!productId) {
+        displayError('Không tìm thấy sản phẩm. Vui lòng chọn sản phẩm từ trang chủ.');
         showNotification('Không tìm thấy sản phẩm', 'error');
         setTimeout(() => navigateTo('/'), 2000);
         return;
@@ -25,6 +26,7 @@ async function loadProductDetail() {
         const result = await API.getProductById(productId);
         
         if (!result.success) {
+            displayError('Sản phẩm không tồn tại hoặc đã bị xóa.');
             showNotification('Không tìm thấy sản phẩm', 'error');
             setTimeout(() => navigateTo('/'), 2000);
             return;
@@ -34,6 +36,7 @@ async function loadProductDetail() {
         displayProduct(currentProduct);
     } catch (error) {
         console.error('Load product error:', error);
+        displayError('Lỗi kết nối đến server. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau.');
         showNotification('Lỗi khi tải sản phẩm', 'error');
     }
 }
@@ -83,14 +86,14 @@ function displayProductsList(products) {
     
     products.forEach(product => {
         html += `
-            <div class="product-card" onclick="navigateTo('/product.html?id=${product.id}')">
+            <div class="product-card" onclick="navigateTo('/product.html?id=${product.product_id}')">
                 <div class="product-card-image">
                     ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}">` : '<div class="no-image">🎁</div>'}
                 </div>
                 <div class="product-card-body">
                     <h3 class="product-card-title">${product.name}</h3>
                     <div class="product-card-price">${formatCurrency(product.price)}</div>
-                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); quickAddToCart(${product.id})">
+                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); quickAddToCart(${product.product_id})">
                         Thêm vào giỏ 🛒
                     </button>
                 </div>
@@ -175,9 +178,14 @@ function displayProduct(product) {
                         </div>
                     </div>
 
-                    <button class="btn btn-primary btn-lg" onclick="addToCart()" style="width: 100%;">
-                        Thêm vào giỏ hàng 🛒
-                    </button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn btn-secondary btn-lg" onclick="addToCart()">
+                            Thêm vào giỏ 🛒
+                        </button>
+                        <button class="btn btn-primary btn-lg" onclick="buyNow()">
+                            Mua ngay ⚡
+                        </button>
+                    </div>
                 </div>
 
                 <div class="product-warning">
@@ -189,6 +197,18 @@ function displayProduct(product) {
                     </ul>
                 </div>
             </div>
+        </div>
+    `;
+}
+
+function displayError(message) {
+    const container = document.getElementById('product-detail');
+    container.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px;">
+            <div style="font-size: 80px; margin-bottom: 20px;">😢</div>
+            <h2 style="color: #666; margin-bottom: 15px;">Oops! Có lỗi xảy ra</h2>
+            <p style="color: #999; margin-bottom: 30px;">${message}</p>
+            <button class="btn btn-primary" onclick="navigateTo('/')">Về trang chủ</button>
         </div>
     `;
 }
@@ -228,13 +248,23 @@ function addToCart() {
         showCancel: true,
         showSnooze: true,
         onConfirm: () => navigateTo('/cart.html'),
-        onSnooze: () => {
-            // Lưu thời gian tắt thông báo (1 giờ = 3600000ms)
-            const snoozeTime = Date.now() + (60 * 60 * 1000);
-            localStorage.setItem('cart_modal_snooze', snoozeTime.toString());
-            showNotification('Đã tắt thông báo trong 1 giờ', 'info');
-        }
     });
+}
+
+function buyNow() {
+    const quantity = parseInt(document.getElementById('quantity').value);
+    
+    // Add product to cart
+    Cart.add(currentProduct, quantity);
+    
+    // Get the correct product ID (could be product_id or id)
+    const productId = currentProduct.product_id || currentProduct.id;
+    
+    // Set exclusive selection for this product only
+    localStorage.setItem('cart_selected_items', JSON.stringify([productId]));
+    
+    // Navigate to cart page immediately
+    navigateTo('/cart.html');
 }
 
 document.addEventListener('DOMContentLoaded', () => {

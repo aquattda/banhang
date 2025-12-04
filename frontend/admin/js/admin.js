@@ -12,8 +12,9 @@ function checkAdminAuth() {
     return { token, user };
 }
 
-function logout() {
-    if (confirm('Bạn có chắc muốn đăng xuất?')) {
+async function logout() {
+    const confirmed = await showConfirm('Bạn có chắc muốn đăng xuất?', 'Xác nhận đăng xuất');
+    if (confirmed) {
         localStorage.removeItem('admin_token');
         localStorage.removeItem('admin_user');
         window.location.href = '/admin/login.html';
@@ -40,11 +41,26 @@ const AdminAPI = {
         return response.json();
     },
 
+    getOrderById: async (orderId) => {
+        const response = await fetch(`/api/orders/detail/${orderId}`, {
+            headers: getAuthHeaders()
+        });
+        return response.json();
+    },
+
     updateOrderStatus: async (orderId, data) => {
         const response = await fetch(`/api/orders/${orderId}`, {
             method: 'PATCH',
             headers: getAuthHeaders(),
             body: JSON.stringify(data)
+        });
+        return response.json();
+    },
+
+    deleteOrder: async (orderId) => {
+        const response = await fetch(`/api/orders/${orderId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         return response.json();
     },

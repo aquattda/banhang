@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản của tôi - GameShop</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background-color: #f5f7fa;
+        }
+        
+        .account-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .account-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .account-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+        
+        .account-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            color: #667eea;
+        }
+        
+        .tab.active {
+            color: #667eea;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .info-card h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .order-item {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .order-code {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .order-status {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .order-products {
+            margin: 15px 0;
+        }
+        
+        .order-product {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .order-product:last-child {
+            border-bottom: none;
+        }
+        
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .tab {
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">
+                    <img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="GameShop Logo" style="height: 40px; vertical-align: middle;">
+                    <span>GameShop</span>
+                </a>
+                
+                <ul class="nav-menu">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/games.html">Danh mục Game</a></li>
+                    <li><a href="/contact.html">Liên hệ</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="/cart.html" class="cart-btn">
+                        🛒 Giỏ hàng
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                    <a href="/account.html" class="cart-btn">
+                        👤 Tài khoản
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="account-container">
+        <div class="account-header">
+            <h1 id="welcome-name">Xin chào!</h1>
+            <p id="user-email"></p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('profile')">📋 Thông tin cá nhân</button>
+            <button class="tab" onclick="switchTab('orders')">🛍️ Lịch sử đơn hàng</button>
+            <button class="tab" onclick="switchTab('password')">🔒 Đổi mật khẩu</button>
+            <button class="tab" onclick="logout()">🚪 Đăng xuất</button>
+        </div>
+        
+        <!-- Profile Tab -->
+        <div id="profile-tab" class="tab-content active">
+            <div class="info-card">
+                <h2>Thông Tin Cá Nhân</h2>
+                <form id="profile-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Họ và tên</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profile-email" disabled style="background: #f5f5f5;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="tel" id="profile-phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Ngày tham gia</label>
+                            <input type="text" id="profile-created" disabled style="background: #f5f5f5;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Địa chỉ</label>
+                        <textarea id="profile-address"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Cập Nhật Thông Tin</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Orders Tab -->
+        <div id="orders-tab" class="tab-content">
+            <div id="orders-list"></div>
+        </div>
+        
+        <!-- Password Tab -->
+        <div id="password-tab" class="tab-content">
+            <div class="info-card">
+                <h2>Đổi Mật Khẩu</h2>
+                <form id="password-form">
+                    <div class="form-group">
+                        <label>Mật khẩu hiện tại</label>
+                        <input type="password" id="current-password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mật khẩu mới</label>
+                        <input type="password" id="new-password" minlength="6" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Xác nhận mật khẩu mới</label>
+                        <input type="password" id="confirm-new-password" minlength="6" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Đổi Mật Khẩu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="GameShop" style="height: 30px; vertical-align: middle;"> GameShop</h3>
+                    <p>Nền tảng mua vật phẩm game uy tín, nhanh chóng và an toàn nhất Việt Nam.</p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/tuan.474" title="Facebook" target="_blank">📘</a>
+                        <a href="https://zalo.me/0363296105" title="Zalo" target="_blank">💬</a>
+                        <a href="mailto:aquattda@gmail.com" title="Email" target="_blank">📧</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Liên Hệ</h3>
+                    <p>📞 Hotline: 0363296105</p>
+                    <p>📧 Email: aquattda@gmail.com</p>
+                    <p>💬 Zalo: 0363296105</p>
+                    <p>🕐 Hỗ trợ: 8:00 - 22:00 hàng ngày</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Chính Sách</h3>
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="#">Chính sách bảo mật</a>
+                    <a href="#">Hướng dẫn mua hàng</a>
+                    <a href="#">Câu hỏi thường gặp</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>⚠️ Lưu ý: Trang web không thuộc sở hữu của Roblox, Garena, hay bất kỳ nhà phát triển game nào. Chúng tôi chỉ cung cấp dịch vụ nạp vật phẩm hợp lệ.</p>
+                <p>&copy; 2025 GameShop. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('customer_token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return false;
+            }
+            return token;
+        }
+        
+        // Switch tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            if (tabName === 'orders') {
+                loadOrderHistory();
+            }
+        }
+        
+        // Load profile
+        async function loadProfile() {
+            const token = checkAuth();
+            if (!token) return;
+            
+            try {
+                const response = await fetch('/api/customer-auth/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const customer = result.data;
+                    document.getElementById('welcome-name').textContent = `Xin chào, ${customer.name}!`;
+                    document.getElementById('user-email').textContent = customer.email;
+                    document.getElementById('profile-name').value = customer.name;
+                    document.getElementById('profile-email').value = customer.email;
+                    document.getElementById('profile-phone').value = customer.phone || '';
+                    document.getElementById('profile-address').value = customer.address || '';
+                    document.getElementById('profile-created').value = new Date(customer.created_at).toLocaleDateString('vi-VN');
+                } else {
+                    if (response.status === 401) {
+                        localStorage.removeItem('customer_token');
+                        localStorage.removeItem('customer_info');
+                        window.location.href = '/login.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Load profile error:', error);
+            }
+        }
+        
+        // Update profile
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = checkAuth();
+            if (!token) return;
+            
+            const name = document.getElementById('profile-name').value;
+            const phone = document.getElementById('profile-phone').value;
+            const address = document.getElementById('profile-address').value;
+            
+            try {
+                const response = await fetch('/api/customer-auth/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, phone, address })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Cập nhật thông tin thành công', 'success');
+                    loadProfile();
+                } else {
+                    showNotification(result.message || 'Cập nhật thất bại', 'error');
+                }
+            } catch (error) {
+                console.error('Update profile error:', error);
+                showNotification('Lỗi kết nối server', 'error');
+            }
+        });
+        
+        // Change password
+        document.getElementById('password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = checkAuth();
+            if (!token) return;
+            
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-new-password').value;
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('Mật khẩu mới không khớp', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/customer-auth/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Đổi mật khẩu thành công', 'success');
+                    document.getElementById('password-form').reset();
+                } else {
+                    showNotification(result.message || 'Đổi mật khẩu thất bại', 'error');
+                }
+            } catch (error) {
+                console.error('Change password error:', error);
+                showNotification('Lỗi kết nối server', 'error');
+            }
+        });
+        
+        // Load order history
+        async function loadOrderHistory() {
+            const token = checkAuth();
+            if (!token) return;
+            
+            try {
+                const response = await fetch('/api/customer-auth/orders', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    document.getElementById('orders-list').innerHTML = result.data.map(order => `
+                        <div class="order-item">
+                            <div class="order-header">
+                                <div class="order-code">${order.order_code}</div>
+                                <div class="order-status status-${order.status}">
+                                    ${getStatusText(order.status)}
+                                </div>
+                            </div>
+                            <div class="order-products">
+                                ${order.items.map(item => `
+                                    <div class="order-product">
+                                        <div>
+                                            <strong>${item.product_name}</strong>
+                                            <div style="font-size: 13px; color: #6c757d;">Số lượng: ${item.quantity}</div>
+                                        </div>
+                                        <div style="font-weight: 600;">${formatCurrency(item.subtotal)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="order-total">
+                                <span>Tổng tiền:</span>
+                                <span>${formatCurrency(order.total_amount)}</span>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 13px; color: #6c757d;">
+                                Ngày đặt: ${new Date(order.created_at).toLocaleString('vi-VN')}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('orders-list').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <h3>Chưa có đơn hàng nào</h3>
+                            <p>Bạn chưa có đơn hàng nào. Hãy mua sắm ngay!</p>
+                            <a href="/games.html" class="btn btn-primary" style="margin-top: 20px;">Khám phá sản phẩm</a>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Load orders error:', error);
+            }
+        }
+        
+        function getStatusText(status) {
+            const statuses = {
+                'pending': 'Chờ xử lý',
+                'processing': 'Đang xử lý',
+                'completed': 'Hoàn thành',
+                'cancelled': 'Đã hủy'
+            };
+            return statuses[status] || status;
+        }
+        
+        function logout() {
+            localStorage.removeItem('customer_token');
+            localStorage.removeItem('customer_info');
+            window.location.href = '/';
+        }
+        
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>

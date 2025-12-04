@@ -72,7 +72,7 @@ function displayFeaturedProducts(products) {
     const productsContainer = document.getElementById('featured-products');
     
     productsContainer.innerHTML = products.map(product => `
-        <div class="card product-card" onclick="navigateTo('/product.html?id=${product.id}')">
+        <div class="card product-card" onclick="navigateTo('/product.html?id=${product.product_id}')">
             <div class="product-badge">⭐ Nổi bật</div>
             <div class="product-card-img">
                 ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;">` : '🎁'}
@@ -82,7 +82,7 @@ function displayFeaturedProducts(products) {
                 <h3 class="card-title">${product.name}</h3>
                 <div class="product-sold">🔥 Đã bán: <strong>${product.sold_count || 0}</strong></div>
                 <div class="card-price">${formatCurrency(product.price)}</div>
-                <button class="btn btn-primary" onclick="event.stopPropagation(); addToCartQuick(${product.id})">
+                <button class="btn btn-primary" onclick="event.stopPropagation(); addToCartQuick(${product.product_id})">
                     Thêm vào giỏ 🛒
                 </button>
             </div>
@@ -124,7 +124,7 @@ function displayLatestProducts(products) {
     const productsContainer = document.getElementById('latest-products');
     
     productsContainer.innerHTML = products.map(product => `
-        <div class="card product-card" onclick="navigateTo('/product.html?id=${product.id}')">
+        <div class="card product-card" onclick="navigateTo('/product.html?id=${product.product_id}')">
             <div class="product-badge new">🆕 Mới</div>
             <div class="product-card-img">
                 ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;">` : '🎁'}
@@ -134,7 +134,7 @@ function displayLatestProducts(products) {
                 <h3 class="card-title">${product.name}</h3>
                 <div class="product-sold">📊 Đã bán: <strong>${product.sold_count || 0}</strong></div>
                 <div class="card-price">${formatCurrency(product.price)}</div>
-                <button class="btn btn-primary" onclick="event.stopPropagation(); addToCartQuick(${product.id})">
+                <button class="btn btn-primary" onclick="event.stopPropagation(); addToCartQuick(${product.product_id})">
                     Thêm vào giỏ 🛒
                 </button>
             </div>

@@ -16,6 +16,7 @@ const createOrder = async (req, res) => {
             buyer_email,
             payment_method,
             note,
+            customer_id, // ID khách hàng nếu đã đăng nhập
             items // Array: [{ product_id, quantity }]
         } = req.body;
         
@@ -66,9 +67,9 @@ const createOrder = async (req, res) => {
         
         // Insert order
         const [orderResult] = await connection.query(
-            `INSERT INTO orders (order_code, customer_name, customer_phone, customer_email, 
-             total_amount, notes) VALUES (?, ?, ?, ?, ?, ?)`,
-            [order_code, buyer_name, buyer_phone, buyer_email || '', total_amount, note || '']
+            `INSERT INTO orders (order_code, customer_id, customer_name, customer_phone, customer_email, 
+             total_amount, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [order_code, customer_id || null, buyer_name, buyer_phone, buyer_email || '', total_amount, note || '']
         );
         
         const order_id = orderResult.insertId;
@@ -126,7 +127,7 @@ const getOrderByCode = async (req, res) => {
         
         const [items] = await db.query(
             'SELECT * FROM order_items WHERE order_id = ?',
-            [orders[0].id]
+            [orders[0].order_id]
         );
         
         res.json({ 
@@ -162,6 +163,38 @@ const getAllOrders = async (req, res) => {
         res.json({ success: true, data: orders });
     } catch (error) {
         console.error('Get all orders error:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+};
+
+// Admin: Lấy chi tiết đơn hàng theo ID
+const getOrderById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const [orders] = await db.query(
+            'SELECT * FROM orders WHERE order_id = ?',
+            [id]
+        );
+        
+        if (orders.length === 0) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+        
+        const [items] = await db.query(
+            'SELECT * FROM order_items WHERE order_id = ?',
+            [id]
+        );
+        
+        res.json({ 
+            success: true, 
+            data: {
+                ...orders[0],
+                items
+            }
+        });
+    } catch (error) {
+        console.error('Get order by ID error:', error);
         res.status(500).json({ success: false, error: 'Server error' });
     }
 };
@@ -246,9 +279,44 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+// Admin: Xóa đơn hàng
+const deleteOrder = async (req, res) => {
+    const connection = await db.getConnection();
+    
+    try {
+        await connection.beginTransaction();
+        
+        const { id } = req.params;
+        
+        // Kiểm tra đơn hàng có tồn tại
+        const [orders] = await connection.query('SELECT * FROM orders WHERE order_id = ?', [id]);
+        if (orders.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+        
+        // Xóa order items trước
+        await connection.query('DELETE FROM order_items WHERE order_id = ?', [id]);
+        
+        // Xóa đơn hàng
+        await connection.query('DELETE FROM orders WHERE order_id = ?', [id]);
+        
+        await connection.commit();
+        res.json({ success: true, message: 'Order deleted successfully' });
+    } catch (error) {
+        await connection.rollback();
+        console.error('Delete order error:', error);
+        res.status(500).json({ success: false, error: 'Server error', message: error.message });
+    } finally {
+        connection.release();
+    }
+};
+
 module.exports = {
     createOrder,
     getOrderByCode,
     getAllOrders,
-    updateOrderStatus
+    getOrderById,
+    updateOrderStatus,
+    deleteOrder
 };

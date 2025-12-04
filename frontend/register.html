@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - GameShop</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .auth-box {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-logo img {
+            height: 60px;
+            margin-bottom: 10px;
+        }
+        
+        .auth-logo h1 {
+            font-size: 28px;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .auth-logo p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-register {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .auth-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .auth-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            color: #6c757d;
+            position: relative;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        
+        .divider::before {
+            left: 0;
+        }
+        
+        .divider::after {
+            right: 0;
+        }
+        
+        .back-home {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-home a {
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-home a:hover {
+            color: #667eea;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="GameShop Logo">
+                <h1>Đăng Ký</h1>
+                <p>Tạo tài khoản để trải nghiệm đầy đủ</p>
+            </div>
+            
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="name">Họ và tên <span style="color: red;">*</span></label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        placeholder="Nhập họ tên của bạn"
+                        required
+                    >
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email <span style="color: red;">*</span></label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            placeholder="example@email.com"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Số điện thoại</label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            placeholder="0123456789"
+                        >
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mật khẩu <span style="color: red;">*</span></label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Ít nhất 6 ký tự"
+                        minlength="6"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password">Xác nhận mật khẩu <span style="color: red;">*</span></label>
+                    <input 
+                        type="password" 
+                        id="confirm-password" 
+                        name="confirm-password" 
+                        placeholder="Nhập lại mật khẩu"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Địa chỉ</label>
+                    <textarea 
+                        id="address" 
+                        name="address" 
+                        placeholder="Nhập địa chỉ của bạn (tùy chọn)"
+                    ></textarea>
+                </div>
+                
+                <button type="submit" class="btn-register">Đăng Ký</button>
+            </form>
+            
+            <div class="divider">hoặc</div>
+            
+            <div class="auth-links">
+                <p>Đã có tài khoản? <a href="/login.html">Đăng nhập ngay</a></p>
+            </div>
+            
+            <div class="back-home">
+                <a href="/">← Về trang chủ</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const address = document.getElementById('address').value;
+            
+            // Validate password match
+            if (password !== confirmPassword) {
+                showNotification('Mật khẩu xác nhận không khớp', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/customer-auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        phone,
+                        password,
+                        address
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Lưu token và thông tin user
+                    localStorage.setItem('customer_token', result.data.token);
+                    localStorage.setItem('customer_info', JSON.stringify(result.data.customer));
+                    
+                    showNotification('Đăng ký thành công!', 'success');
+                    
+                    // Redirect sau 1 giây
+                    setTimeout(() => {
+                        window.location.href = '/account.html';
+                    }, 1000);
+                } else {
+                    showNotification(result.message || 'Đăng ký thất bại', 'error');
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                showNotification('Lỗi kết nối server', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
