@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử đơn hàng - GameShop</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/modern-layout.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="modern-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="header-logo">
+                    <img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="Solo Shop Logo">
+                    <span>Solo Shop</span>
+                </a>
+                
+                <div class="header-search">
+                    <input type="text" placeholder="Tìm sản phẩm, dịch vụ..." id="search-input">
+                    <button class="search-btn">🔍</button>
+                </div>
+                
+                <div class="header-actions">
+                    <a href="/contact.html" class="header-link">
+                        <span class="icon">💬</span>
+                        <span>Hỗ trợ</span>
+                    </a>
+                    <a href="/orders.html" class="header-link">
+                        <span class="icon">📋</span>
+                        <span>Lịch sử</span>
+                    </a>
+                    <a href="/cart.html" class="header-link">
+                        <span class="icon">🛒</span>
+                        <span id="cart-count">0</span>
+                    </a>
+                    <div id="auth-btn-modern"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main style="min-height: 70vh; background: #f8f9fa; padding: 40px 0;">
+        <div class="container">
+            <h1 style="text-align: center; margin-bottom: 40px; color: #2c3e50;">📋 Lịch Sử Đơn Hàng</h1>
+
+            <div id="orders-container">
+                <!-- Orders will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="GameShop" style="height: 30px; vertical-align: middle;"> GameShop</h3>
+                    <p>Nền tảng mua vật phẩm game uy tín, nhanh chóng và an toàn nhất Việt Nam.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Liên Hệ</h3>
+                    <p>📞 Hotline: 0363296105</p>
+                    <p>📧 Email: aquattda@gmail.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GameShop. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/customer-auth.js"></script>
+    <script>
+        // Load customer orders
+        async function loadOrders() {
+            const container = document.getElementById('orders-container');
+            
+            // Check if logged in
+            if (!CustomerAuth.isLoggedIn()) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 15px;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">🔐</div>
+                        <h2 style="color: #2c3e50; margin-bottom: 15px;">Vui lòng đăng nhập</h2>
+                        <p style="color: #6c757d; margin-bottom: 30px;">Bạn cần đăng nhập để xem lịch sử đơn hàng</p>
+                        <a href="/login.html" class="btn btn-primary">Đăng nhập ngay</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="loading-spinner">⏳ Đang tải...</div></div>';
+
+            try {
+                const response = await fetch('/api/orders/my-orders', {
+                    headers: CustomerAuth.getAuthHeaders()
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error || 'Lỗi khi tải đơn hàng');
+                }
+                
+                if (!result.data || result.data.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 15px;">
+                            <div style="font-size: 64px; margin-bottom: 20px;">📦</div>
+                            <h2 style="color: #2c3e50; margin-bottom: 15px;">Chưa có đơn hàng</h2>
+                            <p style="color: #6c757d; margin-bottom: 30px;">Bạn chưa có đơn hàng nào</p>
+                            <a href="/" class="btn btn-primary">Mua sắm ngay</a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Display orders
+                container.innerHTML = result.data.map(order => `
+                    <div class="order-card" style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; border-bottom: 1px solid #e9ecef; padding-bottom: 10px;">
+                            <div>
+                                <h3 style="color: #2c3e50; margin: 0 0 6px 0; font-size: 16px;">
+                                    📦 <span style="color: #667eea;">${order.order_code}</span>
+                                </h3>
+                                <p style="color: #6c757d; margin: 0; font-size: 13px;">
+                                    📅 ${new Date(order.created_at).toLocaleString('vi-VN')}
+                                </p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="order-status" style="display: inline-block; padding: 5px 12px; border-radius: 15px; font-weight: 600; font-size: 12px; ${getStatusStyle(order.status)}">
+                                    ${getStatusText(order.status)}
+                                </div>
+                                <div style="margin-top: 6px;">
+                                    <span class="payment-status" style="display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; ${getPaymentStatusStyle(order.payment_status)}">
+                                        ${getPaymentStatusText(order.payment_status)}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="order-items" style="margin-bottom: 10px;">
+                            ${order.items.map(item => `
+                                <div style="display: flex; align-items: center; padding: 8px; background: #f8f9fa; border-radius: 8px; margin-bottom: 6px;">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; color: #2c3e50; margin-bottom: 3px; font-size: 14px;">${item.product_name}</div>
+                                        <div style="color: #6c757d; font-size: 12px;">SL: ${item.quantity}</div>
+                                    </div>
+                                    <div style="font-weight: 700; color: #667eea; font-size: 14px;">
+                                        ${formatCurrency(item.subtotal)}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid #e9ecef;">
+                            <div style="color: #6c757d; font-size: 13px;">
+                                ${order.notes ? `💬 ${order.notes}` : ''}
+                            </div>
+                            <div style="font-size: 16px; font-weight: 700; color: #667eea;">
+                                Tổng: ${formatCurrency(order.total_amount)}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Load orders error:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 15px;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">❌</div>
+                        <h2 style="color: #ff6b6b; margin-bottom: 15px;">Lỗi tải dữ liệu</h2>
+                        <p style="color: #6c757d; margin-bottom: 30px;">${error.message}</p>
+                        <button onclick="loadOrders()" class="btn btn-primary">Thử lại</button>
+                    </div>
+                `;
+            }
+        }
+        
+        function getStatusStyle(status) {
+            const styles = {
+                'pending': 'background: #fff3cd; color: #856404;',
+                'completed': 'background: #d4edda; color: #155724;',
+                'cancelled': 'background: #f8d7da; color: #721c24;'
+            };
+            return styles[status] || styles.pending;
+        }
+        
+        function getStatusText(status) {
+            const texts = {
+                'pending': '⏳ Chờ xử lý',
+                'completed': '✅ Hoàn thành',
+                'cancelled': '❌ Đã hủy'
+            };
+            return texts[status] || status;
+        }
+        
+        function getPaymentStatusStyle(status) {
+            const styles = {
+                'unpaid': 'background: #fff3cd; color: #856404;',
+                'paid': 'background: #d4edda; color: #155724;',
+                'refunded': 'background: #d1ecf1; color: #0c5460;'
+            };
+            return styles[status] || styles.unpaid;
+        }
+        
+        function getPaymentStatusText(status) {
+            const texts = {
+                'unpaid': '💳 Chưa thanh toán',
+                'paid': '✅ Đã thanh toán',
+                'refunded': '↩️ Đã hoàn tiền'
+            };
+            return texts[status] || status;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            CustomerAuth.updateHeader();
+            loadOrders();
+        });
+    </script>
+</body>
+</html>

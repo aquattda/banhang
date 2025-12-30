@@ -1,17 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware, customerAuthMiddleware } = require('../middleware/auth');
 const {
     createOrder,
     getOrderByCode,
     getAllOrders,
     getOrderById,
     updateOrderStatus,
-    deleteOrder
+    deleteOrder,
+    getCustomerOrders
 } = require('../controllers/orderController');
 
 // Public routes
 router.post('/', createOrder);
+
+// Customer routes (yêu cầu đăng nhập customer)
+router.get('/my-orders', customerAuthMiddleware, getCustomerOrders);
 
 // Admin routes (đặt trước để tránh conflict)
 router.get('/all', authMiddleware, adminMiddleware, getAllOrders);

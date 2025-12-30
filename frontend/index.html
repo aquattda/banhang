@@ -139,7 +139,6 @@
     <!-- Scripts -->
     <script src="/js/app.js"></script>
     <script src="/js/customer-auth.js"></script>
-    <script src="/js/home.js"></script>
     <script>
         // Load Roblox Services
         async function loadRobloxServices() {
@@ -217,8 +216,8 @@
                         console.log(`Products for ${section.title}:`, productsResult);
                         
                         if (productsResult.success && productsResult.data && productsResult.data.length > 0) {
-                            // Limit to 10 products per section
-                            const displayProducts = productsResult.data.slice(0, 5);
+                            // Limit to 15 products per section for horizontal scroll
+                            const displayProducts = productsResult.data.slice(0, 15);
                             
                             htmlContent += `
                                 <div class="game-category-section">
@@ -231,7 +230,9 @@
                                         </div>
                                         <a href="/product.html?game_id=${section.game_id}&category_id=${section.category_id}" class="view-more-btn">Xem Thêm</a>
                                     </div>
-                                    <div class="category-items-grid">
+                                    <div class="category-carousel-wrapper">
+                                        <button class="carousel-nav-btn prev-btn" onclick="event.stopPropagation(); scrollCarousel(this, -1)">‹</button>
+                                        <div class="category-items-carousel">
                                         ${displayProducts.map(product => `
                                             <div class="category-item-card" onclick="window.location.href='/product.html?id=${product.product_id}'">
                                                 <div class="category-item-icon">
@@ -239,9 +240,11 @@
                                                 </div>
                                                 <h3 class="category-item-name">${product.name}</h3>
                                                 <div class="category-item-price">${product.price ? product.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ'}</div>
-                                                <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); window.location.href='/product.html?id=${product.product_id}'">Thanh Toán</button>
+                                                <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); addToCartAndRedirect(${product.product_id}, '${product.name.replace(/'/g, "\\'")}'  , ${product.price || 0}, '${product.image_url || ''}')">Mua Ngay</button>
                                             </div>
                                         `).join('')}
+                                        </div>
+                                        <button class="carousel-nav-btn next-btn" onclick="event.stopPropagation(); scrollCarousel(this, 1)">›</button>
                                     </div>
                                 </div>
                             `;
@@ -257,15 +260,13 @@
                     // Add "View All Categories" section at the end
                     htmlContent += `
                         <div class="view-all-categories-section">
-                            <div class="view-all-content">
-                                <div class="view-all-icon">🎮</div>
-                                <h3>Khám phá thêm nhiều danh mục khác</h3>
-                                <p>Xem toàn bộ danh mục game Roblox và sản phẩm</p>
-                                <a href="/games.html" class="btn-view-all">Xem Tất Cả Danh Mục →</a>
-                            </div>
+                            <a href="/games.html" class="btn-view-all">Xem Tất Cả Danh Mục →</a>
                         </div>
                     `;
                     container.innerHTML = htmlContent;
+                    
+                    // Initialize drag-to-scroll after content is loaded
+                    setTimeout(() => initCarouselDragScroll(), 100);
                 } else {
                     container.innerHTML = '<p style="text-align:center;padding:40px;color:#999;">Chưa có sản phẩm nào</p>';
                 }
@@ -275,6 +276,106 @@
             }
         }
         
+        // Add to cart and redirect to cart page
+        function addToCartAndRedirect(productId, productName, productPrice, productImage) {
+            // Get existing cart or create new one
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            
+            // Check if product already exists in cart
+            const existingItem = cart.find(item => item.product_id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    product_id: productId,
+                    name: productName,
+                    price: productPrice,
+                    image_url: productImage,
+                    quantity: 1
+                });
+            }
+            
+            // Save cart
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            // Redirect to cart page
+            window.location.href = '/cart.html';
+        }
+
+        // Carousel Navigation Function
+        function scrollCarousel(button, direction) {
+            const carousel = button.parentElement.querySelector('.category-items-carousel');
+            const cardWidth = carousel.querySelector('.category-item-card').offsetWidth;
+            const gap = 20; // gap between cards
+            const scrollAmount = (cardWidth + gap) * 3; // Scroll 3 cards at a time
+            
+            carousel.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+
+        // Initialize drag-to-scroll for all carousels
+        function initCarouselDragScroll() {
+            const carousels = document.querySelectorAll('.category-items-carousel');
+            
+            carousels.forEach(carousel => {
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+                let hasMoved = false;
+
+                carousel.addEventListener('mousedown', (e) => {
+                    // Don't interfere with clicks on buttons
+                    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+                    
+                    isDown = true;
+                    hasMoved = false;
+                    startX = e.pageX - carousel.offsetLeft;
+                    scrollLeft = carousel.scrollLeft;
+                    carousel.style.cursor = 'grabbing';
+                });
+
+                carousel.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    carousel.classList.remove('active-drag');
+                    carousel.style.cursor = 'grab';
+                });
+
+                carousel.addEventListener('mouseup', () => {
+                    isDown = false;
+                    carousel.classList.remove('active-drag');
+                    carousel.style.cursor = 'grab';
+                });
+
+                carousel.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    
+                    const x = e.pageX - carousel.offsetLeft;
+                    const walk = (x - startX) * 2; // Scroll speed multiplier
+                    
+                    // If moved more than 5px, consider it a drag
+                    if (Math.abs(walk) > 5) {
+                        hasMoved = true;
+                        carousel.classList.add('active-drag');
+                    }
+                    
+                    carousel.scrollLeft = scrollLeft - walk;
+                });
+
+                // Prevent click event when dragging
+                carousel.addEventListener('click', (e) => {
+                    if (hasMoved) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        hasMoved = false;
+                    }
+                }, true);
+            });
+        }
+
         // Modern Auth Button
         function updateModernAuthButton() {
             const authBtn = document.getElementById('auth-btn-modern');

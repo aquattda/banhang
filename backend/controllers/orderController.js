@@ -312,11 +312,38 @@ const deleteOrder = async (req, res) => {
     }
 };
 
+// Customer: Lấy đơn hàng của mình
+const getCustomerOrders = async (req, res) => {
+    try {
+        const customer_id = req.user.customer_id;
+        
+        const [orders] = await db.query(
+            'SELECT * FROM orders WHERE customer_id = ? ORDER BY created_at DESC',
+            [customer_id]
+        );
+        
+        // Lấy items cho từng order
+        for (let order of orders) {
+            const [items] = await db.query(
+                'SELECT * FROM order_items WHERE order_id = ?',
+                [order.order_id]
+            );
+            order.items = items;
+        }
+        
+        res.json({ success: true, data: orders });
+    } catch (error) {
+        console.error('Get customer orders error:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+};
+
 module.exports = {
     createOrder,
     getOrderByCode,
     getAllOrders,
     getOrderById,
     updateOrderStatus,
-    deleteOrder
+    deleteOrder,
+    getCustomerOrders
 };

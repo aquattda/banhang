@@ -218,15 +218,44 @@ async function handleCheckout(e) {
     });
 
     const formData = new FormData(e.target);
+    
+    // Get customer info - kiểm tra trực tiếp localStorage
+    let customer_id = null;
+    
+    if (window.CustomerAuth && typeof CustomerAuth.isLoggedIn === 'function' && CustomerAuth.isLoggedIn()) {
+        const customer = CustomerAuth.getCustomer();
+        customer_id = customer?.customer_id || null;
+        console.log('=== CHECKOUT DEBUG ===');
+        console.log('Logged in via CustomerAuth');
+        console.log('Customer:', customer);
+        console.log('Customer ID:', customer_id);
+    } else {
+        // Fallback: check localStorage directly
+        const customerInfo = localStorage.getItem('customer_info');
+        if (customerInfo) {
+            try {
+                const parsed = JSON.parse(customerInfo);
+                customer_id = parsed.customer_id || null;
+                console.log('=== CHECKOUT DEBUG (Fallback) ===');
+                console.log('Using localStorage directly');
+                console.log('Customer ID:', customer_id);
+            } catch (e) {
+                console.error('Failed to parse customer_info:', e);
+            }
+        }
+    }
+    
     const orderData = {
         buyer_name: formData.get('buyer_name'),
         buyer_phone: formData.get('buyer_phone'),
         buyer_email: formData.get('buyer_email') || '',
         payment_method: formData.get('payment_method'),
         note: formData.get('note') || '',
-        customer_id: (window.CustomerAuth && CustomerAuth.isLoggedIn()) ? CustomerAuth.getCustomer().customer_id : null,
+        customer_id: customer_id,
         items: selectedItems
     };
+    
+    console.log('Final order data:', orderData);
 
     try {
         // Show loading
@@ -278,9 +307,9 @@ function autoFillCustomerInfo() {
     if (window.CustomerAuth && CustomerAuth.isLoggedIn()) {
         const customer = CustomerAuth.getCustomer();
         if (customer) {
-            const nameInput = document.getElementById('buyer_name');
-            const phoneInput = document.getElementById('buyer_phone');
-            const emailInput = document.getElementById('buyer_email');
+            const nameInput = document.querySelector('input[name="buyer_name"]');
+            const phoneInput = document.querySelector('input[name="buyer_phone"]');
+            const emailInput = document.querySelector('input[name="buyer_email"]');
             
             if (nameInput && !nameInput.value) nameInput.value = customer.name || '';
             if (phoneInput && !phoneInput.value) phoneInput.value = customer.phone || '';

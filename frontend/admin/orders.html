@@ -111,23 +111,52 @@
         }
 
         async function loadOrders() {
+            console.log('=== LOAD ORDERS START ===');
             const auth = checkAdminAuth();
-            if (!auth) return;
+            console.log('Auth check result:', auth);
+            
+            if (!auth) {
+                console.error('Authentication failed!');
+                return;
+            }
 
             const searchCode = document.getElementById('search-order-code').value.trim();
             const status = document.getElementById('filter-status').value;
             const paymentStatus = document.getElementById('filter-payment-status').value;
 
             try {
-                const result = await AdminAPI.getAllOrders({ status, limit: 1000 });
+                console.log('Loading orders with filters:', { status, paymentStatus, searchCode });
+                console.log('Calling AdminAPI.getAllOrders...');
                 
-                if (!result.success || !result.data || result.data.length === 0) {
+                const result = await AdminAPI.getAllOrders({ status, limit: 1000 });
+                console.log('API result:', result);
+                
+                if (!result) {
+                    console.error('No result from API!');
+                    document.getElementById('orders-table').innerHTML = `
+                        <tr><td colspan="8" style="text-align: center; color: red;">Lỗi: Không nhận được phản hồi từ server</td></tr>
+                    `;
+                    return;
+                }
+                
+                if (!result.success) {
+                    console.error('API returned error:', result.error || result.message);
+                    document.getElementById('orders-table').innerHTML = `
+                        <tr><td colspan="8" style="text-align: center; color: red;">Lỗi: ${result.error || result.message || 'Unknown error'}</td></tr>
+                    `;
+                    return;
+                }
+                
+                if (!result.data || result.data.length === 0) {
+                    console.warn('No orders found in database');
                     document.getElementById('orders-table').innerHTML = `
                         <tr><td colspan="8" style="text-align: center;">Không có đơn hàng</td></tr>
                     `;
                     document.getElementById('pagination').innerHTML = '';
                     return;
                 }
+                
+                console.log(`Found ${result.data.length} orders`);
 
                 let orders = result.data;
 
@@ -164,9 +193,81 @@
         let currentPage = 1;
         const itemsPerPage = 5;
         let allOrders = [];
+        let lastOrderCount = 0;
+        let isFirstLoad = true;
+        let autoRefreshInterval = null;
+
+        // Check for new orders
+        async function checkNewOrders() {
+            const auth = checkAdminAuth();
+            if (!auth) return;
+
+            try {
+                const result = await AdminAPI.getAllOrders({ limit: 1000 });
+                
+                if (result.success && result.data) {
+                    const currentOrderCount = result.data.length;
+                    
+                    // Nếu không phải lần đầu tiên và có đơn hàng mới
+                    if (!isFirstLoad && currentOrderCount > lastOrderCount) {
+                        const newOrdersCount = currentOrderCount - lastOrderCount;
+                        
+                        // Hiển thị notification
+                        showNotification(`🔔 Có ${newOrdersCount} đơn hàng mới!`, 'success');
+                        
+                        // Phát âm thanh thông báo (nếu trình duyệt hỗ trợ)
+                        playNotificationSound();
+                        
+                        // Tự động load lại danh sách
+                        loadOrders();
+                    }
+                    
+                    lastOrderCount = currentOrderCount;
+                    isFirstLoad = false;
+                }
+            } catch (error) {
+                console.error('Check new orders error:', error);
+            }
+        }
+
+        // Play notification sound
+        function playNotificationSound() {
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE');
+                audio.volume = 0.3;
+                audio.play().catch(e => console.log('Audio play failed:', e));
+            } catch (e) {
+                console.log('Could not play notification sound:', e);
+            }
+        }
+
+        // Start auto-refresh
+        function startAutoRefresh() {
+            // Clear any existing interval
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            // Check every 30 seconds
+            autoRefreshInterval = setInterval(checkNewOrders, 30000);
+        }
+
+        // Stop auto-refresh
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
 
         function displayOrders(orders) {
             allOrders = orders;
+            
+            // Update last order count
+            if (orders.length > 0) {
+                lastOrderCount = orders.length;
+            }
+            
             const totalPages = Math.ceil(orders.length / itemsPerPage);
             
             // Ensure currentPage is within bounds
@@ -419,7 +520,13 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadOrders);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOrders();
+            startAutoRefresh();
+            
+            // Stop auto-refresh when user leaves page
+            window.addEventListener('beforeunload', stopAutoRefresh);
+        });
     </script>
 
     <style>
