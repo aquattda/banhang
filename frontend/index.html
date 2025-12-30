@@ -233,13 +233,13 @@
                                     </div>
                                     <div class="category-items-grid">
                                         ${displayProducts.map(product => `
-                                            <div class="category-item-card" onclick="navigateTo('/product.html?game_id=${section.game_id}&category_id=${section.category_id}')">
+                                            <div class="category-item-card" onclick="window.location.href='/product.html?id=${product.product_id}'">
                                                 <div class="category-item-icon">
                                                     ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}">` : '🎮'}
                                                 </div>
                                                 <h3 class="category-item-name">${product.name}</h3>
                                                 <div class="category-item-price">${product.price ? product.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ'}</div>
-                                                <button class="btn btn-primary btn-sm">Thanh Toán</button>
+                                                <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); window.location.href='/product.html?id=${product.product_id}'">Thanh Toán</button>
                                             </div>
                                         `).join('')}
                                     </div>
