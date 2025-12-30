@@ -93,8 +93,8 @@ function displayProductsList(products) {
                 <div class="product-card-body">
                     <h3 class="product-card-title">${product.name}</h3>
                     <div class="product-card-price">${formatCurrency(product.price)}</div>
-                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); quickAddToCart(${product.product_id})">
-                        Thêm vào giỏ 🛒
+                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); quickBuyNow(${product.product_id})">
+                        Mua ngay ⚡
                     </button>
                 </div>
             </div>
@@ -122,15 +122,19 @@ function displayNoProducts() {
 }
 
 // Quick add to cart từ danh sách
-async function quickAddToCart(productId) {
+async function quickBuyNow(productId) {
     try {
         const result = await API.getProductById(productId);
         if (result.success) {
             Cart.add(result.data, 1);
+            const productIdToUse = result.data.product_id || result.data.id;
+            localStorage.setItem('cart_selected_items', JSON.stringify([productIdToUse]));
+            showNotification('Đã thêm vào giỏ hàng! Đang chuyển đến thanh toán...', 'success');
+            setTimeout(() => navigateTo('/cart.html'), 500);
         }
     } catch (error) {
-        console.error('Quick add to cart error:', error);
-        showNotification('Lỗi khi thêm vào giỏ hàng', 'error');
+        console.error('Buy now error:', error);
+        showNotification('Lỗi khi mua hàng', 'error');
     }
 }
 
@@ -167,7 +171,7 @@ function displayProduct(product) {
                 </div>
 
                 <div class="product-form">
-                    <h3>🛒 Thêm vào giỏ hàng</h3>
+                    <h3>⚡ Mua ngay</h3>
                     
                     <div class="form-group">
                         <label class="form-label">Số lượng</label>
@@ -178,14 +182,9 @@ function displayProduct(product) {
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <button class="btn btn-secondary btn-lg" onclick="addToCart()">
-                            Thêm vào giỏ 🛒
-                        </button>
-                        <button class="btn btn-primary btn-lg" onclick="buyNow()">
-                            Mua ngay ⚡
-                        </button>
-                    </div>
+                    <button class="btn btn-primary btn-lg" onclick="buyNow()" style="width: 100%;">
+                        Mua ngay ⚡
+                    </button>
                 </div>
 
                 <div class="product-warning">
@@ -263,8 +262,9 @@ function buyNow() {
     // Set exclusive selection for this product only
     localStorage.setItem('cart_selected_items', JSON.stringify([productId]));
     
-    // Navigate to cart page immediately
-    navigateTo('/cart.html');
+    // Show notification and navigate
+    showNotification(`Đã thêm ${quantity} sản phẩm vào giỏ! Đang chuyển đến thanh toán...`, 'success');
+    setTimeout(() => navigateTo('/cart.html'), 500);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

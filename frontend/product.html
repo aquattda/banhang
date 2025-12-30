@@ -6,27 +6,43 @@
     <title>Chi tiết sản phẩm - GameShop</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/modern-layout.css">
     <link rel="stylesheet" href="/css/product.css">
 </head>
 <body>
-    <header class="header">
+    <!-- Header -->
+    <header class="modern-header">
         <div class="container">
-            <nav class="nav">
-                <a href="/" class="logo"><img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="GameShop Logo" style="height: 40px; vertical-align: middle;"> <span>GameShop</span></a>
+            <div class="header-content">
+                <!-- Logo -->
+                <a href="/" class="header-logo">
+                    <img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="Solo Shop Logo">
+                    <span>Solo Shop</span>
+                </a>
                 
-                <ul class="nav-menu">
-                    <li><a href="/">Trang chủ</a></li>
-                    <li><a href="/games.html">Danh mục Game</a></li>
-                    <li><a href="/contact.html">Liên hệ</a></li>
-                </ul>
-
-                <div class="nav-actions">
-                    <a href="/cart.html" class="cart-btn">
-                        🛒 Giỏ hàng
-                        <span class="cart-count" id="cart-count">0</span>
-                    </a>
+                <!-- Search Bar -->
+                <div class="header-search">
+                    <input type="text" placeholder="Tìm sản phẩm, dịch vụ..." id="search-input">
+                    <button class="search-btn">🔍</button>
                 </div>
-            </nav>
+                
+                <!-- Navigation Actions -->
+                <div class="header-actions">
+                    <a href="/contact.html" class="header-link">
+                        <span class="icon">💬</span>
+                        <span>Hỗ trợ</span>
+                    </a>
+                    <a href="/orders.html" class="header-link">
+                        <span class="icon">📋</span>
+                        <span>Lịch sử</span>
+                    </a>
+                    <a href="/cart.html" class="header-btn btn-recharge">
+                        <span class="icon">💳</span>
+                        <span>Nạp tiền</span>
+                    </a>
+                    <div id="auth-btn-modern"></div>
+                </div>
+            </div>
         </div>
     </header>
 

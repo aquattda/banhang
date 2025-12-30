@@ -82,24 +82,28 @@ function displayFeaturedProducts(products) {
                 <h3 class="card-title">${product.name}</h3>
                 <div class="product-sold">🔥 Đã bán: <strong>${product.sold_count || 0}</strong></div>
                 <div class="card-price">${formatCurrency(product.price)}</div>
-                <button class="btn btn-primary" onclick="event.stopPropagation(); addToCartQuick(${product.product_id})">
-                    Thêm vào giỏ 🛒
+                <button class="btn btn-primary" onclick="event.stopPropagation(); buyNowQuick(${product.product_id})">
+                    Mua ngay ⚡
                 </button>
             </div>
         </div>
     `).join('');
 }
 
-// Quick add to cart
-async function addToCartQuick(productId) {
+// Quick buy now - redirect to cart with exclusive selection
+async function buyNowQuick(productId) {
     try {
         const result = await API.getProductById(productId);
         if (result.success) {
             Cart.add(result.data, 1);
+            const productIdToUse = result.data.product_id || result.data.id;
+            localStorage.setItem('cart_selected_items', JSON.stringify([productIdToUse]));
+            showNotification('Đã thêm vào giỏ hàng! Đang chuyển đến thanh toán...', 'success');
+            setTimeout(() => navigateTo('/cart.html'), 500);
         }
     } catch (error) {
-        console.error('Add to cart error:', error);
-        showNotification('Lỗi khi thêm vào giỏ hàng', 'error');
+        console.error('Buy now error:', error);
+        showNotification('Lỗi khi mua hàng', 'error');
     }
 }
 
@@ -134,8 +138,8 @@ function displayLatestProducts(products) {
                 <h3 class="card-title">${product.name}</h3>
                 <div class="product-sold">📊 Đã bán: <strong>${product.sold_count || 0}</strong></div>
                 <div class="card-price">${formatCurrency(product.price)}</div>
-                <button class="btn btn-primary" onclick="event.stopPropagation(); addToCartQuick(${product.product_id})">
-                    Thêm vào giỏ 🛒
+                <button class="btn btn-primary" onclick="event.stopPropagation(); buyNowQuick(${product.product_id})">
+                    Mua ngay ⚡
                 </button>
             </div>
         </div>

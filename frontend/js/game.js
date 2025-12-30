@@ -157,8 +157,8 @@ function displayProducts(products) {
                     <button class="btn btn-outline" onclick="navigateTo('/product.html?id=${product.product_id}')">
                         Chi tiết
                     </button>
-                    <button class="btn btn-primary" onclick="quickAddToCart(${product.product_id})">
-                        Thêm vào giỏ
+                    <button class="btn btn-primary" onclick="quickBuyNow(${product.product_id})">
+                        Mua ngay ⚡
                     </button>
                 </div>
             </div>
@@ -180,16 +180,20 @@ function resetFilters() {
     applyFilters();
 }
 
-// Quick add to cart
-async function quickAddToCart(productId) {
+// Quick buy now - redirect to cart with exclusive selection
+async function quickBuyNow(productId) {
     try {
         const result = await API.getProductById(productId);
         if (result.success) {
             Cart.add(result.data, 1);
+            const productIdToUse = result.data.product_id || result.data.id;
+            localStorage.setItem('cart_selected_items', JSON.stringify([productIdToUse]));
+            showNotification('Đã thêm vào giỏ hàng! Đang chuyển đến thanh toán...', 'success');
+            setTimeout(() => navigateTo('/cart.html'), 500);
         }
     } catch (error) {
-        console.error('Add to cart error:', error);
-        showNotification('Lỗi khi thêm vào giỏ hàng', 'error');
+        console.error('Buy now error:', error);
+        showNotification('Lỗi khi mua hàng', 'error');
     }
 }
 

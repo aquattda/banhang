@@ -6,128 +6,96 @@
     <title>Game Shop - Mua vật phẩm game nhanh, an toàn, uy tín</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/modern-layout.css">
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
+    <header class="modern-header">
         <div class="container">
-            <nav class="nav">
-                <a href="/" class="logo"><img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="GameShop Logo" style="height: 40px; vertical-align: middle;"> <span>GameShop</span></a>
+            <div class="header-content">
+                <!-- Logo -->
+                <a href="/" class="header-logo">
+                    <img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="Solo Shop Logo">
+                    <span>Solo Shop</span>
+                </a>
                 
-                <ul class="nav-menu">
-                    <li><a href="/" class="active">Trang chủ</a></li>
-                    <li><a href="/games.html">Danh mục Game</a></li>
-                    <li><a href="/contact.html">Liên hệ</a></li>
-                </ul>
-
-                <div class="nav-actions">
-                    <a href="/cart.html" class="cart-btn">
-                        🛒 Giỏ hàng
-                        <span class="cart-count" id="cart-count">0</span>
-                    </a>
-                    <div id="auth-btn"></div>
+                <!-- Search Bar -->
+                <div class="header-search">
+                    <input type="text" placeholder="Tìm sản phẩm, dịch vụ..." id="search-input">
+                    <button class="search-btn">🔍</button>
                 </div>
-            </nav>
+                
+                <!-- Navigation Actions -->
+                <div class="header-actions">
+                    <a href="/contact.html" class="header-link">
+                        <span class="icon">💬</span>
+                        <span>Hỗ trợ</span>
+                    </a>
+                    <a href="/orders.html" class="header-link">
+                        <span class="icon">📋</span>
+                        <span>Lịch sử</span>
+                    </a>
+                    <a href="/cart.html" class="header-btn btn-recharge">
+                        <span class="icon">💳</span>
+                        <span>Nạp tiền</span>
+                    </a>
+                    <div id="auth-btn-modern"></div>
+                </div>
+            </div>
         </div>
     </header>
 
     <!-- Main Content -->
     <main>
-        <!-- Hero Section -->
-        <section class="hero">
+        <!-- Hero Section with Video & Banners -->
+        <section class="hero-modern">
             <div class="container">
-                <div class="hero-content">
-                    <h1 class="hero-title">Mua vật phẩm game<br>nhanh - an toàn - uy tín</h1>
-                    <p class="hero-subtitle">Hỗ trợ nạp Robux, Liên Quân, Free Fire, Genshin và nhiều game khác</p>
-                    <a href="/games.html" class="btn btn-primary btn-lg">Khám phá ngay ✨</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Featured Products Section -->
-        <section class="section">
-            <div class="container">
-                <h2 class="section-title">⭐ Sản Phẩm Nổi Bật</h2>
-                <p class="section-subtitle">Top các gói được mua nhiều nhất</p>
-                
-                <div id="featured-products" class="grid grid-4">
-                    <div class="loading">Đang tải sản phẩm...</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Latest Products Section -->
-        <section class="section bg-light">
-            <div class="container">
-                <h2 class="section-title">🆕 Sản Phẩm Mới Nhất</h2>
-                <p class="section-subtitle">Vật phẩm mới cập nhật</p>
-                
-                <div id="latest-products" class="grid grid-4">
-                    <div class="loading">Đang tải sản phẩm...</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- How It Works Section -->
-        <section class="section how-it-works">
-            <div class="container">
-                <h2 class="section-title">📋 Cách Thức Mua Hàng</h2>
-                <p class="section-subtitle">Chỉ 3 bước đơn giản</p>
-                
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-icon">1️⃣</div>
-                        <h3>Chọn Game & Vật Phẩm</h3>
-                        <p>Chọn game và sản phẩm bạn muốn mua</p>
+                <div class="hero-grid">
+                    <!-- Left: Video -->
+                    <div class="hero-video-section">
+                        <div class="video-wrapper">
+                            <iframe id="hero-video" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" 
+                                    title="Video giới thiệu" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen>
+                            </iframe>
+                        </div>
                     </div>
-                    
-                    <div class="step">
-                        <div class="step-icon">2️⃣</div>
-                        <h3>Nhập Thông Tin & Thanh Toán</h3>
-                        <p>Điền thông tin tài khoản và chọn cách thanh toán</p>
+                
+                    <!-- Right: Banners & Info -->
+                    <div class="hero-banners-section">
+                        <div class="banner-item banner-primary">
+                            <img src="/images/banner/Roblox_poster__63237.jpg" alt="Banner ưu đãi đặc biệt">
+                            <div class="banner-overlay">
+                                <h3>🎁 Ưu Đãi Đặc Biệt</h3>
+                                <p>Nhận ngay khuyến mãi hấp dẫn</p>
+                            </div>
+                        </div>
+                        <div class="banner-item banner-secondary">
+                            <img src="/images/banner/Roblox_poster__63237.jpg" alt="Banner sự kiện mới">
+                            <div class="banner-overlay">
+                                <h3>🎮 Sự Kiện Hot</h3>
+                                <p>Cập nhật game mới nhất</p>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="step">
-                        <div class="step-icon">3️⃣</div>
-                        <h3>Nhận Vật Phẩm</h3>
-                        <p>Nhận vật phẩm trong game sau 5-15 phút</p>
+                </div>
+            </div>
+        </section>
+    
+        <!-- All Games Categories Section -->
+        <section class="all-games-section">
+            <div class="container">
+                <div class="games-categories-grid" id="all-games-categories">
+                    <!-- All game categories will be loaded here -->
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div class="loading-spinner">⏳ Đang tải danh mục...</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Trust Section -->
-        <section class="section trust-section">
-            <div class="container">
-                <h2 class="section-title">✅ Tại Sao Chọn Chúng Tôi?</h2>
-                
-                <div class="trust-items">
-                    <div class="trust-item">
-                        <div class="trust-icon">⚡</div>
-                        <h3>Giao Nhanh</h3>
-                        <p>Xử lý đơn hàng trong 5-15 phút</p>
-                    </div>
-                    
-                    <div class="trust-item">
-                        <div class="trust-icon">🔒</div>
-                        <h3>An Toàn</h3>
-                        <p>Không yêu cầu mật khẩu game</p>
-                    </div>
-                    
-                    <div class="trust-item">
-                        <div class="trust-icon">💯</div>
-                        <h3>Uy Tín</h3>
-                        <p>Hàng nghìn khách hàng tin tưởng</p>
-                    </div>
-                    
-                    <div class="trust-item">
-                        <div class="trust-icon">🎁</div>
-                        <h3>Giá Tốt</h3>
-                        <p>Giá cả cạnh tranh nhất thị trường</p>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Footer -->
@@ -172,5 +140,222 @@
     <script src="/js/app.js"></script>
     <script src="/js/customer-auth.js"></script>
     <script src="/js/home.js"></script>
+    <script>
+        // Load Roblox Services
+        async function loadRobloxServices() {
+            try {
+                // Get Roblox game categories (assuming Roblox games have IDs 1-11)
+                // Let's try game_id = 1 (BloxFruits) for the service section
+                const result = await API.getCategoriesByGame(1);
+                
+                if (result.success && result.data.length > 0) {
+                    const servicesContainer = document.getElementById('roblox-services');
+                    servicesContainer.innerHTML = result.data.map(category => `
+                        <div class="service-card" onclick="navigateTo('/product.html?game_id=1&category_id=${category.category_id}')">
+                            <div class="service-icon">
+                                ${category.icon ? `<span style="font-size: 48px;">${category.icon}</span>` : '🎮'}
+                            </div>
+                            <h3 class="service-name">${category.name}</h3>
+                        </div>
+                    `).join('');
+                } else {
+                    console.log('No categories found for Roblox services');
+                }
+            } catch (error) {
+                console.error('Error loading Roblox services:', error);
+            }
+        }
+        
+        // Load Product Sections
+        async function loadAllGamesCategories() {
+            try {
+                const container = document.getElementById('all-games-categories');
+                
+                // Define sections với category_id và game_id cụ thể
+                const sections = [
+                    { 
+                        title: 'Trái Ác Quỷ', 
+                        icon: '🍇', 
+                        game_id: 1, 
+                        category_id: 1,
+                        categoryName: 'Trái'
+                    },
+                    { 
+                        title: 'Vật Phẩm Blox Fruit', 
+                        icon: '🗡️', 
+                        game_id: 1, 
+                        category_id: 2,
+                        categoryName: 'Gamepass'
+                    },
+                    { 
+                        title: 'Units', 
+                        icon: '🤖', 
+                        game_id: 3, 
+                        category_id: 3,
+                        categoryName: 'Units'
+                    },
+                    { 
+                        title: 'Vật Phẩm King Legacy', 
+                        icon: '🏴‍☠️', 
+                        game_id: 2, 
+                        category_id: 4,
+                        categoryName: 'Items'
+                    }
+                ];
+                
+                let htmlContent = '';
+                
+                // Load products for each section
+                for (const section of sections) {
+                    try {
+                        // Get products by game_id and category_id
+                        const productsResult = await API.getProducts({
+                            game_id: section.game_id,
+                            category_id: section.category_id
+                        });
+                        
+                        console.log(`Products for ${section.title}:`, productsResult);
+                        
+                        if (productsResult.success && productsResult.data && productsResult.data.length > 0) {
+                            // Limit to 10 products per section
+                            const displayProducts = productsResult.data.slice(0, 5);
+                            
+                            htmlContent += `
+                                <div class="game-category-section">
+                                    <div class="game-category-header">
+                                        <div class="game-category-header-left">
+                                            <div class="category-icon">${section.icon}</div>
+                                            <div class="category-info">
+                                                <h2>${section.title}</h2>
+                                            </div>
+                                        </div>
+                                        <a href="/product.html?game_id=${section.game_id}&category_id=${section.category_id}" class="view-more-btn">Xem Thêm</a>
+                                    </div>
+                                    <div class="category-items-grid">
+                                        ${displayProducts.map(product => `
+                                            <div class="category-item-card" onclick="navigateTo('/product.html?game_id=${section.game_id}&category_id=${section.category_id}')">
+                                                <div class="category-item-icon">
+                                                    ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}">` : '🎮'}
+                                                </div>
+                                                <h3 class="category-item-name">${product.name}</h3>
+                                                <div class="category-item-price">${product.price ? product.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ'}</div>
+                                                <button class="btn btn-primary btn-sm">Thanh Toán</button>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            console.log(`No products found for ${section.title}`);
+                        }
+                    } catch (err) {
+                        console.error(`Error loading products for ${section.title}:`, err);
+                    }
+                }
+                
+                if (htmlContent) {
+                    // Add "View All Categories" section at the end
+                    htmlContent += `
+                        <div class="view-all-categories-section">
+                            <div class="view-all-content">
+                                <div class="view-all-icon">🎮</div>
+                                <h3>Khám phá thêm nhiều danh mục khác</h3>
+                                <p>Xem toàn bộ danh mục game Roblox và sản phẩm</p>
+                                <a href="/games.html" class="btn-view-all">Xem Tất Cả Danh Mục →</a>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML = htmlContent;
+                } else {
+                    container.innerHTML = '<p style="text-align:center;padding:40px;color:#999;">Chưa có sản phẩm nào</p>';
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('all-games-categories').innerHTML = '<p style="text-align:center;padding:40px;color:#ff6b6b;">Lỗi khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+            }
+        }
+        
+        // Modern Auth Button
+        function updateModernAuthButton() {
+            const authBtn = document.getElementById('auth-btn-modern');
+            if (!authBtn) return;
+            
+            if (CustomerAuth && CustomerAuth.isLoggedIn()) {
+                const customer = CustomerAuth.getCustomer();
+                authBtn.innerHTML = `
+                    <div class="user-menu-modern">
+                        <button class="header-btn btn-login" onclick="toggleUserDropdown()">
+                            <span class="icon">👤</span>
+                            <span>${customer.name || customer.email}</span>
+                        </button>
+                        <div class="user-dropdown-modern" id="user-dropdown-modern">
+                            <a href="/account.html">Tài khoản</a>
+                            <a href="/orders.html">Đơn hàng</a>
+                            <a href="#" onclick="CustomerAuth.logout(); return false;">Đăng xuất</a>
+                        </div>
+                    </div>
+                `;
+            } else {
+                authBtn.innerHTML = `
+                    <a href="/login.html" class="header-btn btn-login">
+                        <span class="icon">🔐</span>
+                        <span>Đăng nhập</span>
+                    </a>
+                `;
+            }
+        }
+        
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('user-dropdown-modern');
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('user-dropdown-modern');
+            const userMenu = document.querySelector('.user-menu-modern');
+            if (dropdown && userMenu && !userMenu.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+        
+        // Auto-pause video when scrolling away
+        const videoIframe = document.getElementById('hero-video');
+        const heroSection = document.querySelector('.hero-modern');
+        
+        window.addEventListener('scroll', function() {
+            if (!videoIframe || !heroSection) return;
+            
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const sectionBottom = heroSection.offsetTop + heroSection.offsetHeight;
+            
+            if (scrollTop > sectionBottom - 200) {
+                const currentSrc = videoIframe.src;
+                if (currentSrc && !currentSrc.includes('autoplay=0')) {
+                    videoIframe.src = currentSrc.replace('?enablejsapi=1', '?enablejsapi=1&autoplay=0');
+                }
+            }
+        });
+        
+        // Search functionality
+        document.getElementById('search-input')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.trim();
+                if (query) {
+                    navigateTo(`/games.html?search=${encodeURIComponent(query)}`);
+                }
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded, initializing...');
+            loadRobloxServices();
+            loadAllGamesCategories();
+            updateModernAuthButton();
+        });
+    </script>
 </body>
 </html>

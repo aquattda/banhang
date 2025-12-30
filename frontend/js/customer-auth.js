@@ -19,11 +19,11 @@ const CustomerAuth = {
     
     updateHeader: () => {
         const authBtn = document.getElementById('auth-btn');
-        if (!authBtn) return;
+        const authBtnModern = document.getElementById('auth-btn-modern');
         
         if (CustomerAuth.isLoggedIn()) {
             const customer = CustomerAuth.getCustomer();
-            authBtn.innerHTML = `
+            const userMenuHTML = `
                 <div class="user-menu">
                     <button class="user-btn" onclick="toggleUserMenu()">
                         👤 ${customer?.name || 'Tài khoản'}
@@ -35,8 +35,29 @@ const CustomerAuth = {
                     </div>
                 </div>
             `;
+            
+            const modernUserMenuHTML = `
+                <div class="header-user-menu">
+                    <button class="header-user-btn" onclick="toggleUserMenu()">
+                        <span class="icon">👤</span>
+                        <span>${customer?.name || 'Tài khoản'}</span>
+                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <a href="/account.html">📋 Tài khoản của tôi</a>
+                        <a href="/account.html" onclick="event.preventDefault(); switchToOrders()">🛍️ Đơn hàng của tôi</a>
+                        <a href="#" onclick="event.preventDefault(); CustomerAuth.logout()">🚪 Đăng xuất</a>
+                    </div>
+                </div>
+            `;
+            
+            if (authBtn) authBtn.innerHTML = userMenuHTML;
+            if (authBtnModern) authBtnModern.innerHTML = modernUserMenuHTML;
         } else {
-            authBtn.innerHTML = `<a href="/login.html" class="cart-btn">🔐 Đăng nhập</a>`;
+            const loginHTML = `<a href="/login.html" class="cart-btn">🔐 Đăng nhập</a>`;
+            const modernLoginHTML = `<a href="/login.html" class="header-btn">🔐 Đăng nhập</a>`;
+            
+            if (authBtn) authBtn.innerHTML = loginHTML;
+            if (authBtnModern) authBtnModern.innerHTML = modernLoginHTML;
         }
     },
     
