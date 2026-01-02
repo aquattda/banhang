@@ -78,23 +78,26 @@ function displayProductsList(products) {
                     ${firstProduct.category_name || 'Sản phẩm'}
                 </div>
                 <h1>🎮 ${firstProduct.game_name} - ${firstProduct.category_name || 'Sản phẩm'}</h1>
-                <p>Tìm thấy ${products.length} sản phẩm</p>
+                <div class="search-box">
+                    <input type="text" id="product-search" class="search-input" placeholder="🔍 Tìm kiếm sản phẩm..." oninput="searchProducts(this.value)">
+                </div>
+                <p id="products-count">Tìm thấy ${products.length} sản phẩm</p>
             </div>
             
-            <div class="products-grid">
+            <div class="products-grid-layout">
     `;
     
     products.forEach(product => {
         html += `
-            <div class="product-card" onclick="navigateTo('/product.html?id=${product.product_id}')">
-                <div class="product-card-image">
+            <div class="product-card-grid" data-product-name="${product.name.toLowerCase()}">
+                <div class="product-image" onclick="navigateTo('/product.html?id=${product.product_id}')">
                     ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}">` : '<div class="no-image">🎁</div>'}
                 </div>
-                <div class="product-card-body">
-                    <h3 class="product-card-title">${product.name}</h3>
-                    <div class="product-card-price">${formatCurrency(product.price)}</div>
-                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); quickBuyNow(${product.product_id})">
-                        Mua ngay ⚡
+                <div class="product-info">
+                    <h3 class="product-name" onclick="navigateTo('/product.html?id=${product.product_id}')">${product.name}</h3>
+                    <div class="product-price">${formatCurrency(product.price)}</div>
+                    <button class="btn-buy-now" onclick="quickBuyNow(${product.product_id})">
+                        Mua Ngay
                     </button>
                 </div>
             </div>
@@ -119,6 +122,89 @@ function displayNoProducts() {
             <a href="/games.html" class="btn btn-primary" style="margin-top: 20px;">Quay lại danh mục</a>
         </div>
     `;
+}
+
+// Search products real-time
+function searchProducts(query) {
+    const searchTerm = query.toLowerCase().trim();
+    const productCards = document.querySelectorAll('.product-card-grid');
+    let visibleCount = 0;
+    
+    productCards.forEach(card => {
+        const productName = card.getAttribute('data-product-name');
+        if (productName.includes(searchTerm)) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Update count
+    const countElement = document.getElementById('products-count');
+    if (countElement) {
+        countElement.textContent = `Tìm thấy ${visibleCount} sản phẩm`;
+    }
+}
+
+// Scroll carousel
+function scrollCarousel(carouselId, direction) {
+    const carousel = document.getElementById(carouselId);
+    if (!carousel) return;
+    
+    const scrollAmount = 180; // Card width
+    carousel.scrollBy({
+        left: direction * scrollAmount,
+        behavior: 'smooth'
+    });
+}
+
+// Init drag scroll for carousel
+function initCarouselDragScroll(carouselId) {
+    const carousel = document.getElementById(carouselId);
+    if (!carousel) return;
+    
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let hasMoved = false;
+
+    carousel.addEventListener('mousedown', (e) => {
+        isDown = true;
+        hasMoved = false;
+        carousel.classList.add('active-drag');
+        startX = e.pageX - carousel.offsetLeft;
+        scrollLeft = carousel.scrollLeft;
+    });
+
+    carousel.addEventListener('mouseleave', () => {
+        isDown = false;
+        carousel.classList.remove('active-drag');
+    });
+
+    carousel.addEventListener('mouseup', () => {
+        isDown = false;
+        carousel.classList.remove('active-drag');
+    });
+
+    carousel.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - carousel.offsetLeft;
+        const walk = (x - startX) * 2;
+        if (Math.abs(walk) > 5) {
+            hasMoved = true;
+        }
+        carousel.scrollLeft = scrollLeft - walk;
+    });
+    
+    // Prevent click when dragging
+    carousel.addEventListener('click', (e) => {
+        if (hasMoved) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }, true);
 }
 
 // Quick add to cart từ danh sách

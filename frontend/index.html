@@ -84,6 +84,17 @@
             </div>
         </section>
     
+        <!-- Roblox Categories Section -->
+        <section class="roblox-categories-section">
+            <div class="container">
+                <div class="roblox-categories-grid" id="roblox-categories">
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div class="loading-spinner">⏳ Đang tải...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- All Games Categories Section -->
         <section class="all-games-section">
             <div class="container">
@@ -162,6 +173,198 @@
                 }
             } catch (error) {
                 console.error('Error loading Roblox services:', error);
+            }
+        }
+        
+        // Load Roblox Categories
+        async function loadRobloxCategories() {
+            try {
+                const container = document.getElementById('roblox-categories');
+                
+                // Get Roblox games (game_id = 1 for BloxFruits, 2 for King Legacy, etc.)
+                const gamesResult = await API.getGames();
+                
+                if (!gamesResult.success || !gamesResult.data) {
+                    container.innerHTML = '<p style="text-align:center;color:#999;">Đang cập nhật...</p>';
+                    return;
+                }
+                
+                // Filter Roblox games (exclude non-Roblox games)
+                const robloxGames = gamesResult.data.filter(game => 
+                    game.name !== 'Liên Quân Mobile' && game.game_id !== 12
+                );
+                
+                // Get all categories from Roblox games
+                const allCategories = [];
+                for (const game of robloxGames) {
+                    try {
+                        const categoriesResult = await API.getCategoriesByGame(game.game_id);
+                        if (categoriesResult.success && categoriesResult.data) {
+                            categoriesResult.data.forEach(category => {
+                                allCategories.push({
+                                    ...category,
+                                    game_id: game.game_id,
+                                    game_name: game.name
+                                });
+                            });
+                        }
+                    } catch (err) {
+                        console.error(`Error loading categories for ${game.name}:`, err);
+                    }
+                }
+                
+                if (allCategories.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;color:#999;">Chưa có danh mục nào</p>';
+                    return;
+                }
+                
+                // Display categories
+                container.innerHTML = allCategories.map(category => `
+                    <div class="category-box" onclick="window.location.href='/product.html?game_id=${category.game_id}&category_id=${category.category_id}'">
+                        <div class="category-box-image">
+                            ${category.icon || '🎮'}
+                        </div>
+                        <div class="category-box-name">${category.name}</div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading Roblox categories:', error);
+                document.getElementById('roblox-categories').innerHTML = '<p style="text-align:center;color:#ff6b6b;">Lỗi khi tải danh mục</p>';
+            }
+        }
+        
+        // Load Roblox Categories
+        async function loadRobloxCategories() {
+            try {
+                const container = document.getElementById('roblox-categories');
+                
+                // Get Roblox games
+                const gamesResult = await API.getGames();
+                
+                if (!gamesResult.success || !gamesResult.data) {
+                    container.innerHTML = '<p style="text-align:center;color:#999;">Đang cập nhật...</p>';
+                    return;
+                }
+                
+                // Filter Roblox games
+                const robloxGames = gamesResult.data.filter(game => 
+                    game.name !== 'Liên Quân Mobile' && game.game_id !== 12
+                );
+                
+                // Get all categories from Roblox games
+                const allCategories = [];
+                for (const game of robloxGames) {
+                    try {
+                        const categoriesResult = await API.getCategoriesByGame(game.game_id);
+                        if (categoriesResult.success && categoriesResult.data) {
+                            categoriesResult.data.forEach(category => {
+                                allCategories.push({
+                                    ...category,
+                                    game_id: game.game_id,
+                                    game_name: game.name
+                                });
+                            });
+                        }
+                    } catch (err) {
+                        console.error(`Error loading categories for ${game.name}:`, err);
+                    }
+                }
+                
+                if (allCategories.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;color:#999;">Chưa có danh mục nào</p>';
+                    return;
+                }
+                
+                // Display categories
+                container.innerHTML = allCategories.map(category => `
+                    <div class="category-box" onclick="window.location.href='/product.html?game_id=${category.game_id}&category_id=${category.category_id}'">
+                        <div class="category-box-image">
+                            ${category.icon || '🎮'}
+                        </div>
+                        <div class="category-box-name">${category.name}</div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading Roblox categories:', error);
+                document.getElementById('roblox-categories').innerHTML = '<p style="text-align:center;color:#ff6b6b;">Lỗi khi tải danh mục</p>';
+            }
+        }
+        
+        // Load Roblox Categories
+        async function loadRobloxCategories() {
+            try {
+                const container = document.getElementById('roblox-categories');
+                
+                // Get Roblox games
+                const gamesResult = await API.getGames();
+                
+                if (!gamesResult.success || !gamesResult.data) {
+                    container.innerHTML = '<p style="text-align:center;color:#999;">Đang cập nhật...</p>';
+                    return;
+                }
+                
+                // Filter Roblox games
+                const robloxGames = gamesResult.data.filter(game => 
+                    game.name !== 'Liên Quân Mobile' && game.game_id !== 12
+                );
+                
+                // Get all categories from Roblox games
+                const allCategories = [];
+                for (const game of robloxGames) {
+                    try {
+                        const categoriesResult = await API.getCategoriesByGame(game.game_id);
+                        if (categoriesResult.success && categoriesResult.data) {
+                            categoriesResult.data.forEach(category => {
+                                allCategories.push({
+                                    ...category,
+                                    game_id: game.game_id,
+                                    game_name: game.name
+                                });
+                            });
+                        }
+                    } catch (err) {
+                        console.error(`Error loading categories for ${game.name}:`, err);
+                    }
+                }
+                
+                if (allCategories.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;color:#999;">Chưa có danh mục nào</p>';
+                    return;
+                }
+                
+                // Limit to first 5 categories
+                const displayCategories = allCategories.slice(0, 5);
+                
+                // Display first 5 categories + "Xem thêm" button
+                let html = displayCategories.map(category => `
+                    <div class="category-box" onclick="window.location.href='/product.html?game_id=${category.game_id}&category_id=${category.category_id}'">
+                        <div class="category-box-image">
+                            ${category.icon || '🎮'}
+                        </div>
+                        <div class="category-box-name">${category.name}</div>
+                    </div>
+                `).join('');
+                
+                // Add "Xem thêm" box as the 6th item
+                html += `
+                    <div class="category-box category-box-more" onclick="window.location.href='/games.html'">
+                        <div class="category-box-image">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 8V16M8 12H16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="category-box-name">Xem Thêm</div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading Roblox categories:', error);
+                document.getElementById('roblox-categories').innerHTML = '<p style="text-align:center;color:#ff6b6b;">Lỗi khi tải danh mục</p>';
             }
         }
         
@@ -454,6 +657,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Page loaded, initializing...');
             loadRobloxServices();
+            loadRobloxCategories();
             loadAllGamesCategories();
             updateModernAuthButton();
         });
