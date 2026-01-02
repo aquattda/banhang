@@ -181,8 +181,12 @@ const getOrderById = async (req, res) => {
             return res.status(404).json({ success: false, error: 'Order not found' });
         }
         
+        // Join với bảng products để lấy cost_price (giá nhập)
         const [items] = await db.query(
-            'SELECT * FROM order_items WHERE order_id = ?',
+            `SELECT oi.*, p.cost_price, p.price as current_selling_price 
+             FROM order_items oi
+             LEFT JOIN products p ON oi.product_id = p.product_id
+             WHERE oi.order_id = ?`,
             [id]
         );
         

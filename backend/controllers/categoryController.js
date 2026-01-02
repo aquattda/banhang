@@ -1,11 +1,16 @@
 const db = require('../config/database');
 
-// Lấy tất cả categories
+// Lấy tất cả categories với thông tin game và parent
 const getAllCategories = async (req, res) => {
     try {
-        const [categories] = await db.query(
-            'SELECT * FROM categories WHERE is_active = TRUE ORDER BY game_id, name'
-        );
+        const [categories] = await db.query(`
+            SELECT c.*, g.name as game_name, 
+                   pc.name as parent_name
+            FROM categories c
+            LEFT JOIN games g ON c.game_id = g.game_id
+            LEFT JOIN categories pc ON c.parent_id = pc.category_id
+            ORDER BY c.game_id, c.display_order, c.name
+        `);
         res.json({ success: true, data: categories });
     } catch (error) {
         console.error('Get all categories error:', error);
@@ -31,17 +36,17 @@ const getCategoriesByGame = async (req, res) => {
 // Admin: Tạo category
 const createCategory = async (req, res) => {
     try {
-        const { game_id, name, description } = req.body;
+        const { game_id, parent_id, name, description, display_order, is_active } = req.body;
         
         const [result] = await db.query(
-            'INSERT INTO categories (game_id, name, description) VALUES (?, ?, ?)',
-            [game_id, name, description]
+            'INSERT INTO categories (game_id, parent_id, name, description, display_order, is_active) VALUES (?, ?, ?, ?, ?, ?)',
+            [game_id, parent_id || null, name, description || '', display_order || 0, is_active !== undefined ? is_active : 1]
         );
         
         res.json({ success: true, message: 'Category created', categoryId: result.insertId });
     } catch (error) {
         console.error('Create category error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        res.status(500).json({ success: false, error: 'Server error', message: error.message });
     }
 };
 
@@ -49,17 +54,17 @@ const createCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const { game_id, name, description } = req.body;
+        const { game_id, parent_id, name, description, display_order, is_active } = req.body;
         
         await db.query(
-            'UPDATE categories SET game_id = ?, name = ?, description = ? WHERE category_id = ?',
-            [game_id, name, description, id]
+            'UPDATE categories SET game_id = ?, parent_id = ?, name = ?, description = ?, display_order = ?, is_active = ? WHERE category_id = ?',
+            [game_id, parent_id || null, name, description || '', display_order || 0, is_active !== undefined ? is_active : 1, id]
         );
         
         res.json({ success: true, message: 'Category updated' });
     } catch (error) {
         console.error('Update category error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        res.status(500).json({ success: false, error: 'Server error', message: error.message });
     }
 };
 

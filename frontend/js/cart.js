@@ -52,7 +52,7 @@ function loadCart() {
                 <input type="checkbox" class="item-select-checkbox" data-item-id="${item.id}" onchange="updateCartSelection()" ${isChecked ? 'checked' : ''}>
             </label>
             <div class="cart-item-image">
-                ${item.image_url ? `<img src="${item.image_url}" alt="${item.name}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">` : '🎁'}
+                ${item.image_url ? `<img src="${item.image_url}" alt="${item.name}" onerror="this.parentElement.innerHTML='🎁'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">` : '🎁'}
             </div>
             <div class="cart-item-details">
                 <div>

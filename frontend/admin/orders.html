@@ -6,6 +6,8 @@
     <title>Quản lý đơn hàng - Admin</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/admin/css/admin.css">
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="admin-layout">
@@ -24,8 +26,9 @@
                 </a>
                 <a href="/admin/products.html" class="nav-item">
                     <span>🛍️</span> Sản phẩm
-                </a>
-                <a href="#" onclick="logout()" class="nav-item">
+                </a>                <a href="/admin/categories.html" class="nav-item">
+                    <span>📁</span> Danh mục
+                </a>                <a href="#" onclick="logout()" class="nav-item">
                     <span>🚪</span> Đăng xuất
                 </a>
             </nav>
@@ -33,7 +36,7 @@
 
         <main class="admin-content">
             <header class="admin-header">
-                <h1>Quản Lý Đơn Hàng</h1>
+                <h1>Quản lý đơn hàng</h1>
             </header>
 
             <div class="dashboard-section">
@@ -62,6 +65,7 @@
                     </select>
 
                     <button class="btn btn-secondary" onclick="resetFilters()">✖️ Xóa bộ lọc</button>
+                    <button class="btn btn-success" onclick="exportToExcel()" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;">📊 Xuất Excel</button>
                 </div>
 
                 <div class="table-container">
@@ -197,6 +201,18 @@
         let isFirstLoad = true;
         let autoRefreshInterval = null;
 
+        // Request desktop notification permission
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    console.log('Notification permission:', permission);
+                    if (permission === 'granted') {
+                        showNotification('✅ Thông báo đã được bật. Bạn sẽ nhận thông báo khi có đơn hàng mới!', 'success');
+                    }
+                });
+            }
+        }
+
         // Check for new orders
         async function checkNewOrders() {
             const auth = checkAdminAuth();
@@ -211,12 +227,19 @@
                     // Nếu không phải lần đầu tiên và có đơn hàng mới
                     if (!isFirstLoad && currentOrderCount > lastOrderCount) {
                         const newOrdersCount = currentOrderCount - lastOrderCount;
+                        const latestOrders = result.data.slice(0, newOrdersCount);
                         
                         // Hiển thị notification
                         showNotification(`🔔 Có ${newOrdersCount} đơn hàng mới!`, 'success');
                         
-                        // Phát âm thanh thông báo (nếu trình duyệt hỗ trợ)
+                        // Desktop notification
+                        showDesktopNotification(newOrdersCount, latestOrders[0]);
+                        
+                        // Phát âm thanh thông báo
                         playNotificationSound();
+                        
+                        // Visual alert - flash page title
+                        flashPageTitle(newOrdersCount);
                         
                         // Tự động load lại danh sách
                         loadOrders();
@@ -228,6 +251,53 @@
             } catch (error) {
                 console.error('Check new orders error:', error);
             }
+        }
+
+        // Show desktop notification
+        function showDesktopNotification(count, latestOrder) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification('🛒 Đơn hàng mới!', {
+                    body: `Có ${count} đơn hàng mới.\nMã: ${latestOrder.order_code}\nKhách: ${latestOrder.customer_name}\nTổng: ${formatCurrency(latestOrder.total_amount)}`,
+                    icon: '/images/logo/roblox-app-icon-hd-removebg-preview.png',
+                    badge: '/images/logo/roblox-app-icon-hd-removebg-preview.png',
+                    tag: 'new-order',
+                    requireInteraction: true
+                });
+                
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+                
+                // Auto close after 10 seconds
+                setTimeout(() => notification.close(), 10000);
+            }
+        }
+
+        // Flash page title
+        let titleFlashInterval = null;
+        function flashPageTitle(count) {
+            const originalTitle = document.title;
+            let isFlash = true;
+            
+            // Clear any existing interval
+            if (titleFlashInterval) {
+                clearInterval(titleFlashInterval);
+            }
+            
+            titleFlashInterval = setInterval(() => {
+                document.title = isFlash ? `(🔔 ${count}) Đơn hàng mới!` : originalTitle;
+                isFlash = !isFlash;
+            }, 1000);
+            
+            // Stop flashing after 10 seconds
+            setTimeout(() => {
+                if (titleFlashInterval) {
+                    clearInterval(titleFlashInterval);
+                    titleFlashInterval = null;
+                }
+                document.title = originalTitle;
+            }, 10000);
         }
 
         // Play notification sound
@@ -419,7 +489,8 @@
                             <tr>
                                 <th>Sản phẩm</th>
                                 <th style="text-align: center;">Số lượng</th>
-                                <th style="text-align: right;">Đơn giá</th>
+                                <th style="text-align: right;">Giá nhập</th>
+                                <th style="text-align: right;">Giá bán</th>
                                 <th style="text-align: right;">Thành tiền</th>
                             </tr>
                         </thead>
@@ -428,12 +499,13 @@
                                 <tr>
                                     <td><strong>${item.product_name}</strong></td>
                                     <td style="text-align: center;">${item.quantity}</td>
-                                    <td style="text-align: right;">${formatCurrency(item.price)}</td>
+                                    <td style="text-align: right; color: #28a745;">${formatCurrency(item.cost_price || 0)}</td>
+                                    <td style="text-align: right; color: #667eea;">${formatCurrency(item.price)}</td>
                                     <td style="text-align: right;"><strong>${formatCurrency(item.subtotal)}</strong></td>
                                 </tr>
                             `).join('')}
                             <tr style="border-top: 2px solid #667eea;">
-                                <td colspan="3" style="text-align: right; font-weight: bold; font-size: 16px; padding: 15px;">Tổng cộng:</td>
+                                <td colspan="4" style="text-align: right; font-weight: bold; font-size: 16px; padding: 15px;">Tổng cộng:</td>
                                 <td style="text-align: right; font-weight: bold; font-size: 18px; color: #667eea; padding: 15px;">${formatCurrency(order.total_amount)}</td>
                             </tr>
                         </tbody>
@@ -520,9 +592,108 @@
             }
         }
 
+        // Export to Excel function
+        async function exportToExcel() {
+            try {
+                showNotification('Đang chuẩn bị file Excel...', 'info');
+                
+                // Lấy tất cả đơn hàng với chi tiết
+                const result = await AdminAPI.getAllOrders({ limit: 10000 });
+                
+                if (!result.success || !result.data || result.data.length === 0) {
+                    showNotification('Không có đơn hàng để xuất', 'error');
+                    return;
+                }
+
+                const orders = result.data;
+                
+                // Tạo mảng dữ liệu cho Excel
+                const excelData = [];
+                
+                // Duyệt qua từng đơn hàng và lấy chi tiết
+                for (const order of orders) {
+                    try {
+                        const detailResult = await AdminAPI.getOrderById(order.order_id);
+                        
+                        if (detailResult.success && detailResult.data) {
+                            const orderDetail = detailResult.data;
+                            const items = orderDetail.items || [];
+                            
+                            // Thêm từng sản phẩm vào Excel
+                            items.forEach(item => {
+                                excelData.push({
+                                    'Mã đơn hàng': order.order_code,
+                                    'Ngày đặt': new Date(order.created_at).toLocaleString('vi-VN'),
+                                    'Khách hàng': order.customer_name,
+                                    'Số điện thoại': order.customer_phone,
+                                    'Email': order.customer_email || '',
+                                    'Sản phẩm': item.product_name,
+                                    'Số lượng': item.quantity,
+                                    'Giá nhập (VNĐ)': item.cost_price || 0,
+                                    'Giá bán (VNĐ)': item.price,
+                                    'Thành tiền (VNĐ)': item.subtotal,
+                                    'Lợi nhuận (VNĐ)': (item.price - (item.cost_price || 0)) * item.quantity,
+                                    'Tổng đơn hàng (VNĐ)': order.total_amount,
+                                    'Trạng thái': order.status === 'pending' ? 'Chờ xử lý' : order.status === 'completed' ? 'Hoàn thành' : 'Đã hủy',
+                                    'Thanh toán': order.payment_status === 'unpaid' ? 'Chưa thanh toán' : order.payment_status === 'paid' ? 'Đã thanh toán' : 'Đã hoàn tiền',
+                                    'Ghi chú': order.notes || ''
+                                });
+                            });
+                        }
+                    } catch (detailError) {
+                        console.error(`Error loading detail for order ${order.order_id}:`, detailError);
+                    }
+                }
+
+                // Tạo workbook và worksheet
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(excelData);
+
+                // Định dạng cột
+                const colWidths = [
+                    { wch: 15 },  // Mã đơn hàng
+                    { wch: 18 },  // Ngày đặt
+                    { wch: 20 },  // Khách hàng
+                    { wch: 15 },  // Số điện thoại
+                    { wch: 25 },  // Email
+                    { wch: 30 },  // Sản phẩm
+                    { wch: 10 },  // Số lượng
+                    { wch: 15 },  // Giá nhập
+                    { wch: 15 },  // Giá bán
+                    { wch: 15 },  // Thành tiền
+                    { wch: 15 },  // Lợi nhuận
+                    { wch: 18 },  // Tổng đơn hàng
+                    { wch: 15 },  // Trạng thái
+                    { wch: 15 },  // Thanh toán
+                    { wch: 30 }   // Ghi chú
+                ];
+                ws['!cols'] = colWidths;
+
+                // Thêm worksheet vào workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'Đơn hàng');
+
+                // Tạo tên file với timestamp
+                const timestamp = new Date().toISOString().slice(0, 10);
+                const filename = `DonHang_${timestamp}.xlsx`;
+
+                // Download file
+                XLSX.writeFile(wb, filename);
+                
+                showNotification(`✅ Đã xuất ${excelData.length} dòng dữ liệu ra file ${filename}`, 'success');
+            } catch (error) {
+                console.error('Export Excel error:', error);
+                showNotification('Lỗi khi xuất Excel: ' + error.message, 'error');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            // Request notification permission
+            requestNotificationPermission();
+            
             loadOrders();
             startAutoRefresh();
+            
+            console.log('📡 Auto-refresh enabled: checking for new orders every 30 seconds');
             
             // Stop auto-refresh when user leaves page
             window.addEventListener('beforeunload', stopAutoRefresh);

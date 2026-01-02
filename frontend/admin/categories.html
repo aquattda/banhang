@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý danh mục - Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <span class="logo-icon"><img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="Logo" style="height: 35px; vertical-align: middle;"></span>
+                <span>GameShop Admin</span>
+            </div>
+            
+            <nav class="admin-nav">
+                <a href="/admin/dashboard.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/admin/orders.html" class="nav-item">
+                    <span>🛒</span> Đơn hàng
+                </a>
+                <a href="/admin/products.html" class="nav-item">
+                    <span>🛍️</span> Sản phẩm
+                </a>
+                <a href="/admin/categories.html" class="nav-item active">
+                    <span>📁</span> Danh mục
+                </a>
+                <a href="#" onclick="logout()" class="nav-item">
+                    <span>🚪</span> Đăng xuất
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <header class="admin-header">
+                <h1>Quản lý danh mục</h1>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <p style="margin: 0; color: #666; font-size: 14px;">📝 <strong>Quy trình:</strong> Chọn Game → Nhập tên danh mục → Lưu</p>
+                    <button class="btn btn-secondary" onclick="showManageGames()" style="padding: 12px 20px; font-size: 15px; white-space: nowrap;">🎮 Quản lý Game</button>
+                    <button class="btn btn-primary" onclick="showAddCategory()" style="padding: 12px 24px; font-size: 16px; white-space: nowrap;">➕ Thêm danh mục</button>
+                </div>
+            </header>
+
+            <!-- Filter Section -->
+            <div class="dashboard-section">
+                <div class="filter-bar">
+                    <input 
+                        type="text" 
+                        id="search-category" 
+                        class="form-select" 
+                        placeholder="🔍 Tìm tên danh mục..."
+                        style="min-width: 250px;"
+                        oninput="loadCategories()"
+                    >
+                    
+                    <select id="filter-game" class="form-select" onchange="loadCategories()">
+                        <option value="">Tất cả game</option>
+                    </select>
+
+                    <select id="filter-active" class="form-select" onchange="loadCategories()">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="1">Đang hiển thị</option>
+                        <option value="0">Đã ẩn</option>
+                    </select>
+
+                    <button class="btn btn-secondary" onclick="resetFilters()">✖️ Xóa bộ lọc</button>
+                </div>
+
+                <!-- Categories Table -->
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px; text-align: center;">ID GAME</th>
+                            <th style="width: 200px; text-align: left;">GAME</th>
+                            <th style="min-width: 300px; text-align: left;">TÊN DANH MỤC</th>
+                            <th style="width: 120px; text-align: center;">THỨ TỰ</th>
+                            <th style="width: 150px; text-align: center;">TRẠNG THÁI</th>
+                            <th style="width: 140px; text-align: center;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categories-table">
+                        <tr><td colspan="6" style="text-align: center;">Đang tải...</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination" id="categories-pagination" style="margin-top: 20px; text-align: center;">
+                    <!-- Pagination will be rendered here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Category Modal -->
+    <div id="category-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+        <div class="modal-content" style="max-width: 650px; background: white; border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+            <div class="modal-header" style="padding: 25px 30px; border-bottom: 2px solid #e8eaf6; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h2 id="modal-title" style="margin: 0; font-size: 24px; font-weight: 700;">Thêm danh mục mới</h2>
+                <button class="close-btn" onclick="closeModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; cursor: pointer; color: white; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">✖</button>
+            </div>
+            <form id="category-form" onsubmit="handleSubmit(event)" style="padding: 30px; overflow-y: auto; flex: 1;">
+                <input type="hidden" id="category-id">
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Game <span style="color: red;">*</span></label>
+                    <select id="form-game" class="form-control" required style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; background: white; transition: all 0.3s;" onfocus="this.style.borderColor='#667eea'" onblur="this.style.borderColor='#e0e0e0'">
+                        <option value="">-- Bước 1: Chọn game trước --</option>
+                    </select>
+                    <small class="form-text" style="color: #667eea; margin-top: 5px; display: block; font-size: 13px;">💡 Chọn game mà danh mục này thuộc về</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Tên danh mục <span style="color: red;">*</span></label>
+                    <input type="text" id="form-name" class="form-control" required placeholder="Ví dụ: Trái Ác Quỷ, Gamepass..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; transition: all 0.3s;" onfocus="this.style.borderColor='#667eea'" onblur="this.style.borderColor='#e0e0e0'">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Mô tả</label>
+                    <textarea id="form-description" class="form-control" rows="3" placeholder="Mô tả ngắn về danh mục này..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; resize: vertical;"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Thứ tự hiển thị</label>
+                        <input type="number" id="form-order" class="form-control" value="0" min="0" style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                        <small class="form-text" style="color: #999; font-size: 13px; margin-top: 5px; display: block;">Số nhỏ hiển thị trước</small>
+                    </div>
+
+                    <div class="form-group" style="display: flex; align-items: center; justify-content: center;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #f8f9fa; padding: 12px 20px; border-radius: 8px; border: 2px solid #e0e0e0; transition: all 0.3s;" onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#e0e0e0'">
+                            <input type="checkbox" id="form-active" checked style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-weight: 600; color: #333;">Đang hiển thị</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding-top: 25px; border-top: 2px solid #f0f0f0; display: flex; gap: 12px; justify-content: flex-end; margin-top: 10px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()" style="padding: 12px 24px; font-size: 15px;">❌ Hủy</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">💾 Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manage Games Modal -->
+    <div id="games-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+        <div class="modal-content" style="max-width: 900px; width: 90%; background: white; border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+            <div class="modal-header" style="padding: 25px 30px; border-bottom: 2px solid #e8eaf6; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h2 style="margin: 0; font-size: 24px; font-weight: 700;">🎮 Quản lý Game</h2>
+                <button class="close-btn" onclick="closeGamesModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; cursor: pointer; color: white; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">✖</button>
+            </div>
+            
+            <div style="padding: 30px; overflow-y: auto; flex: 1;">
+                <div style="margin-bottom: 25px;">
+                    <button class="btn btn-primary" onclick="showAddGame()" style="padding: 12px 24px; font-size: 15px;">➕ Thêm Game Mới</button>
+                </div>
+                
+                <table class="data-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px; text-align: center;">ID</th>
+                            <th style="text-align: left;">TÊN GAME</th>
+                            <th style="width: 120px; text-align: center;">SLUG</th>
+                            <th style="width: 150px; text-align: center;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="games-table">
+                        <tr><td colspan="4" style="text-align: center; padding: 40px;">Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Game Modal -->
+    <div id="game-form-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="max-width: 550px; background: white; border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: modalSlideIn 0.3s ease;">
+            <div class="modal-header" style="padding: 25px 30px; border-bottom: 2px solid #e8eaf6; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h2 id="game-modal-title" style="margin: 0; font-size: 22px; font-weight: 700;">➕ Thêm Game Mới</h2>
+                <button class="close-btn" onclick="closeGameFormModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; color: white;">✖</button>
+            </div>
+            <form id="game-form" onsubmit="handleGameSubmit(event)" style="padding: 30px;">
+                <input type="hidden" id="game-id">
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Tên Game <span style="color: red;">*</span></label>
+                    <input type="text" id="game-name" class="form-control" required placeholder="Ví dụ: BloxFruits, King Legacy..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; transition: all 0.3s;" onfocus="this.style.borderColor='#667eea'" onblur="this.style.borderColor='#e0e0e0'">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Slug <span style="color: red;">*</span></label>
+                    <input type="text" id="game-slug" class="form-control" required placeholder="bloxfruits, king-legacy..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                    <small style="color: #999; font-size: 13px; margin-top: 5px; display: block;">💡 Chỉ dùng chữ thường, số và dấu gạch ngang</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Mô tả</label>
+                    <textarea id="game-description" class="form-control" rows="3" placeholder="Mô tả ngắn về game..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; resize: vertical;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+                    <button type="button" class="btn btn-secondary" onclick="closeGameFormModal()" style="padding: 12px 24px;">❌ Hủy</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 12px 28px;">💾 Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script src="/admin/js/admin.js"></script>
+    <script>
+        let allGames = [];
+        let allCategories = [];
+        let currentCategories = [];
+        let currentPage = 1;
+        const itemsPerPage = 15;
+
+        async function loadGames() {
+            try {
+                const result = await API.get('/api/games');
+                if (result.success) {
+                    allGames = result.data;
+                    const gameSelects = ['filter-game', 'form-game'];
+                    gameSelects.forEach(selectId => {
+                        const select = document.getElementById(selectId);
+                        if (selectId === 'filter-game') {
+                            select.innerHTML = '<option value="">Tất cả game</option>';
+                        } else {
+                            select.innerHTML = '<option value="">-- Chọn game --</option>';
+                        }
+                        allGames.forEach(game => {
+                            select.innerHTML += `<option value="${game.game_id}">${game.name}</option>`;
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading games:', error);
+            }
+        }
+
+        async function loadCategories() {
+            const auth = checkAdminAuth();
+            if (!auth) return;
+
+            const gameId = document.getElementById('filter-game').value;
+            const activeStatus = document.getElementById('filter-active').value;
+
+            try {
+                const result = await AdminAPI.getAllCategories();
+                
+                if (!result.success || !result.data) {
+                    document.getElementById('categories-table').innerHTML = `
+                        <tr><td colspan="6" style="text-align: center; color: red;">Không thể tải danh mục</td></tr>
+                    `;
+                    return;
+                }
+
+                allCategories = result.data;
+                let filtered = allCategories;
+
+                // Lọc theo tìm kiếm
+                const searchText = document.getElementById('search-category').value.toLowerCase();
+                if (searchText) {
+                    filtered = filtered.filter(cat => 
+                        cat.name.toLowerCase().includes(searchText) ||
+                        (cat.description && cat.description.toLowerCase().includes(searchText))
+                    );
+                }
+
+                // Lọc theo game
+                if (gameId) {
+                    filtered = filtered.filter(cat => cat.game_id == gameId);
+                }
+
+                // Lọc theo trạng thái
+                if (activeStatus !== '') {
+                    filtered = filtered.filter(cat => cat.is_active == activeStatus);
+                }
+
+                currentCategories = filtered;
+                currentPage = 1;
+
+                if (filtered.length === 0) {
+                    document.getElementById('categories-table').innerHTML = `
+                        <tr><td colspan="6" style="text-align: center;">Không tìm thấy danh mức</td></tr>
+                    `;
+                    document.getElementById('categories-pagination').innerHTML = '';
+                    return;
+                }
+
+                displayCategories(filtered);
+            } catch (error) {
+                console.error('Load categories error:', error);
+                showNotification('Lỗi khi tải danh mục', 'error');
+            }
+        }
+
+        function displayCategories(categories) {
+            const totalPages = Math.ceil(categories.length / itemsPerPage);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+            if (currentPage < 1) {
+                currentPage = 1;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedCategories = categories.slice(startIndex, endIndex);
+
+            const tbody = document.getElementById('categories-table');
+            let previousGameId = null;
+            
+            tbody.innerHTML = paginatedCategories.map((cat, index) => {
+                const isNewGame = cat.game_id !== previousGameId;
+                previousGameId = cat.game_id;
+                const rowClass = index % 2 === 0 ? '' : 'style="background-color: #f8f9fa;"';
+                
+                return `
+                <tr ${rowClass}>
+                    <td style="text-align: center; padding: 15px 12px; vertical-align: middle;">
+                        ${isNewGame ? `<strong style="color: #667eea; font-size: 16px; background: #e8eaf6; padding: 8px 16px; border-radius: 8px; display: inline-block;">#${cat.game_id}</strong>` : ''}
+                    </td>
+                    <td style="padding: 15px; font-weight: 600; color: #2c3e50; font-size: 15px; vertical-align: middle;">
+                        ${isNewGame ? (cat.game_name || 'N/A') : ''}
+                    </td>
+                    <td style="padding: 15px;">
+                        <div style="margin-bottom: 4px;">
+                            <strong style="color: #1a237e; font-size: 15px;">${cat.name}</strong>
+                        </div>
+                        ${cat.description ? `<div><small style="color: #757575; font-size: 13px; line-height: 1.4;">${cat.description.substring(0, 80)}${cat.description.length > 80 ? '...' : ''}</small></div>` : ''}
+                    </td>
+                    <td style="text-align: center; padding: 15px; vertical-align: middle;">
+                        <span style="color: #667eea; font-weight: 700; font-size: 18px; background: #e8eaf6; padding: 6px 14px; border-radius: 8px; display: inline-block;">${cat.display_order}</span>
+                    </td>
+                    <td style="text-align: center; padding: 15px; vertical-align: middle;">
+                        ${cat.is_active ? 
+                            '<span style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3); display: inline-block;">✓ Hiển thị</span>' : 
+                            '<span style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3); display: inline-block;">✕ Đã ẩn</span>'
+                        }
+                    </td>
+                    <td style="text-align: center; padding: 15px; vertical-align: middle;">
+                        <button class="btn btn-sm btn-primary" onclick="editCategory(${cat.category_id})" style="margin-right: 6px; padding: 8px 14px; border-radius: 8px; font-weight: 600;" title="Sửa">✏️ Sửa</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCategory(${cat.category_id}, '${cat.name.replace(/'/g, "\\'")}' )" style="padding: 8px 14px; border-radius: 8px; font-weight: 600;" title="Xóa">🗑️ Xóa</button>
+                    </td>
+                </tr>
+            `;
+            }).join('');
+
+            renderPagination(categories.length);
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+            let paginationHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <button class="btn btn-secondary btn-sm" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                        ← Trang trước
+                    </button>
+                    <span style="font-size: 14px;">
+                        Hiển thị ${startItem}-${endItem} trong tổng ${totalItems} danh mục | Trang ${currentPage}/${totalPages}
+                    </span>
+                    <button class="btn btn-secondary btn-sm" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                        Trang sau →
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('categories-pagination').innerHTML = paginationHTML;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(currentCategories.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            displayCategories(currentCategories);
+        }
+
+        function resetFilters() {
+            document.getElementById('search-category').value = '';
+            document.getElementById('filter-game').value = '';
+            document.getElementById('filter-active').value = '';
+            currentPage = 1;
+            loadCategories();
+        }
+
+        function showAddCategory() {
+            document.getElementById('modal-title').textContent = 'Thêm danh mục mới';
+            document.getElementById('category-form').reset();
+            document.getElementById('category-id').value = '';
+            document.getElementById('form-active').checked = true;
+            document.getElementById('form-order').value = 0;
+            document.getElementById('category-modal').style.display = 'flex';
+        }
+
+        function editCategory(categoryId) {
+            console.log('🔍 Tìm danh mục ID:', categoryId);
+            console.log('📋 Tất cả danh mục:', allCategories);
+            
+            const category = allCategories.find(c => c.category_id === categoryId);
+            
+            if (!category) {
+                console.error('❌ Không tìm thấy danh mục ID:', categoryId);
+                showNotification('❌ Không tìm thấy danh mục!', 'error');
+                return;
+            }
+
+            console.log('✅ Đã tìm thấy danh mục:', category);
+
+            document.getElementById('modal-title').textContent = 'Chỉnh sửa danh mục';
+            document.getElementById('category-id').value = category.category_id;
+            document.getElementById('form-game').value = category.game_id;
+            document.getElementById('form-name').value = category.name;
+            document.getElementById('form-description').value = category.description || '';
+            document.getElementById('form-order').value = category.display_order || 0;
+            document.getElementById('form-active').checked = category.is_active;
+
+            console.log('✅ Mở modal chỉnh sửa');
+            document.getElementById('category-modal').style.display = 'flex';
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const auth = checkAdminAuth();
+            if (!auth) return;
+
+            const categoryId = document.getElementById('category-id').value;
+            const gameId = document.getElementById('form-game').value;
+            const categoryName = document.getElementById('form-name').value.trim();
+            
+            // Validate
+            if (!gameId) {
+                showNotification('⚠️ Vui lòng chọn game trước!', 'error');
+                return;
+            }
+            
+            if (!categoryName) {
+                showNotification('⚠️ Vui lòng nhập tên danh mục!', 'error');
+                return;
+            }
+
+            const categoryData = {
+                game_id: gameId,
+                name: categoryName,
+                description: document.getElementById('form-description').value,
+                display_order: parseInt(document.getElementById('form-order').value) || 0,
+                is_active: document.getElementById('form-active').checked ? 1 : 0
+            };
+            
+            console.log('📤 Đang gửi dữ liệu:', categoryData);
+
+            try {
+                let result;
+                if (categoryId) {
+                    console.log('✏️ Cập nhật danh mục ID:', categoryId);
+                    result = await AdminAPI.updateCategory(categoryId, categoryData);
+                } else {
+                    console.log('➕ Thêm danh mục mới');
+                    result = await AdminAPI.createCategory(categoryData);
+                }
+                
+                console.log('📥 Kết quả:', result);
+
+                if (result.success) {
+                    showNotification(categoryId ? '✅ Cập nhật danh mục thành công!' : '✅ Thêm danh mục thành công!', 'success');
+                    closeModal();
+                    await loadCategories();
+                } else {
+                    showNotification('❌ ' + (result.message || 'Có lỗi xảy ra'), 'error');
+                }
+            } catch (error) {
+                console.error('❌ Submit error:', error);
+                showNotification('❌ Lỗi khi lưu danh mục: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteCategory(categoryId, categoryName) {
+            if (!confirm(`🗑️ Bạn có chắc muốn xóa danh mục "${categoryName}"?\n\n⚠️ LƯU Ý:\n- Các sản phẩm trong danh mục này cũng sẽ bị ảnh hưởng\n- Hành động này không thể hoàn tác!`)) {
+                return;
+            }
+
+            const auth = checkAdminAuth();
+            if (!auth) return;
+
+            console.log('🗑️ Đang xóa danh mục ID:', categoryId);
+
+            try {
+                const result = await AdminAPI.deleteCategory(categoryId);
+                console.log('📥 Kết quả xóa:', result);
+                
+                if (result.success) {
+                    showNotification('✅ Đã xóa danh mục thành công!', 'success');
+                    await loadCategories();
+                } else {
+                    showNotification('❌ ' + (result.message || 'Lỗi khi xóa danh mục'), 'error');
+                }
+            } catch (error) {
+                console.error('❌ Delete error:', error);
+                showNotification('❌ Lỗi khi xóa danh mục: ' + error.message, 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('category-modal').style.display = 'none';
+        }
+
+        // Window click to close modal
+        window.onclick = function(event) {
+            const modal = document.getElementById('category-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // ====== GAME MANAGEMENT FUNCTIONS ======
+        
+        function showManageGames() {
+            document.getElementById('games-modal').style.display = 'flex';
+            loadGamesTable();
+        }
+
+        function closeGamesModal() {
+            document.getElementById('games-modal').style.display = 'none';
+        }
+
+        async function loadGamesTable() {
+            try {
+                const result = await API.get('/api/games');
+                const tbody = document.getElementById('games-table');
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    tbody.innerHTML = result.data.map((game, index) => {
+                        const rowClass = index % 2 === 0 ? '' : 'style="background-color: #f8f9fa;"';
+                        return `
+                        <tr ${rowClass}>
+                            <td style="text-align: center; padding: 15px; font-weight: 600; color: #667eea;">#${game.game_id}</td>
+                            <td style="padding: 15px; font-weight: 600; color: #2c3e50;">${game.name}</td>
+                            <td style="text-align: center; padding: 15px; color: #999; font-family: monospace;">${game.slug || '-'}</td>
+                            <td style="text-align: center; padding: 15px;">
+                                <button class="btn btn-sm btn-primary" onclick="editGame(${game.game_id})" style="margin-right: 6px; padding: 6px 12px;">✏️</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteGame(${game.game_id}, '${game.name.replace(/'/g, "\\'")}' )" style="padding: 6px 12px;">🗑️</button>
+                            </td>
+                        </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: #999;">Chưa có game nào</td></tr>';
+                }
+            } catch (error) {
+                console.error('Load games error:', error);
+                document.getElementById('games-table').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: #ff6b6b;">Lỗi khi tải danh sách game</td></tr>';
+            }
+        }
+
+        function showAddGame() {
+            document.getElementById('game-modal-title').textContent = '➕ Thêm Game Mới';
+            document.getElementById('game-form').reset();
+            document.getElementById('game-id').value = '';
+            document.getElementById('game-form-modal').style.display = 'flex';
+        }
+
+        async function editGame(gameId) {
+            try {
+                const result = await API.get('/api/games');
+                const game = result.data.find(g => g.game_id === gameId);
+                
+                if (!game) {
+                    showNotification('❌ Không tìm thấy game!', 'error');
+                    return;
+                }
+
+                document.getElementById('game-modal-title').textContent = '✏️ Chỉnh sửa Game';
+                document.getElementById('game-id').value = game.game_id;
+                document.getElementById('game-name').value = game.name;
+                document.getElementById('game-slug').value = game.slug || '';
+                document.getElementById('game-description').value = game.description || '';
+                document.getElementById('game-form-modal').style.display = 'flex';
+            } catch (error) {
+                console.error('Edit game error:', error);
+                showNotification('❌ Lỗi khi tải thông tin game', 'error');
+            }
+        }
+
+        async function deleteGame(gameId, gameName) {
+            if (!confirm(`🗑️ Bạn có chắc muốn xóa game "${gameName}"?\n\n⚠️ LƯU Ý: Tất cả danh mục và sản phẩm của game này cũng sẽ bị ảnh hưởng!`)) {
+                return;
+            }
+
+            try {
+                const result = await AdminAPI.deleteGame(gameId);
+                
+                if (result.success) {
+                    showNotification('✅ Đã xóa game thành công!', 'success');
+                    loadGamesTable();
+                    await loadGames(); // Reload games trong select
+                } else {
+                    showNotification('❌ ' + (result.message || 'Lỗi khi xóa game'), 'error');
+                }
+            } catch (error) {
+                console.error('Delete game error:', error);
+                showNotification('❌ Lỗi khi xóa game', 'error');
+            }
+        }
+
+        async function handleGameSubmit(event) {
+            event.preventDefault();
+            
+            const gameId = document.getElementById('game-id').value;
+            const gameData = {
+                name: document.getElementById('game-name').value.trim(),
+                slug: document.getElementById('game-slug').value.trim(),
+                description: document.getElementById('game-description').value.trim()
+            };
+
+            try {
+                let result;
+                if (gameId) {
+                    result = await AdminAPI.updateGame(gameId, gameData);
+                } else {
+                    result = await AdminAPI.createGame(gameData);
+                }
+
+                if (result.success) {
+                    showNotification(gameId ? '✅ Cập nhật game thành công!' : '✅ Thêm game thành công!', 'success');
+                    closeGameFormModal();
+                    loadGamesTable();
+                    await loadGames(); // Reload games trong select
+                } else {
+                    showNotification('❌ ' + (result.message || 'Có lỗi xảy ra'), 'error');
+                }
+            } catch (error) {
+                console.error('Submit game error:', error);
+                showNotification('❌ Lỗi khi lưu game', 'error');
+            }
+        }
+
+        function closeGameFormModal() {
+            document.getElementById('game-form-modal').style.display = 'none';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            const auth = checkAdminAuth();
+            if (!auth) return;
+
+            await loadGames();
+            await loadCategories();
+        });
+    </script>
+</body>
+</html>

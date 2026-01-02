@@ -207,9 +207,29 @@
             document.body.style.overflow = '';
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             updateCartCount();
-            loadGames();
+            await loadGames();
+            
+            // Check if game_id is in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameId = urlParams.get('game_id');
+            
+            if (gameId) {
+                // Find game name from loaded games
+                try {
+                    const result = await API.getGames();
+                    if (result.success) {
+                        const game = result.data.find(g => g.game_id == gameId);
+                        if (game) {
+                            // Auto-open categories modal for this game
+                            setTimeout(() => showCategories(gameId, game.name), 300);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error auto-opening game categories:', error);
+                }
+            }
         });
     </script>
 

@@ -147,6 +147,40 @@ const AdminAPI = {
             body: JSON.stringify({ status })
         });
         return response.json();
+    },
+
+    // Categories
+    getAllCategories: async () => {
+        const response = await fetch('/api/categories', {
+            headers: getAuthHeaders()
+        });
+        return response.json();
+    },
+
+    createCategory: async (categoryData) => {
+        const response = await fetch('/api/categories', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(categoryData)
+        });
+        return response.json();
+    },
+
+    updateCategory: async (categoryId, categoryData) => {
+        const response = await fetch(`/api/categories/${categoryId}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(categoryData)
+        });
+        return response.json();
+    },
+
+    deleteCategory: async (categoryId) => {
+        const response = await fetch(`/api/categories/${categoryId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+        return response.json();
     }
 };
 

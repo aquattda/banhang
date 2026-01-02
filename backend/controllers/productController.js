@@ -67,7 +67,7 @@ const getFeaturedProducts = async (req, res) => {
         console.log('Fetching featured products...');
         const [products] = await db.query(`
             SELECT p.product_id, p.game_id, p.category_id, p.name, p.description, 
-                   p.price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
+                   p.price, p.cost_price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
                    p.is_active, p.created_at, p.updated_at,
                    g.name as game_name, g.slug as game_slug 
             FROM products p 
@@ -77,6 +77,7 @@ const getFeaturedProducts = async (req, res) => {
             LIMIT 8
         `);
         console.log(`Found ${products.length} featured products with sales`);
+        products.forEach(p => console.log(`- ${p.name}: image_url = ${p.image_url}`));
         res.json({ success: true, data: products });
     } catch (error) {
         console.error('Get featured products error:', error);
@@ -135,14 +136,14 @@ const getProductById = async (req, res) => {
 const createProduct = async (req, res) => {
     try {
         const { 
-            game_id, category_id, name, description, price, 
+            game_id, category_id, name, description, price, cost_price,
             unit, image_url, is_featured, stock_quantity, is_active 
         } = req.body;
         
         const [result] = await db.query(
-            `INSERT INTO products (game_id, category_id, name, description, price, unit, image_url, is_featured, stock_quantity, is_active) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [game_id, category_id, name, description, price, unit || 'VNĐ', image_url, is_featured || 0, stock_quantity || 999, is_active !== undefined ? is_active : 1]
+            `INSERT INTO products (game_id, category_id, name, description, price, cost_price, unit, image_url, is_featured, stock_quantity, is_active) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [game_id, category_id, name, description, price, cost_price || 0, unit || 'VNĐ', image_url, is_featured || 0, stock_quantity || 999, is_active !== undefined ? is_active : 1]
         );
         
         res.json({ success: true, message: 'Product created', productId: result.insertId });
@@ -157,15 +158,15 @@ const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
         const { 
-            game_id, category_id, name, description, price, 
+            game_id, category_id, name, description, price, cost_price,
             unit, image_url, is_active, is_featured, stock_quantity 
         } = req.body;
         
         await db.query(
             `UPDATE products SET game_id = ?, category_id = ?, name = ?, description = ?, 
-             price = ?, unit = ?, image_url = ?, is_active = ?, is_featured = ?, stock_quantity = ? 
+             price = ?, cost_price = ?, unit = ?, image_url = ?, is_active = ?, is_featured = ?, stock_quantity = ? 
              WHERE product_id = ?`,
-            [game_id, category_id, name, description, price, unit || 'VNĐ', image_url, is_active, is_featured, stock_quantity, id]
+            [game_id, category_id, name, description, price, cost_price || 0, unit || 'VNĐ', image_url, is_active, is_featured, stock_quantity, id]
         );
         
         res.json({ success: true, message: 'Product updated' });

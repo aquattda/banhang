@@ -25,8 +25,9 @@
                 </a>
                 <a href="/admin/products.html" class="nav-item active">
                     <span>🛍️</span> Sản phẩm
-                </a>
-                <a href="#" onclick="logout()" class="nav-item">
+                </a>                <a href="/admin/categories.html" class="nav-item">
+                    <span>📁</span> Danh mục
+                </a>                <a href="#" onclick="logout()" class="nav-item">
                     <span>🚪</span> Đăng xuất
                 </a>
             </nav>
@@ -133,8 +134,28 @@
                 </div>
 
                 <div class="form-group">
-                    <label>URL hình ảnh</label>
-                    <input type="url" id="form-image" class="form-control" placeholder="https://...">
+                    <label>Giá nhập <span style="color: red;">*</span></label>
+                    <div class="price-input-wrapper">
+                        <input type="number" id="form-cost-price" class="form-control price-input" required min="0" step="1000" placeholder="0">
+                        <span class="price-currency">VNĐ</span>
+                    </div>
+                    <small class="form-text" style="color: #28a745; margin-top: 5px; display: block;">💡 Giá nhập từ nhà cung cấp (để tính lợi nhuận)</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Hình ảnh sản phẩm</label>
+                    <input type="file" id="form-image-file" class="form-control" accept="image/*" onchange="handleImageUpload(event)">
+                    <input type="hidden" id="form-image" class="form-control">
+                    <small class="form-text" style="color: #6c757d; margin-top: 5px; display: block;">📷 Chọn ảnh từ máy tính (tối đa 5MB, để trống nếu không muốn thay đổi)</small>
+                    
+                    <!-- Image Preview -->
+                    <div id="image-preview" style="margin-top: 15px; display: none;">
+                        <img id="preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;">
+                        <div style="margin-top: 10px;">
+                            <span id="upload-status" style="color: #28a745; font-weight: 500;"></span>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="removeImage()" style="margin-left: 10px; padding: 4px 12px;">❌ Xóa</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -298,8 +319,9 @@
                 <tr>
                     <td style="text-align: center; padding: 12px 8px;"><strong style="color: #667eea;">#${product.product_id || 'N/A'}</strong></td>
                     <td style="text-align: center; padding: 8px;">
-                        <img src="${product.image_url || '../images/placeholder.jpg'}" 
+                        <img src="${product.image_url || '/images/logo/roblox-app-icon-hd-removebg-preview.png'}" 
                              alt="${product.name}" 
+                             onerror="this.src='/images/logo/roblox-app-icon-hd-removebg-preview.png'"
                              style="width: 55px; height: 55px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0; display: block; margin: 0 auto;">
                     </td>
                     <td style="padding: 12px 15px;">
@@ -369,7 +391,76 @@
             document.getElementById('product-id').value = '';
             document.getElementById('form-category').innerHTML = '<option value="">-- Chọn game trước --</option>';
             document.getElementById('form-active').checked = true;
+            document.getElementById('form-image').value = '';
+            document.getElementById('image-preview').style.display = 'none';
             document.getElementById('product-modal').style.display = 'flex';
+        }
+
+        // Upload image when file is selected
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                showNotification('Chỉ chấp nhận file ảnh (JPG, PNG, GIF, WEBP)', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('Kích thước file không được vượt quá 5MB', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            // Show preview immediately
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview-img').src = e.target.result;
+                document.getElementById('image-preview').style.display = 'block';
+                document.getElementById('upload-status').textContent = '⏳ Đang upload...';
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to server
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                console.log('Uploading image to /api/upload-image...');
+                const response = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log('Response status:', response.status);
+                const result = await response.json();
+                console.log('Upload result:', result);
+
+                if (result.success) {
+                    document.getElementById('form-image').value = result.imageUrl;
+                    document.getElementById('upload-status').textContent = '✅ Upload thành công!';
+                    showNotification('Upload ảnh thành công', 'success');
+                    console.log('Image URL saved:', result.imageUrl);
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showNotification('Lỗi khi upload ảnh: ' + error.message, 'error');
+                document.getElementById('image-preview').style.display = 'none';
+                event.target.value = '';
+            }
+        }
+
+        // Remove uploaded image
+        function removeImage() {
+            document.getElementById('form-image-file').value = '';
+            document.getElementById('form-image').value = '';
+            document.getElementById('image-preview').style.display = 'none';
         }
 
         function editProduct(productId) {
@@ -389,10 +480,20 @@
             document.getElementById('form-name').value = product.name;
             document.getElementById('form-description').value = product.description || '';
             document.getElementById('form-price').value = product.price;
+            document.getElementById('form-cost-price').value = product.cost_price || 0;
             document.getElementById('form-image').value = product.image_url || '';
             document.getElementById('form-stock').value = product.stock_quantity;
             document.getElementById('form-featured').checked = product.is_featured;
             document.getElementById('form-active').checked = product.is_active;
+
+            // Show existing image preview if available
+            if (product.image_url) {
+                document.getElementById('preview-img').src = product.image_url;
+                document.getElementById('image-preview').style.display = 'block';
+                document.getElementById('upload-status').textContent = '✅ Ảnh hiện tại';
+            } else {
+                document.getElementById('image-preview').style.display = 'none';
+            }
 
             document.getElementById('product-modal').style.display = 'flex';
         }
@@ -409,6 +510,7 @@
                 name: document.getElementById('form-name').value,
                 description: document.getElementById('form-description').value,
                 price: parseFloat(document.getElementById('form-price').value),
+                cost_price: parseFloat(document.getElementById('form-cost-price').value),
                 image_url: document.getElementById('form-image').value || null,
                 stock_quantity: parseInt(document.getElementById('form-stock').value),
                 is_featured: document.getElementById('form-featured').checked ? 1 : 0,

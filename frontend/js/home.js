@@ -71,11 +71,14 @@ async function loadFeaturedProducts() {
 function displayFeaturedProducts(products) {
     const productsContainer = document.getElementById('featured-products');
     
+    console.log('Displaying featured products:', products.length);
+    products.forEach(p => console.log(`Product: ${p.name}, Image: ${p.image_url}`));
+    
     productsContainer.innerHTML = products.map(product => `
         <div class="card product-card" onclick="navigateTo('/product.html?id=${product.product_id}')">
             <div class="product-badge">⭐ Nổi bật</div>
             <div class="product-card-img">
-                ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;">` : '🎁'}
+                ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='\ud83c\udf81'">` : '🎁'}
             </div>
             <div class="card-body">
                 <span class="product-game-tag">${product.game_name}</span>
@@ -127,11 +130,14 @@ async function loadLatestProducts() {
 function displayLatestProducts(products) {
     const productsContainer = document.getElementById('latest-products');
     
+    console.log('Displaying latest products:', products.length);
+    products.forEach(p => console.log(`Product: ${p.name}, Image: ${p.image_url}`));
+    
     productsContainer.innerHTML = products.map(product => `
         <div class="card product-card" onclick="navigateTo('/product.html?id=${product.product_id}')">
             <div class="product-badge new">🆕 Mới</div>
             <div class="product-card-img">
-                ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;">` : '🎁'}
+                ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='\ud83c\udf81'">` : '🎁'}
             </div>
             <div class="card-body">
                 <span class="product-game-tag">${product.game_name}</span>

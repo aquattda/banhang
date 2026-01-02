@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Display</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .test-box { border: 2px solid #ccc; padding: 20px; margin: 20px 0; }
+        img { max-width: 300px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>Test Hiển Thị Ảnh Sản Phẩm</h1>
+    
+    <div class="test-box">
+        <h2>Test 1: Đường dẫn tuyệt đối</h2>
+        <img src="/images/products/BlizzardFruit-1767339489727-172308965.webp" alt="Blizzard">
+        <p>URL: /images/products/BlizzardFruit-1767339489727-172308965.webp</p>
+    </div>
+
+    <div class="test-box">
+        <h2>Test 2: Đường dẫn tương đối</h2>
+        <img src="images/products/BlizzardFruit-1767339489727-172308965.webp" alt="Blizzard">
+        <p>URL: images/products/BlizzardFruit-1767339489727-172308965.webp</p>
+    </div>
+
+    <div class="test-box">
+        <h2>Test 3: Load từ API</h2>
+        <div id="api-result"></div>
+        <button onclick="testAPI()">Test API</button>
+    </div>
+
+    <script>
+        async function testAPI() {
+            try {
+                const response = await fetch('/api/products/featured');
+                const result = await response.json();
+                
+                console.log('API Response:', result);
+                
+                if (result.success && result.data) {
+                    const blizzard = result.data.find(p => p.name.includes('Blizzard'));
+                    
+                    if (blizzard) {
+                        document.getElementById('api-result').innerHTML = `
+                            <h3>${blizzard.name}</h3>
+                            <p>Image URL: ${blizzard.image_url}</p>
+                            <img src="${blizzard.image_url}" alt="${blizzard.name}" style="max-width: 300px;">
+                        `;
+                    } else {
+                        document.getElementById('api-result').innerHTML = '<p>Không tìm thấy Blizzard trong API</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('api-result').innerHTML = '<p style="color: red;">Lỗi: ' + error.message + '</p>';
+            }
+        }
+        
+        // Auto test on load
+        window.onload = testAPI;
+    </script>
+</body>
+</html>
