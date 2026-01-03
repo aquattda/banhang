@@ -1,5 +1,36 @@
 // Cart page logic
 
+// Đồng bộ giá từ API cho các sản phẩm trong giỏ
+async function syncCartPrices() {
+    const cart = Cart.get();
+    if (cart.length === 0) return;
+    
+    let hasUpdates = false;
+    
+    // Lấy giá mới nhất từ API cho từng sản phẩm
+    for (const item of cart) {
+        try {
+            const result = await API.getProductById(item.id);
+            if (result.success && result.data) {
+                const currentPrice = result.data.price;
+                if (item.price !== currentPrice) {
+                    item.price = currentPrice;
+                    hasUpdates = true;
+                    console.log(`Updated price for ${item.name}: ${formatCurrency(currentPrice)}`);
+                }
+            }
+        } catch (error) {
+            console.error(`Failed to sync price for product ${item.id}:`, error);
+        }
+    }
+    
+    // Lưu lại giỏ hàng với giá mới
+    if (hasUpdates) {
+        Cart.set(cart);
+        showNotification('Giá sản phẩm đã được cập nhật', 'info');
+    }
+}
+
 // Lấy trạng thái đã chọn từ localStorage
 function getSelectedItems() {
     const selected = localStorage.getItem('cart_selected_items');
@@ -11,7 +42,10 @@ function saveSelectedItems(selectedIds) {
     localStorage.setItem('cart_selected_items', JSON.stringify(selectedIds));
 }
 
-function loadCart() {
+async function loadCart() {
+    // Đồng bộ giá từ API trước khi hiển thị
+    await syncCartPrices();
+    
     const cart = Cart.get();
     const cartItemsContainer = document.getElementById('cart-items');
 
@@ -302,27 +336,37 @@ async function handleCheckout(e) {
     }
 }
 
-// Auto-fill thông tin nếu đã đăng nhập
-function autoFillCustomerInfo() {
-    if (window.CustomerAuth && CustomerAuth.isLoggedIn()) {
-        const customer = CustomerAuth.getCustomer();
-        if (customer) {
-            const nameInput = document.querySelector('input[name="buyer_name"]');
-            const phoneInput = document.querySelector('input[name="buyer_phone"]');
-            const emailInput = document.querySelector('input[name="buyer_email"]');
+// // Auto-fill thông tin nếu đã đăng nhập
+// function autoFillCustomerInfo() {
+//     // Kiểm tra xem có đăng nhập không
+//     if (window.CustomerAuth && CustomerAuth.isLoggedIn()) {
+//         const customer = CustomerAuth.getCustomer();
+//         if (customer) {
+//             const nameInput = document.querySelector('input[name="buyer_name"]');
+//             const phoneInput = document.querySelector('input[name="buyer_phone"]');
+//             const emailInput = document.querySelector('input[name="buyer_email"]');
             
-            if (nameInput && !nameInput.value) nameInput.value = customer.name || '';
-            if (phoneInput && !phoneInput.value) phoneInput.value = customer.phone || '';
-            if (emailInput && !emailInput.value) emailInput.value = customer.email || '';
-        }
-    }
-}
+//             // Tự động điền thông tin nếu có
+//             if (nameInput && customer.name) {
+//                 nameInput.value = customer.name;
+//             }
+            
+//             if (phoneInput && customer.phone) {
+//                 phoneInput.value = customer.phone;
+//             }
+            
+//             if (emailInput && customer.email) {
+//                 emailInput.value = customer.email;
+//             }
+//         }
+//     }
+// }
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    loadCart();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadCart(); // Load cart và sync giá
     updatePaymentInfo();
-    autoFillCustomerInfo();
+    // autoFillCustomerInfo(); // Auto-fill thông tin khách hàng nếu đã đăng nhập
 
     // Payment method change listener
     document.querySelectorAll('input[name="payment_method"]').forEach(radio => {

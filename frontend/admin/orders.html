@@ -435,6 +435,15 @@
                 
                 if (result.success) {
                     showNotification('Đã cập nhật trạng thái', 'success');
+                    
+                    // Reload trang nếu chuyển sang trạng thái hoàn thành
+                    if (newStatus === 'completed') {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 800);
+                    } else {
+                        loadOrders();
+                    }
                 } else {
                     showNotification('Lỗi khi cập nhật', 'error');
                     loadOrders();
@@ -499,8 +508,8 @@
                                 <tr>
                                     <td><strong>${item.product_name}</strong></td>
                                     <td style="text-align: center;">${item.quantity}</td>
-                                    <td style="text-align: right; color: #28a745;">${formatCurrency(item.cost_price || 0)}</td>
-                                    <td style="text-align: right; color: #667eea;">${formatCurrency(item.price)}</td>
+                                    <td style="text-align: right; color: #ff6b6b;">${formatCurrency(item.unit_cost_price || 0)}</td>
+                                    <td style="text-align: right; color: #28a745;">${formatCurrency(item.price)}</td>
                                     <td style="text-align: right;"><strong>${formatCurrency(item.subtotal)}</strong></td>
                                 </tr>
                             `).join('')}
@@ -629,10 +638,10 @@
                                     'Email': order.customer_email || '',
                                     'Sản phẩm': item.product_name,
                                     'Số lượng': item.quantity,
-                                    'Giá nhập (VNĐ)': item.cost_price || 0,
+                                    'Giá nhập (VNĐ)': item.unit_cost_price || 0,
                                     'Giá bán (VNĐ)': item.price,
                                     'Thành tiền (VNĐ)': item.subtotal,
-                                    'Lợi nhuận (VNĐ)': (item.price - (item.cost_price || 0)) * item.quantity,
+                                    'Lợi nhuận (VNĐ)': (item.price - (item.unit_cost_price || 0)) * item.quantity,
                                     'Tổng đơn hàng (VNĐ)': order.total_amount,
                                     'Trạng thái': order.status === 'pending' ? 'Chờ xử lý' : order.status === 'completed' ? 'Hoàn thành' : 'Đã hủy',
                                     'Thanh toán': order.payment_status === 'unpaid' ? 'Chưa thanh toán' : order.payment_status === 'paid' ? 'Đã thanh toán' : 'Đã hoàn tiền',

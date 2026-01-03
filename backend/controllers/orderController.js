@@ -33,7 +33,7 @@ const createOrder = async (req, res) => {
         
         for (const item of items) {
             const [products] = await connection.query(
-                'SELECT product_id, name, price, stock_quantity FROM products WHERE product_id = ? AND is_active = TRUE',
+                'SELECT product_id, name, price, cost_price, stock_quantity FROM products WHERE product_id = ? AND is_active = TRUE',
                 [item.product_id]
             );
             
@@ -58,6 +58,7 @@ const createOrder = async (req, res) => {
                 product_name: product.name,
                 quantity: item.quantity,
                 price: product.price,
+                cost_price: product.cost_price || 0,
                 subtotal: subtotal
             });
         }
@@ -77,9 +78,9 @@ const createOrder = async (req, res) => {
         // Insert order items
         for (const item of orderItems) {
             await connection.query(
-                `INSERT INTO order_items (order_id, product_id, product_name, quantity, price, subtotal) 
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-                [order_id, item.product_id, item.product_name, item.quantity, item.price, item.subtotal]
+                `INSERT INTO order_items (order_id, product_id, product_name, quantity, price, unit_cost_price, subtotal) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [order_id, item.product_id, item.product_name, item.quantity, item.price, item.cost_price, item.subtotal]
             );
             
             // Update stock
@@ -181,11 +182,10 @@ const getOrderById = async (req, res) => {
             return res.status(404).json({ success: false, error: 'Order not found' });
         }
         
-        // Join với bảng products để lấy cost_price (giá nhập)
+        // Lấy order items - unit_cost_price đã lưu giá nhập tại thời điểm đặt hàng
         const [items] = await db.query(
-            `SELECT oi.*, p.cost_price, p.price as current_selling_price 
+            `SELECT oi.* 
              FROM order_items oi
-             LEFT JOIN products p ON oi.product_id = p.product_id
              WHERE oi.order_id = ?`,
             [id]
         );

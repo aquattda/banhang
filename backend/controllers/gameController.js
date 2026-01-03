@@ -4,7 +4,7 @@ const db = require('../config/database');
 const getAllGames = async (req, res) => {
     try {
         const [games] = await db.query(
-            'SELECT * FROM games WHERE is_active = TRUE ORDER BY name'
+            'SELECT * FROM games WHERE is_active = TRUE ORDER BY display_order ASC, name ASC'
         );
         res.json({ success: true, data: games });
     } catch (error) {
@@ -36,11 +36,11 @@ const getGameBySlug = async (req, res) => {
 // Admin: Tạo game mới
 const createGame = async (req, res) => {
     try {
-        const { name, slug, description, thumbnail_url } = req.body;
+        const { name, slug, description, display_order } = req.body;
         
         const [result] = await db.query(
-            'INSERT INTO games (name, slug, description, thumbnail_url) VALUES (?, ?, ?, ?)',
-            [name, slug, description, thumbnail_url]
+            'INSERT INTO games (name, slug, description, display_order) VALUES (?, ?, ?, ?)',
+            [name, slug, description, display_order || 0]
         );
         
         res.json({ success: true, message: 'Game created', gameId: result.insertId });
@@ -54,11 +54,11 @@ const createGame = async (req, res) => {
 const updateGame = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, slug, description, thumbnail_url, is_active } = req.body;
+        const { name, slug, description, display_order } = req.body;
         
         await db.query(
-            'UPDATE games SET name = ?, slug = ?, description = ?, thumbnail_url = ?, is_active = ? WHERE game_id = ?',
-            [name, slug, description, thumbnail_url, is_active, id]
+            'UPDATE games SET name = ?, slug = ?, description = ?, display_order = ? WHERE game_id = ?',
+            [name, slug, description, display_order || 0, id]
         );
         
         res.json({ success: true, message: 'Game updated' });

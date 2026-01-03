@@ -15,7 +15,7 @@ const getProducts = async (req, res) => {
         
         let query = `
             SELECT p.product_id, p.game_id, p.category_id, p.name, p.description, 
-                   p.price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
+                   p.price, p.cost_price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
                    p.is_active, p.created_at, p.updated_at,
                    g.name as game_name, g.slug as game_slug, c.name as category_name 
             FROM products p 
@@ -90,7 +90,7 @@ const getLatestProducts = async (req, res) => {
     try {
         const [products] = await db.query(`
             SELECT p.product_id, p.game_id, p.category_id, p.name, p.description, 
-                   p.price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
+                   p.price, p.cost_price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
                    p.is_active, p.created_at, p.updated_at,
                    g.name as game_name, g.slug as game_slug 
             FROM products p 
@@ -112,7 +112,7 @@ const getProductById = async (req, res) => {
         const { id } = req.params;
         const [products] = await db.query(`
             SELECT p.product_id, p.game_id, p.category_id, p.name, p.description, 
-                   p.price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
+                   p.price, p.cost_price, p.unit, p.image_url, p.stock_quantity, p.sold_count, p.is_featured, 
                    p.is_active, p.created_at, p.updated_at,
                    g.name as game_name, g.slug as game_slug, c.name as category_name 
             FROM products p 

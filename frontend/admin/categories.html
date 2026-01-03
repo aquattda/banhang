@@ -40,7 +40,6 @@
             <header class="admin-header">
                 <h1>Quản lý danh mục</h1>
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <p style="margin: 0; color: #666; font-size: 14px;">📝 <strong>Quy trình:</strong> Chọn Game → Nhập tên danh mục → Lưu</p>
                     <button class="btn btn-secondary" onclick="showManageGames()" style="padding: 12px 20px; font-size: 15px; white-space: nowrap;">🎮 Quản lý Game</button>
                     <button class="btn btn-primary" onclick="showAddCategory()" style="padding: 12px 24px; font-size: 16px; white-space: nowrap;">➕ Thêm danh mục</button>
                 </div>
@@ -164,12 +163,13 @@
                         <tr>
                             <th style="width: 80px; text-align: center;">ID</th>
                             <th style="text-align: left;">TÊN GAME</th>
-                            <th style="width: 120px; text-align: center;">SLUG</th>
+                            <th style="width: 100px; text-align: center;">THỨ TỰ</th>
+                            <th style="width: 150px; text-align: center;">SLUG</th>
                             <th style="width: 150px; text-align: center;">THAO TÁC</th>
                         </tr>
                     </thead>
                     <tbody id="games-table">
-                        <tr><td colspan="4" style="text-align: center; padding: 40px;">Đang tải...</td></tr>
+                        <tr><td colspan="5" style="text-align: center; padding: 40px;">Đang tải...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -191,10 +191,18 @@
                     <input type="text" id="game-name" class="form-control" required placeholder="Ví dụ: BloxFruits, King Legacy..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; transition: all 0.3s;" onfocus="this.style.borderColor='#667eea'" onblur="this.style.borderColor='#e0e0e0'">
                 </div>
 
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Slug <span style="color: red;">*</span></label>
-                    <input type="text" id="game-slug" class="form-control" required placeholder="bloxfruits, king-legacy..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
-                    <small style="color: #999; font-size: 13px; margin-top: 5px; display: block;">💡 Chỉ dùng chữ thường, số và dấu gạch ngang</small>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Slug <span style="color: red;">*</span></label>
+                        <input type="text" id="game-slug" class="form-control" required placeholder="bloxfruits, king-legacy..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                        <small style="color: #999; font-size: 13px; margin-top: 5px; display: block;">💡 Chỉ dùng chữ thường, số và dấu gạch ngang</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Thứ tự <span style="color: red;">*</span></label>
+                        <input type="number" id="game-display-order" class="form-control" required min="0" value="0" placeholder="0, 10, 20..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;" onfocus="this.style.borderColor='#667eea'" onblur="this.style.borderColor='#e0e0e0'">
+                        <small style="color: #999; font-size: 13px; margin-top: 5px; display: block;">📌 Số nhỏ = hiển thị trước</small>
+                    </div>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 25px;">
@@ -210,9 +218,78 @@
         </div>
     </div>
 
+    <!-- Custom Confirm Modal -->
+    <div id="confirm-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 10001; align-items: center; justify-content: center;">
+        <div class="modal-content" style="max-width: 500px; background: white; border-radius: 20px; padding: 0; box-shadow: 0 25px 70px rgba(0,0,0,0.4); animation: modalBounce 0.4s ease; transform-origin: center;">
+            <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); padding: 30px; border-radius: 20px 20px 0 0; text-align: center;">
+                <div style="font-size: 64px; margin-bottom: 10px; animation: shake 0.5s ease;">🗑️</div>
+                <h2 id="confirm-title" style="margin: 0; color: white; font-size: 24px; font-weight: 700;">Xóa danh mục?</h2>
+            </div>
+            
+            <div style="padding: 30px 35px;">
+                <p id="confirm-message" style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; color: #333; text-align: center;"></p>
+                
+                <div id="confirm-warnings" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <p style="margin: 0; font-size: 14px; color: #856404; font-weight: 600;">⚠️ LƯU Ý:</p>
+                    <ul id="confirm-warning-list" style="margin: 8px 0 0 0; padding-left: 20px; color: #856404; font-size: 13px;">
+                        <!-- Warnings will be inserted here -->
+                    </ul>
+                </div>
+                
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button onclick="closeConfirmModal(false)" class="btn btn-secondary" style="padding: 12px 30px; font-size: 15px; font-weight: 600; border-radius: 10px; min-width: 120px;">❌ Hủy</button>
+                    <button onclick="closeConfirmModal(true)" class="btn" style="padding: 12px 30px; font-size: 15px; font-weight: 600; border-radius: 10px; min-width: 120px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; border: none; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);">🗑️ Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes modalBounce {
+            0% { transform: scale(0.7); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+    </style>
+
     <script src="/js/app.js"></script>
     <script src="/admin/js/admin.js"></script>
     <script>
+        let confirmResolve = null;
+
+        function showConfirmModal(title, message, warnings = []) {
+            return new Promise((resolve) => {
+                confirmResolve = resolve;
+                
+                document.getElementById('confirm-title').textContent = title;
+                document.getElementById('confirm-message').textContent = message;
+                
+                const warningList = document.getElementById('confirm-warning-list');
+                if (warnings.length > 0) {
+                    warningList.innerHTML = warnings.map(w => `<li>${w}</li>`).join('');
+                    document.getElementById('confirm-warnings').style.display = 'block';
+                } else {
+                    document.getElementById('confirm-warnings').style.display = 'none';
+                }
+                
+                document.getElementById('confirm-modal').style.display = 'flex';
+            });
+        }
+
+        function closeConfirmModal(result) {
+            document.getElementById('confirm-modal').style.display = 'none';
+            if (confirmResolve) {
+                confirmResolve(result);
+                confirmResolve = null;
+            }
+        }
+
         let allGames = [];
         let allCategories = [];
         let currentCategories = [];
@@ -482,9 +559,16 @@
         }
 
         async function deleteCategory(categoryId, categoryName) {
-            if (!confirm(`🗑️ Bạn có chắc muốn xóa danh mục "${categoryName}"?\n\n⚠️ LƯU Ý:\n- Các sản phẩm trong danh mục này cũng sẽ bị ảnh hưởng\n- Hành động này không thể hoàn tác!`)) {
-                return;
-            }
+            const confirmed = await showConfirmModal(
+                '🗑️ Xóa danh mục?',
+                `Bạn có chắc muốn xóa danh mục "${categoryName}"?`,
+                [
+                    'Các sản phẩm trong danh mục này cũng sẽ bị ảnh hưởng',
+                    'Hành động này không thể hoàn tác!'
+                ]
+            );
+            
+            if (!confirmed) return;
 
             const auth = checkAdminAuth();
             if (!auth) return;
@@ -542,7 +626,8 @@
                         <tr ${rowClass}>
                             <td style="text-align: center; padding: 15px; font-weight: 600; color: #667eea;">#${game.game_id}</td>
                             <td style="padding: 15px; font-weight: 600; color: #2c3e50;">${game.name}</td>
-                            <td style="text-align: center; padding: 15px; color: #999; font-family: monospace;">${game.slug || '-'}</td>
+                            <td style="text-align: center; padding: 15px; font-weight: 700; color: #764ba2; font-size: 18px;">${game.display_order || 0}</td>
+                            <td style="text-align: center; padding: 15px; color: #999; font-family: monospace; font-size: 13px;">${game.slug || '-'}</td>
                             <td style="text-align: center; padding: 15px;">
                                 <button class="btn btn-sm btn-primary" onclick="editGame(${game.game_id})" style="margin-right: 6px; padding: 6px 12px;">✏️</button>
                                 <button class="btn btn-sm btn-danger" onclick="deleteGame(${game.game_id}, '${game.name.replace(/'/g, "\\'")}' )" style="padding: 6px 12px;">🗑️</button>
@@ -551,11 +636,11 @@
                         `;
                     }).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: #999;">Chưa có game nào</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">Chưa có game nào</td></tr>';
                 }
             } catch (error) {
                 console.error('Load games error:', error);
-                document.getElementById('games-table').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: #ff6b6b;">Lỗi khi tải danh sách game</td></tr>';
+                document.getElementById('games-table').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #ff6b6b;">Lỗi khi tải danh sách game</td></tr>';
             }
         }
 
@@ -581,6 +666,7 @@
                 document.getElementById('game-name').value = game.name;
                 document.getElementById('game-slug').value = game.slug || '';
                 document.getElementById('game-description').value = game.description || '';
+                document.getElementById('game-display-order').value = game.display_order || 0;
                 document.getElementById('game-form-modal').style.display = 'flex';
             } catch (error) {
                 console.error('Edit game error:', error);
@@ -589,9 +675,17 @@
         }
 
         async function deleteGame(gameId, gameName) {
-            if (!confirm(`🗑️ Bạn có chắc muốn xóa game "${gameName}"?\n\n⚠️ LƯU Ý: Tất cả danh mục và sản phẩm của game này cũng sẽ bị ảnh hưởng!`)) {
-                return;
-            }
+            const confirmed = await showConfirmModal(
+                '🗑️ Xóa game?',
+                `Bạn có chắc muốn xóa game "${gameName}"?`,
+                [
+                    'Tất cả danh mục của game này sẽ bị xóa',
+                    'Tất cả sản phẩm của game này sẽ bị xóa',
+                    'Hành động này không thể hoàn tác!'
+                ]
+            );
+            
+            if (!confirmed) return;
 
             try {
                 const result = await AdminAPI.deleteGame(gameId);
@@ -616,7 +710,8 @@
             const gameData = {
                 name: document.getElementById('game-name').value.trim(),
                 slug: document.getElementById('game-slug').value.trim(),
-                description: document.getElementById('game-description').value.trim()
+                description: document.getElementById('game-description').value.trim(),
+                display_order: parseInt(document.getElementById('game-display-order').value) || 0
             };
 
             try {
@@ -654,5 +749,6 @@
             await loadCategories();
         });
     </script>
+    <script src="/admin/js/notifications.js"></script>
 </body>
 </html>

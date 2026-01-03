@@ -18,12 +18,12 @@ const getAllCategories = async (req, res) => {
     }
 };
 
-// Lấy categories theo game
+// Lấy categories theo game (chỉ hiển thị active, sắp xếp theo display_order)
 const getCategoriesByGame = async (req, res) => {
     try {
         const { game_id } = req.params;
         const [categories] = await db.query(
-            'SELECT * FROM categories WHERE game_id = ? ORDER BY name',
+            'SELECT * FROM categories WHERE game_id = ? AND is_active = 1 ORDER BY display_order ASC, name ASC',
             [game_id]
         );
         res.json({ success: true, data: categories });

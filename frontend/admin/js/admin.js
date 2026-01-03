@@ -29,8 +29,9 @@ function getAuthHeaders() {
     };
 }
 
-// Admin API calls
-const AdminAPI = {
+// Admin API calls - Sử dụng window để tránh redeclaration
+if (typeof window.AdminAPI === 'undefined') {
+    window.AdminAPI = {
     // Orders
     getAllOrders: async (params = {}) => {
         const queryString = new URLSearchParams(params).toString();
@@ -183,6 +184,7 @@ const AdminAPI = {
         return response.json();
     }
 };
+}
 
 // Display utilities
 function getStatusBadgeClass(status) {
@@ -212,4 +214,9 @@ function getPaymentStatusText(status) {
         'refunded': 'Đã hoàn tiền'
     };
     return texts[status] || status;
+}
+
+// Tạo alias AdminAPI để code cũ vẫn hoạt động (không dùng const/let)
+if (typeof AdminAPI === 'undefined') {
+    var AdminAPI = window.AdminAPI;
 }

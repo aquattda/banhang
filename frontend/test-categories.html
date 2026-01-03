@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Categories Display Order</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .test-section { margin: 30px 0; }
+        h2 { color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .category-card { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .category-card.inactive { background: #f8d7da; border-color: #f5c6cb; }
+        .category-info { flex: 1; }
+        .category-badge { 
+            padding: 5px 15px; 
+            border-radius: 20px; 
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-active { background: #d4edda; color: #155724; }
+        .badge-inactive { background: #f8d7da; color: #721c24; }
+        button { 
+            padding: 10px 20px; 
+            background: #667eea; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #5568d3; }
+        .order-badge {
+            background: #764ba2;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Categories Display Order & Active Status</h1>
+        
+        <div class="test-section">
+            <h2>Test 1: Lấy categories của game BloxFruits (game_id = 1)</h2>
+            <button onclick="testGame1()">🔄 Load Categories Game 1</button>
+            <div id="game1-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 2: Lấy categories của game King Legacy (game_id = 2)</h2>
+            <button onclick="testGame2()">🔄 Load Categories Game 2</button>
+            <div id="game2-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 3: Tất cả categories (Admin view)</h2>
+            <button onclick="testAllCategories()">🔄 Load All Categories</button>
+            <div id="all-result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testGame1() {
+            const result = document.getElementById('game1-result');
+            result.innerHTML = '<p>⏳ Đang tải...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/categories/game/1');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    result.innerHTML = `
+                        <p style="color: green;">✅ Tìm thấy ${data.data.length} categories</p>
+                        ${data.data.map(cat => `
+                            <div class="category-card ${!cat.is_active ? 'inactive' : ''}">
+                                <div class="category-info">
+                                    <strong>#${cat.category_id} - ${cat.name}</strong>
+                                    <p style="margin: 5px 0; color: #666;">Game ID: ${cat.game_id}</p>
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <span class="order-badge">Thứ tự: ${cat.display_order}</span>
+                                    <span class="category-badge ${cat.is_active ? 'badge-active' : 'badge-inactive'}">
+                                        ${cat.is_active ? '✅ Active' : '❌ Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    result.innerHTML = '<p style="color: orange;">⚠️ Không có categories nào</p>';
+                }
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">❌ Lỗi: ${error.message}</p>`;
+            }
+        }
+
+        async function testGame2() {
+            const result = document.getElementById('game2-result');
+            result.innerHTML = '<p>⏳ Đang tải...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/categories/game/2');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    result.innerHTML = `
+                        <p style="color: green;">✅ Tìm thấy ${data.data.length} categories</p>
+                        ${data.data.map(cat => `
+                            <div class="category-card ${!cat.is_active ? 'inactive' : ''}">
+                                <div class="category-info">
+                                    <strong>#${cat.category_id} - ${cat.name}</strong>
+                                    <p style="margin: 5px 0; color: #666;">Game ID: ${cat.game_id}</p>
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <span class="order-badge">Thứ tự: ${cat.display_order}</span>
+                                    <span class="category-badge ${cat.is_active ? 'badge-active' : 'badge-inactive'}">
+                                        ${cat.is_active ? '✅ Active' : '❌ Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    result.innerHTML = '<p style="color: orange;">⚠️ Không có categories nào</p>';
+                }
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">❌ Lỗi: ${error.message}</p>`;
+            }
+        }
+
+        async function testAllCategories() {
+            const result = document.getElementById('all-result');
+            result.innerHTML = '<p>⏳ Đang tải...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/categories');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    result.innerHTML = `
+                        <p style="color: green;">✅ Tìm thấy ${data.data.length} categories</p>
+                        <p style="color: #666;">📌 Sắp xếp theo: game_id → display_order → name</p>
+                        ${data.data.map(cat => `
+                            <div class="category-card ${!cat.is_active ? 'inactive' : ''}">
+                                <div class="category-info">
+                                    <strong>#${cat.category_id} - ${cat.name}</strong>
+                                    <p style="margin: 5px 0; color: #666;">
+                                        Game: ${cat.game_name} (ID: ${cat.game_id})
+                                    </p>
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <span class="order-badge">Thứ tự: ${cat.display_order}</span>
+                                    <span class="category-badge ${cat.is_active ? 'badge-active' : 'badge-inactive'}">
+                                        ${cat.is_active ? '✅ Active' : '❌ Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    result.innerHTML = '<p style="color: orange;">⚠️ Không có categories nào</p>';
+                }
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">❌ Lỗi: ${error.message}</p>`;
+            }
+        }
+
+        // Auto load khi vào trang
+        window.onload = () => {
+            console.log('🧪 Test page loaded');
+            testGame1();
+        };
+    </script>
+</body>
+</html>
