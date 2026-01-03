@@ -36,11 +36,11 @@ const getGameBySlug = async (req, res) => {
 // Admin: Tạo game mới
 const createGame = async (req, res) => {
     try {
-        const { name, slug, description, display_order } = req.body;
+        const { name, slug, description, display_order, image_url } = req.body;
         
         const [result] = await db.query(
-            'INSERT INTO games (name, slug, description, display_order) VALUES (?, ?, ?, ?)',
-            [name, slug, description, display_order || 0]
+            'INSERT INTO games (name, slug, description, display_order, image_url) VALUES (?, ?, ?, ?, ?)',
+            [name, slug, description, display_order || 0, image_url || null]
         );
         
         res.json({ success: true, message: 'Game created', gameId: result.insertId });
@@ -54,11 +54,11 @@ const createGame = async (req, res) => {
 const updateGame = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, slug, description, display_order } = req.body;
+        const { name, slug, description, display_order, image_url } = req.body;
         
         await db.query(
-            'UPDATE games SET name = ?, slug = ?, description = ?, display_order = ? WHERE game_id = ?',
-            [name, slug, description, display_order || 0, id]
+            'UPDATE games SET name = ?, slug = ?, description = ?, display_order = ?, image_url = ? WHERE game_id = ?',
+            [name, slug, description, display_order || 0, image_url || null, id]
         );
         
         res.json({ success: true, message: 'Game updated' });

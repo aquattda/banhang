@@ -36,11 +36,11 @@ const getCategoriesByGame = async (req, res) => {
 // Admin: Tạo category
 const createCategory = async (req, res) => {
     try {
-        const { game_id, parent_id, name, description, display_order, is_active } = req.body;
+        const { game_id, parent_id, name, description, display_order, is_active, image_url } = req.body;
         
         const [result] = await db.query(
-            'INSERT INTO categories (game_id, parent_id, name, description, display_order, is_active) VALUES (?, ?, ?, ?, ?, ?)',
-            [game_id, parent_id || null, name, description || '', display_order || 0, is_active !== undefined ? is_active : 1]
+            'INSERT INTO categories (game_id, parent_id, name, description, display_order, is_active, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [game_id, parent_id || null, name, description || '', display_order || 0, is_active !== undefined ? is_active : 1, image_url || null]
         );
         
         res.json({ success: true, message: 'Category created', categoryId: result.insertId });
@@ -54,11 +54,11 @@ const createCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const { game_id, parent_id, name, description, display_order, is_active } = req.body;
+        const { game_id, parent_id, name, description, display_order, is_active, image_url } = req.body;
         
         await db.query(
-            'UPDATE categories SET game_id = ?, parent_id = ?, name = ?, description = ?, display_order = ?, is_active = ? WHERE category_id = ?',
-            [game_id, parent_id || null, name, description || '', display_order || 0, is_active !== undefined ? is_active : 1, id]
+            'UPDATE categories SET game_id = ?, parent_id = ?, name = ?, description = ?, display_order = ?, is_active = ?, image_url = ? WHERE category_id = ?',
+            [game_id, parent_id || null, name, description || '', display_order || 0, is_active !== undefined ? is_active : 1, image_url || null, id]
         );
         
         res.json({ success: true, message: 'Category updated' });

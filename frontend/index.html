@@ -35,7 +35,7 @@
                         <span class="icon">📋</span>
                         <span>Lịch sử</span>
                     </a>
-                    <a href="/cart.html" class="header-btn btn-recharge">
+                    <a href="/recharge.html" class="header-btn btn-recharge">
                         <span class="icon">💳</span>
                         <span>Nạp tiền</span>
                     </a>
@@ -454,6 +454,34 @@
             });
         }
 
+        // Load wallet balance
+        async function loadWalletBalance() {
+            try {
+                const token = localStorage.getItem('customer_token');
+                if (!token) return 0;
+                
+                const response = await fetch('http://localhost:3000/api/recharge/wallet', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.balance || 0;
+                }
+                return 0;
+            } catch (error) {
+                console.error('Load wallet error:', error);
+                return 0;
+            }
+        }
+        
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN').format(amount) + ' ₫';
+        }
+        
         // Modern Auth Button
         function updateModernAuthButton() {
             const authBtn = document.getElementById('auth-btn-modern');
@@ -461,19 +489,46 @@
             
             if (CustomerAuth && CustomerAuth.isLoggedIn()) {
                 const customer = CustomerAuth.getCustomer();
-                authBtn.innerHTML = `
-                    <div class="user-menu-modern">
-                        <button class="header-btn btn-login" onclick="toggleUserDropdown()">
-                            <span class="icon">👤</span>
-                            <span>${customer.name || customer.email}</span>
-                        </button>
-                        <div class="user-dropdown-modern" id="user-dropdown-modern">
-                            <a href="/account.html">Tài khoản</a>
-                            <a href="/orders.html">Đơn hàng</a>
-                            <a href="#" onclick="CustomerAuth.logout(); return false;">Đăng xuất</a>
+                
+                // Load wallet balance
+                loadWalletBalance().then(balance => {
+                    authBtn.innerHTML = `
+                        <div class="user-menu-modern">
+                            <button class="header-btn btn-login" onclick="toggleUserDropdown()">
+                                <span class="icon">👤</span>
+                                <span>${customer.name || customer.email}</span>
+                            </button>
+                            <div class="user-dropdown-modern" id="user-dropdown-modern">
+                                <div style="padding: 10px 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px 8px 0 0; margin: -8px -8px 8px -8px;">
+                                    <div style="font-size: 12px; opacity: 0.9;">Số dư ví</div>
+                                    <div style="font-size: 18px; font-weight: bold;">${formatCurrency(balance)}</div>
+                                </div>
+                                <a href="/account.html">Tài khoản</a>
+                                <a href="/orders.html">Đơn hàng</a>
+                                <a href="/recharge.html" style="color: #667eea; font-weight: 600;">💳 Nạp tiền</a>
+                                <a href="/wallet-history.html">📜 Lịch sử nạp tiền</a>
+                                <a href="#" onclick="CustomerAuth.logout(); return false;">Đăng xuất</a>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }).catch(err => {
+                    // Nếu không load được balance, vẫn hiển thị menu bình thường
+                    authBtn.innerHTML = `
+                        <div class="user-menu-modern">
+                            <button class="header-btn btn-login" onclick="toggleUserDropdown()">
+                                <span class="icon">👤</span>
+                                <span>${customer.name || customer.email}</span>
+                            </button>
+                            <div class="user-dropdown-modern" id="user-dropdown-modern">
+                                <a href="/account.html">Tài khoản</a>
+                                <a href="/orders.html">Đơn hàng</a>
+                                <a href="/recharge.html" style="color: #667eea; font-weight: 600;">💳 Nạp tiền</a>
+                                <a href="/wallet-history.html">📜 Lịch sử nạp tiền</a>
+                                <a href="#" onclick="CustomerAuth.logout(); return false;">Đăng xuất</a>
+                            </div>
+                        </div>
+                    `;
+                });
             } else {
                 authBtn.innerHTML = `
                     <a href="/login.html" class="header-btn btn-login">

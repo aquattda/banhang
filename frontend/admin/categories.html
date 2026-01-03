@@ -122,6 +122,22 @@
                     <textarea id="form-description" class="form-control" rows="3" placeholder="Mô tả ngắn về danh mục này..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; resize: vertical;"></textarea>
                 </div>
 
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Hình ảnh danh mục</label>
+                    <input type="file" id="form-image-file" class="form-control" accept="image/*" onchange="handleCategoryImageUpload(event)" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    <input type="hidden" id="form-image">
+                    <small class="form-text" style="color: #6c757d; margin-top: 5px; display: block;">📷 Chọn ảnh từ máy tính (tối đa 5MB, để trống nếu không muốn thay đổi)</small>
+                    
+                    <!-- Image Preview -->
+                    <div id="category-image-preview" style="margin-top: 15px; display: none;">
+                        <img id="category-preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 12px; border: 2px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                        <div style="margin-top: 10px;">
+                            <span id="category-upload-status" style="color: #28a745; font-weight: 600;"></span>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="removeCategoryImage()" style="margin-left: 10px; padding: 6px 14px; border-radius: 6px;">❌ Xóa</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div class="form-group">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Thứ tự hiển thị</label>
@@ -208,6 +224,22 @@
                 <div class="form-group" style="margin-bottom: 25px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Mô tả</label>
                     <textarea id="game-description" class="form-control" rows="3" placeholder="Mô tả ngắn về game..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; resize: vertical;"></textarea>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Hình ảnh game</label>
+                    <input type="file" id="game-image-file" class="form-control" accept="image/*" onchange="handleGameImageUpload(event)" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    <input type="hidden" id="game-image">
+                    <small class="form-text" style="color: #6c757d; margin-top: 5px; display: block;">📷 Chọn ảnh đại diện cho game (tối đa 5MB)</small>
+                    
+                    <!-- Image Preview -->
+                    <div id="game-image-preview" style="margin-top: 15px; display: none;">
+                        <img id="game-preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 12px; border: 2px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                        <div style="margin-top: 10px;">
+                            <span id="game-upload-status" style="color: #28a745; font-weight: 600;"></span>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="removeGameImage()" style="margin-left: 10px; padding: 6px 14px; border-radius: 6px;">❌ Xóa</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end; padding-top: 20px; border-top: 2px solid #f0f0f0;">
@@ -498,9 +530,160 @@
             document.getElementById('form-description').value = category.description || '';
             document.getElementById('form-order').value = category.display_order || 0;
             document.getElementById('form-active').checked = category.is_active;
+            
+            // Show existing image if available
+            if (category.image_url) {
+                document.getElementById('form-image').value = category.image_url;
+                const preview = document.getElementById('category-image-preview');
+                preview.innerHTML = `
+                    <img src="${category.image_url}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                    <button type="button" onclick="removeCategoryImage()" style="margin-top: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
+                `;
+            } else {
+                document.getElementById('form-image').value = '';
+                document.getElementById('category-image-preview').innerHTML = '';
+            }
 
             console.log('✅ Mở modal chỉnh sửa');
             document.getElementById('category-modal').style.display = 'flex';
+        }
+
+        // Handle category image upload
+        async function handleCategoryImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showNotification('⚠️ Vui lòng chọn file ảnh!', 'error');
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('⚠️ Kích thước ảnh không được vượt quá 5MB!', 'error');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('category-image-preview');
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                    <button type="button" onclick="removeCategoryImage()" style="margin-top: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
+                `;
+            };
+            reader.readAsDataURL(file);
+
+            // Upload image
+            const uploadStatus = document.getElementById('category-upload-status');
+            uploadStatus.textContent = 'Đang tải lên...';
+            
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('form-image').value = result.imageUrl;
+                    uploadStatus.textContent = 'Tải lên thành công!';
+                    uploadStatus.style.color = '#28a745';
+                    showNotification('✅ Tải ảnh lên thành công!', 'success');
+                } else {
+                    uploadStatus.textContent = 'Lỗi: ' + result.message;
+                    uploadStatus.style.color = '#dc3545';
+                    showNotification('❌ Lỗi tải ảnh: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                uploadStatus.textContent = 'Lỗi tải lên';
+                uploadStatus.style.color = '#dc3545';
+                showNotification('❌ Lỗi tải ảnh: ' + error.message, 'error');
+            }
+        }
+
+        function removeCategoryImage() {
+            document.getElementById('form-image').value = '';
+            document.getElementById('category-image-preview').innerHTML = '';
+            document.getElementById('category-upload-status').textContent = '';
+            const fileInput = document.querySelector('input[onchange="handleCategoryImageUpload(event)"]');
+            if (fileInput) fileInput.value = '';
+        }
+
+        // Handle game image upload
+        async function handleGameImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showNotification('⚠️ Vui lòng chọn file ảnh!', 'error');
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('⚠️ Kích thước ảnh không được vượt quá 5MB!', 'error');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('game-image-preview');
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                    <button type="button" onclick="removeGameImage()" style="margin-top: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
+                `;
+            };
+            reader.readAsDataURL(file);
+
+            // Upload image
+            const uploadStatus = document.getElementById('game-upload-status');
+            uploadStatus.textContent = 'Đang tải lên...';
+            
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('game-image').value = result.imageUrl;
+                    uploadStatus.textContent = 'Tải lên thành công!';
+                    uploadStatus.style.color = '#28a745';
+                    showNotification('✅ Tải ảnh lên thành công!', 'success');
+                } else {
+                    uploadStatus.textContent = 'Lỗi: ' + result.message;
+                    uploadStatus.style.color = '#dc3545';
+                    showNotification('❌ Lỗi tải ảnh: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                uploadStatus.textContent = 'Lỗi tải lên';
+                uploadStatus.style.color = '#dc3545';
+                showNotification('❌ Lỗi tải ảnh: ' + error.message, 'error');
+            }
+        }
+
+        function removeGameImage() {
+            document.getElementById('game-image').value = '';
+            document.getElementById('game-image-preview').innerHTML = '';
+            document.getElementById('game-upload-status').textContent = '';
+            const fileInput = document.querySelector('input[onchange="handleGameImageUpload(event)"]');
+            if (fileInput) fileInput.value = '';
         }
 
         async function handleSubmit(event) {
@@ -528,7 +711,8 @@
                 name: categoryName,
                 description: document.getElementById('form-description').value,
                 display_order: parseInt(document.getElementById('form-order').value) || 0,
-                is_active: document.getElementById('form-active').checked ? 1 : 0
+                is_active: document.getElementById('form-active').checked ? 1 : 0,
+                image_url: document.getElementById('form-image').value || null
             };
             
             console.log('📤 Đang gửi dữ liệu:', categoryData);
@@ -667,6 +851,20 @@
                 document.getElementById('game-slug').value = game.slug || '';
                 document.getElementById('game-description').value = game.description || '';
                 document.getElementById('game-display-order').value = game.display_order || 0;
+                
+                // Show existing image if available
+                if (game.image_url) {
+                    document.getElementById('game-image').value = game.image_url;
+                    const preview = document.getElementById('game-image-preview');
+                    preview.innerHTML = `
+                        <img src="${game.image_url}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                        <button type="button" onclick="removeGameImage()" style="margin-top: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
+                    `;
+                } else {
+                    document.getElementById('game-image').value = '';
+                    document.getElementById('game-image-preview').innerHTML = '';
+                }
+                
                 document.getElementById('game-form-modal').style.display = 'flex';
             } catch (error) {
                 console.error('Edit game error:', error);
@@ -711,7 +909,8 @@
                 name: document.getElementById('game-name').value.trim(),
                 slug: document.getElementById('game-slug').value.trim(),
                 description: document.getElementById('game-description').value.trim(),
-                display_order: parseInt(document.getElementById('game-display-order').value) || 0
+                display_order: parseInt(document.getElementById('game-display-order').value) || 0,
+                image_url: document.getElementById('game-image').value || null
             };
 
             try {

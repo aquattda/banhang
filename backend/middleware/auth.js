@@ -44,4 +44,9 @@ const customerAuthMiddleware = (req, res, next) => {
     }
 };
 
-module.exports = { authMiddleware, adminMiddleware, customerAuthMiddleware };
+module.exports = { 
+    authMiddleware, 
+    adminMiddleware, 
+    customerAuthMiddleware,
+    verifyCustomerToken: customerAuthMiddleware 
+};

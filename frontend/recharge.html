@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nạp Tiền - Game Store</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/modern-layout.css">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        
+        main {
+            padding-top: 30px;
+            padding-bottom: 50px;
+        }
+        
+        .recharge-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .wallet-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wallet-info::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .wallet-balance {
+            font-size: 56px;
+            font-weight: 800;
+            margin: 15px 0;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .wallet-label {
+            font-size: 18px;
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .recharge-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 18px 25px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            color: #666;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tab-button:hover {
+            background: #f8f9fa;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .card-amounts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .amount-btn {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            transition: all 0.3s;
+            color: #2c3e50;
+        }
+
+        .amount-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .amount-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .fee-info {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
+        }
+
+        .fee-info strong {
+            color: #856404;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .bank-info {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #2196F3;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+        }
+
+        .bank-info h4 {
+            margin-top: 0;
+            color: #1976d2;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .bank-info p {
+            margin: 12px 0;
+            font-size: 15px;
+            color: #2c3e50;
+        }
+
+        .bank-info .copy-btn {
+            background: linear-gradient(135deg, #2196F3 0%, #1976d2 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-left: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+        }
+        
+        .bank-info .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .history-link {
+            text-align: center;
+            margin-top: 40px;
+            padding: 25px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .history-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 30px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .history-link a:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            padding: 18px 30px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            z-index: 9999;
+            animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(500px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .wallet-balance {
+                font-size: 42px;
+            }
+            
+            .card-amounts {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tab-button {
+                font-size: 14px;
+                padding: 14px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="modern-header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <a href="/" class="header-logo">
+                    <img src="/images/logo/roblox-app-icon-hd-removebg-preview.png" alt="Solo Shop Logo">
+                    <span>Minalo Shop</span>
+                </a>
+                
+                <!-- Search Bar -->
+                <div class="header-search">
+                    <input type="text" placeholder="Tìm sản phẩm, dịch vụ..." id="search-input">
+                    <button class="search-btn">🔍</button>
+                </div>
+                
+                <!-- Navigation Actions -->
+                <div class="header-actions">
+                    <a href="/contact.html" class="header-link">
+                        <span class="icon">💬</span>
+                        <span>Hỗ trợ</span>
+                    </a>
+                    <a href="/orders.html" class="header-link">
+                        <span class="icon">📋</span>
+                        <span>Lịch sử</span>
+                    </a>
+                    <a href="/recharge.html" class="header-btn btn-recharge">
+                        <span class="icon">💳</span>
+                        <span>Nạp tiền</span>
+                    </a>
+                    <div id="authButtons"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="recharge-container">
+        <!-- Wallet Info -->
+        <div class="wallet-info">
+            <div class="wallet-label">Số dư ví của bạn</div>
+            <div class="wallet-balance" id="walletBalance">0 ₫</div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="recharge-tabs">
+            <button class="tab-button active" data-tab="card">
+                <span>💳</span> Nạp bằng thẻ cào
+            </button>
+            <button class="tab-button" data-tab="bank">
+                <span>🏦</span> Chuyển khoản ngân hàng
+            </button>
+        </div>
+
+        <!-- Card Tab Content -->
+        <div class="tab-content active" id="cardTab">
+            <form id="cardForm">
+                <div class="form-group">
+                    <label>Loại thẻ <span style="color: red;">*</span></label>
+                    <select id="cardType" required>
+                        <option value="">-- Chọn loại thẻ --</option>
+                        <option value="VIETTEL">Viettel (Phí 11%)</option>
+                        <option value="VINAPHONE">Vinaphone (Phí 14%)</option>
+                        <option value="MOBIFONE">Mobifone (Phí 15%)</option>
+                        <option value="VIETNAMOBILE">Vietnamobile (Phí 16%)</option>
+                        <option value="ZING">Zing (Phí 14%)</option>
+                        <option value="GATE">Gate (Phí 16%)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Mệnh giá <span style="color: red;">*</span></label>
+                    <div class="card-amounts" id="cardAmounts">
+                        <button type="button" class="amount-btn" data-amount="10000">10,000 ₫</button>
+                        <button type="button" class="amount-btn" data-amount="20000">20,000 ₫</button>
+                        <button type="button" class="amount-btn" data-amount="30000">30,000 ₫</button>
+                        <button type="button" class="amount-btn" data-amount="50000">50,000 ₫</button>
+                        <button type="button" class="amount-btn" data-amount="100000">100,000 ₫</button>
+                        <button type="button" class="amount-btn" data-amount="200000">200,000 ₫</button>
+                        <button type="button" class="amount-btn" data-amount="300000">300,000 ₫</button>
+                        <button type="button" class="amount-btn" data-amount="500000">500,000 ₫</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Số serial <span style="color: red;">*</span></label>
+                    <input type="text" id="cardSerial" placeholder="Nhập số serial trên thẻ" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mã thẻ <span style="color: red;">*</span></label>
+                    <input type="text" id="cardCode" placeholder="Nhập mã thẻ (gạch lớp bạc)" required>
+                </div>
+
+                <div class="fee-info" id="feeInfo" style="display: none;">
+                    <strong>Lưu ý:</strong> Phí giao dịch <span id="feePercent">0</span>%. 
+                    Bạn sẽ nhận được <strong><span id="actualAmount">0</span> ₫</strong> vào ví.
+                </div>
+
+                <button type="submit" class="submit-btn" id="cardSubmitBtn">
+                    Nạp thẻ ngay
+                </button>
+            </form>
+        </div>
+
+        <!-- Bank Tab Content -->
+        <div class="tab-content" id="bankTab">
+            <div class="bank-info">
+                <h4>Thông tin chuyển khoản</h4>
+                <p><strong>Ngân hàng:</strong> Vietcombank</p>
+                <p><strong>Số tài khoản:</strong> 1234567890 
+                    <button class="copy-btn" onclick="copyToClipboard('1234567890')">Copy</button>
+                </p>
+                <p><strong>Chủ tài khoản:</strong> NGUYEN VAN A</p>
+                <p><strong>Nội dung:</strong> NAPTHE [SỐ ĐIỆN THOẠI] 
+                    <button class="copy-btn" onclick="copyToClipboard('NAPTHE')">Copy</button>
+                </p>
+            </div>
+
+            <form id="bankForm">
+                <div class="form-group">
+                    <label>Ngân hàng bạn chuyển <span style="color: red;">*</span></label>
+                    <input type="text" id="bankName" placeholder="VD: Vietcombank, Techcombank..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Số tài khoản của bạn</label>
+                    <input type="text" id="bankAccount" placeholder="Số tài khoản hoặc số điện thoại">
+                </div>
+
+                <div class="form-group">
+                    <label>Mã giao dịch</label>
+                    <input type="text" id="bankTransactionCode" placeholder="Mã giao dịch (nếu có)">
+                </div>
+
+                <div class="form-group">
+                    <label>Số tiền đã chuyển <span style="color: red;">*</span></label>
+                    <input type="number" id="bankAmount" placeholder="Nhập số tiền đã chuyển" min="10000" required>
+                </div>
+
+                <div class="fee-info">
+                    <strong>Lưu ý:</strong> Chuyển khoản ngân hàng không mất phí. Admin sẽ xác nhận trong vòng 24h.
+                </div>
+
+                <button type="submit" class="submit-btn" id="bankSubmitBtn">
+                    Xác nhận đã chuyển khoản
+                </button>
+            </form>
+        </div>
+
+        <!-- History Link -->
+        <div class="history-link">
+            <a href="wallet-history.html">📜 Xem lịch sử nạp tiền</a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>Về chúng tôi</h3>
+                    <p>Minalo Shop - Nền tảng mua bán vật phẩm game uy tín, nhanh chóng và an toàn nhất Việt Nam.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="/games.html">Game</a></li>
+                        <li><a href="/product.html">Sản phẩm</a></li>
+                        <li><a href="/contact.html">Liên hệ</a></li>
+                        <li><a href="/recharge.html">Nạp tiền</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="/contact.html">Trung tâm hỗ trợ</a></li>
+                        <li><a href="/wallet-history.html">Lịch sử nạp tiền</a></li>
+                        <li><a href="/orders.html">Đơn hàng của tôi</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Minalo Shop. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/customer-auth.js"></script>
+    <script src="/js/recharge.js"></script>
+</body>
+</html>
