@@ -38,6 +38,8 @@ const createGame = async (req, res) => {
     try {
         const { name, slug, description, display_order, image_url } = req.body;
         
+        console.log('Creating game with data:', { name, slug, description, display_order, image_url });
+        
         const [result] = await db.query(
             'INSERT INTO games (name, slug, description, display_order, image_url) VALUES (?, ?, ?, ?, ?)',
             [name, slug, description, display_order || 0, image_url || null]
@@ -46,7 +48,8 @@ const createGame = async (req, res) => {
         res.json({ success: true, message: 'Game created', gameId: result.insertId });
     } catch (error) {
         console.error('Create game error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        console.error('Error details:', error.message);
+        res.status(500).json({ success: false, error: error.message || 'Server error' });
     }
 };
 

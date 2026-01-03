@@ -76,6 +76,7 @@
                         <tr>
                             <th style="width: 120px; text-align: center;">ID GAME</th>
                             <th style="width: 200px; text-align: left;">GAME</th>
+                            <th style="width: 100px; text-align: center;">HÌNH ẢNH</th>
                             <th style="min-width: 300px; text-align: left;">TÊN DANH MỤC</th>
                             <th style="width: 120px; text-align: center;">THỨ TỰ</th>
                             <th style="width: 150px; text-align: center;">TRẠNG THÁI</th>
@@ -83,7 +84,7 @@
                         </tr>
                     </thead>
                     <tbody id="categories-table">
-                        <tr><td colspan="6" style="text-align: center;">Đang tải...</td></tr>
+                        <tr><td colspan="7" style="text-align: center;">Đang tải...</td></tr>
                     </tbody>
                 </table>
 
@@ -162,12 +163,13 @@
     </div>
 
     <!-- Manage Games Modal -->
-    <div id="games-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
-        <div class="modal-content" style="max-width: 900px; width: 90%; background: white; border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
-            <div class="modal-header" style="padding: 25px 30px; border-bottom: 2px solid #e8eaf6; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <h2 style="margin: 0; font-size: 24px; font-weight: 700;">🎮 Quản lý Game</h2>
-                <button class="close-btn" onclick="closeGamesModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; cursor: pointer; color: white; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">✖</button>
-            </div>
+    <div id="games-modal" class="modal" style="display: none;">
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+            <div class="modal-content" style="max-width: 900px; width: 90%; background: white; border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+                <div class="modal-header" style="padding: 25px 30px; border-bottom: 2px solid #e8eaf6; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex-shrink: 0;">
+                    <h2 style="margin: 0; font-size: 24px; font-weight: 700;">🎮 Quản lý Game</h2>
+                    <button class="close-btn" onclick="closeGamesModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; cursor: pointer; color: white; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">✖</button>
+                </div>
             
             <div style="padding: 30px; overflow-y: auto; flex: 1;">
                 <div style="margin-bottom: 25px;">
@@ -178,6 +180,7 @@
                     <thead>
                         <tr>
                             <th style="width: 80px; text-align: center;">ID</th>
+                            <th style="width: 100px; text-align: center;">HÌNH ẢNH</th>
                             <th style="text-align: left;">TÊN GAME</th>
                             <th style="width: 100px; text-align: center;">THỨ TỰ</th>
                             <th style="width: 150px; text-align: center;">SLUG</th>
@@ -185,21 +188,22 @@
                         </tr>
                     </thead>
                     <tbody id="games-table">
-                        <tr><td colspan="5" style="text-align: center; padding: 40px;">Đang tải...</td></tr>
+                        <tr><td colspan="6" style="text-align: center; padding: 40px;">Đang tải...</td></tr>
                     </tbody>
                 </table>
             </div>
+        </div>
         </div>
     </div>
 
     <!-- Add/Edit Game Modal -->
     <div id="game-form-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
-        <div class="modal-content" style="max-width: 550px; background: white; border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: modalSlideIn 0.3s ease;">
-            <div class="modal-header" style="padding: 25px 30px; border-bottom: 2px solid #e8eaf6; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <div class="modal-content" style="max-width: 550px; max-height: 90vh; background: white; border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: modalSlideIn 0.3s ease; display: flex; flex-direction: column;">
+            <div class="modal-header" style="padding: 25px 30px; border-bottom: 2px solid #e8eaf6; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex-shrink: 0;">
                 <h2 id="game-modal-title" style="margin: 0; font-size: 22px; font-weight: 700;">➕ Thêm Game Mới</h2>
                 <button class="close-btn" onclick="closeGameFormModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; color: white;">✖</button>
             </div>
-            <form id="game-form" onsubmit="handleGameSubmit(event)" style="padding: 30px;">
+            <form id="game-form" onsubmit="handleGameSubmit(event)" style="padding: 30px; overflow-y: auto; flex: 1;">
                 <input type="hidden" id="game-id">
                 
                 <div class="form-group" style="margin-bottom: 20px;">
@@ -330,7 +334,9 @@
 
         async function loadGames() {
             try {
-                const result = await API.get('/api/games');
+                console.log('📋 Loading games for dropdowns...');
+                const result = await AdminAPI.getAllGames();
+                console.log('📋 Games loaded:', result);
                 if (result.success) {
                     allGames = result.data;
                     const gameSelects = ['filter-game', 'form-game'];
@@ -345,9 +351,10 @@
                             select.innerHTML += `<option value="${game.game_id}">${game.name}</option>`;
                         });
                     });
+                    console.log('✅ Loaded', allGames.length, 'games into dropdowns');
                 }
             } catch (error) {
-                console.error('Error loading games:', error);
+                console.error('❌ Error loading games:', error);
             }
         }
 
@@ -363,7 +370,7 @@
                 
                 if (!result.success || !result.data) {
                     document.getElementById('categories-table').innerHTML = `
-                        <tr><td colspan="6" style="text-align: center; color: red;">Không thể tải danh mục</td></tr>
+                        <tr><td colspan="7" style="text-align: center; color: red;">Không thể tải danh mục</td></tr>
                     `;
                     return;
                 }
@@ -395,7 +402,7 @@
 
                 if (filtered.length === 0) {
                     document.getElementById('categories-table').innerHTML = `
-                        <tr><td colspan="6" style="text-align: center;">Không tìm thấy danh mức</td></tr>
+                        <tr><td colspan="7" style="text-align: center;">Không tìm thấy danh mức</td></tr>
                     `;
                     document.getElementById('categories-pagination').innerHTML = '';
                     return;
@@ -428,6 +435,9 @@
                 const isNewGame = cat.game_id !== previousGameId;
                 previousGameId = cat.game_id;
                 const rowClass = index % 2 === 0 ? '' : 'style="background-color: #f8f9fa;"';
+                const imageHtml = cat.image_url 
+                    ? `<img src="${cat.image_url}" alt="${cat.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onerror="this.parentElement.innerHTML='📁'">`
+                    : '<span style="font-size: 32px;">📁</span>';
                 
                 return `
                 <tr ${rowClass}>
@@ -437,6 +447,7 @@
                     <td style="padding: 15px; font-weight: 600; color: #2c3e50; font-size: 15px; vertical-align: middle;">
                         ${isNewGame ? (cat.game_name || 'N/A') : ''}
                     </td>
+                    <td style="text-align: center; padding: 15px; vertical-align: middle;">${imageHtml}</td>
                     <td style="padding: 15px;">
                         <div style="margin-bottom: 4px;">
                             <strong style="color: #1a237e; font-size: 15px;">${cat.name}</strong>
@@ -506,6 +517,10 @@
             document.getElementById('category-id').value = '';
             document.getElementById('form-active').checked = true;
             document.getElementById('form-order').value = 0;
+            document.getElementById('form-image').value = '';
+            document.getElementById('category-image-preview').innerHTML = '';
+            const uploadStatus = document.getElementById('category-upload-status');
+            if (uploadStatus) uploadStatus.textContent = '';
             document.getElementById('category-modal').style.display = 'flex';
         }
 
@@ -565,21 +580,24 @@
                 return;
             }
 
-            // Show preview
+            // Show preview with upload status
+            const preview = document.getElementById('category-image-preview');
+            preview.style.display = 'block';
+            preview.innerHTML = `
+                <img src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                <div style="margin-top: 10px;">
+                    <span id="category-upload-status" style="color: #666;">Đang tải lên...</span>
+                </div>
+            `;
+
+            // Show image preview
             const reader = new FileReader();
             reader.onload = function(e) {
-                const preview = document.getElementById('category-image-preview');
-                preview.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
-                    <button type="button" onclick="removeCategoryImage()" style="margin-top: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
-                `;
+                preview.querySelector('img').src = e.target.result;
             };
             reader.readAsDataURL(file);
 
             // Upload image
-            const uploadStatus = document.getElementById('category-upload-status');
-            uploadStatus.textContent = 'Đang tải lên...';
-            
             const formData = new FormData();
             formData.append('image', file);
 
@@ -593,26 +611,38 @@
                 
                 if (result.success) {
                     document.getElementById('form-image').value = result.imageUrl;
-                    uploadStatus.textContent = 'Tải lên thành công!';
-                    uploadStatus.style.color = '#28a745';
+                    preview.innerHTML = `
+                        <img src="${result.imageUrl}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                        <div style="margin-top: 10px;">
+                            <span style="color: #28a745; font-weight: 600;">✓ Tải lên thành công!</span>
+                            <button type="button" onclick="removeCategoryImage()" style="margin-left: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
+                        </div>
+                    `;
                     showNotification('✅ Tải ảnh lên thành công!', 'success');
                 } else {
-                    uploadStatus.textContent = 'Lỗi: ' + result.message;
-                    uploadStatus.style.color = '#dc3545';
+                    const uploadStatus = document.getElementById('category-upload-status');
+                    if (uploadStatus) {
+                        uploadStatus.textContent = 'Lỗi: ' + result.message;
+                        uploadStatus.style.color = '#dc3545';
+                    }
                     showNotification('❌ Lỗi tải ảnh: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Upload error:', error);
-                uploadStatus.textContent = 'Lỗi tải lên';
-                uploadStatus.style.color = '#dc3545';
+                const uploadStatus = document.getElementById('category-upload-status');
+                if (uploadStatus) {
+                    uploadStatus.textContent = 'Lỗi tải lên';
+                    uploadStatus.style.color = '#dc3545';
+                }
                 showNotification('❌ Lỗi tải ảnh: ' + error.message, 'error');
             }
         }
 
         function removeCategoryImage() {
             document.getElementById('form-image').value = '';
-            document.getElementById('category-image-preview').innerHTML = '';
-            document.getElementById('category-upload-status').textContent = '';
+            const preview = document.getElementById('category-image-preview');
+            preview.innerHTML = '';
+            preview.style.display = 'none';
             const fileInput = document.querySelector('input[onchange="handleCategoryImageUpload(event)"]');
             if (fileInput) fileInput.value = '';
         }
@@ -634,21 +664,24 @@
                 return;
             }
 
-            // Show preview
+            // Show preview with upload status
+            const preview = document.getElementById('game-image-preview');
+            preview.style.display = 'block';
+            preview.innerHTML = `
+                <img src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                <div style="margin-top: 10px;">
+                    <span id="game-upload-status" style="color: #666;">Đang tải lên...</span>
+                </div>
+            `;
+
+            // Show image preview
             const reader = new FileReader();
             reader.onload = function(e) {
-                const preview = document.getElementById('game-image-preview');
-                preview.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
-                    <button type="button" onclick="removeGameImage()" style="margin-top: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
-                `;
+                preview.querySelector('img').src = e.target.result;
             };
             reader.readAsDataURL(file);
 
             // Upload image
-            const uploadStatus = document.getElementById('game-upload-status');
-            uploadStatus.textContent = 'Đang tải lên...';
-            
             const formData = new FormData();
             formData.append('image', file);
 
@@ -659,29 +692,41 @@
                 });
 
                 const result = await response.json();
+                const uploadStatus = document.getElementById('game-upload-status');
                 
                 if (result.success) {
                     document.getElementById('game-image').value = result.imageUrl;
-                    uploadStatus.textContent = 'Tải lên thành công!';
-                    uploadStatus.style.color = '#28a745';
+                    preview.innerHTML = `
+                        <img src="${result.imageUrl}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                        <div style="margin-top: 10px;">
+                            <span style="color: #28a745; font-weight: 600;">✓ Tải lên thành công!</span>
+                            <button type="button" onclick="removeGameImage()" style="margin-left: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
+                        </div>
+                    `;
                     showNotification('✅ Tải ảnh lên thành công!', 'success');
                 } else {
-                    uploadStatus.textContent = 'Lỗi: ' + result.message;
-                    uploadStatus.style.color = '#dc3545';
+                    if (uploadStatus) {
+                        uploadStatus.textContent = 'Lỗi: ' + result.message;
+                        uploadStatus.style.color = '#dc3545';
+                    }
                     showNotification('❌ Lỗi tải ảnh: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Upload error:', error);
-                uploadStatus.textContent = 'Lỗi tải lên';
-                uploadStatus.style.color = '#dc3545';
+                const uploadStatus = document.getElementById('game-upload-status');
+                if (uploadStatus) {
+                    uploadStatus.textContent = 'Lỗi tải lên';
+                    uploadStatus.style.color = '#dc3545';
+                }
                 showNotification('❌ Lỗi tải ảnh: ' + error.message, 'error');
             }
         }
 
         function removeGameImage() {
             document.getElementById('game-image').value = '';
-            document.getElementById('game-image-preview').innerHTML = '';
-            document.getElementById('game-upload-status').textContent = '';
+            const preview = document.getElementById('game-image-preview');
+            preview.innerHTML = '';
+            preview.style.display = 'none';
             const fileInput = document.querySelector('input[onchange="handleGameImageUpload(event)"]');
             if (fileInput) fileInput.value = '';
         }
@@ -777,6 +822,10 @@
 
         function closeModal() {
             document.getElementById('category-modal').style.display = 'none';
+            document.getElementById('form-image').value = '';
+            document.getElementById('category-image-preview').innerHTML = '';
+            const uploadStatus = document.getElementById('category-upload-status');
+            if (uploadStatus) uploadStatus.textContent = '';
         }
 
         // Window click to close modal
@@ -790,7 +839,11 @@
         // ====== GAME MANAGEMENT FUNCTIONS ======
         
         function showManageGames() {
-            document.getElementById('games-modal').style.display = 'flex';
+            const modal = document.getElementById('games-modal');
+            console.log('Opening games modal, current display:', modal.style.display);
+            modal.style.display = 'block';
+            console.log('After opening, display:', modal.style.display);
+            console.log('Modal element:', modal);
             loadGamesTable();
         }
 
@@ -800,31 +853,57 @@
 
         async function loadGamesTable() {
             try {
-                const result = await API.get('/api/games');
+                console.log('🎮 Loading games table...');
+                const result = await AdminAPI.getAllGames();
+                console.log('🎮 API Result:', result);
                 const tbody = document.getElementById('games-table');
                 
                 if (result.success && result.data && result.data.length > 0) {
-                    tbody.innerHTML = result.data.map((game, index) => {
-                        const rowClass = index % 2 === 0 ? '' : 'style="background-color: #f8f9fa;"';
-                        return `
-                        <tr ${rowClass}>
-                            <td style="text-align: center; padding: 15px; font-weight: 600; color: #667eea;">#${game.game_id}</td>
-                            <td style="padding: 15px; font-weight: 600; color: #2c3e50;">${game.name}</td>
-                            <td style="text-align: center; padding: 15px; font-weight: 700; color: #764ba2; font-size: 18px;">${game.display_order || 0}</td>
-                            <td style="text-align: center; padding: 15px; color: #999; font-family: monospace; font-size: 13px;">${game.slug || '-'}</td>
-                            <td style="text-align: center; padding: 15px;">
-                                <button class="btn btn-sm btn-primary" onclick="editGame(${game.game_id})" style="margin-right: 6px; padding: 6px 12px;">✏️</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteGame(${game.game_id}, '${game.name.replace(/'/g, "\\'")}' )" style="padding: 6px 12px;">🗑️</button>
-                            </td>
-                        </tr>
-                        `;
-                    }).join('');
+                    console.log('✅ Found', result.data.length, 'games');
+                    console.log('Games data:', result.data);
+                    
+                    const rows = [];
+                    result.data.forEach((game, index) => {
+                        try {
+                            console.log(`Rendering game ${index + 1}:`, game.game_id, game.name);
+                            
+                            const rowClass = index % 2 === 0 ? '' : 'style="background-color: #f8f9fa;"';
+                            const imageHtml = game.image_url 
+                                ? `<img src="${game.image_url}" alt="${game.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onerror="this.parentElement.innerHTML='🎮'">`
+                                : '<span style="font-size: 32px;">🎮</span>';
+                            
+                            // Escape single quotes trong tên game
+                            const safeName = (game.name || '').replace(/'/g, "\\'");
+                            
+                            const row = `
+                            <tr ${rowClass}>
+                                <td style="text-align: center; padding: 15px; font-weight: 600; color: #667eea;">#${game.game_id}</td>
+                                <td style="text-align: center; padding: 15px;">${imageHtml}</td>
+                                <td style="padding: 15px; font-weight: 600; color: #2c3e50;">${game.name || 'N/A'}</td>
+                                <td style="text-align: center; padding: 15px; font-weight: 700; color: #764ba2; font-size: 18px;">${game.display_order || 0}</td>
+                                <td style="text-align: center; padding: 15px; color: #999; font-family: monospace; font-size: 13px;">${game.slug || '-'}</td>
+                                <td style="text-align: center; padding: 15px;">
+                                    <button class="btn btn-sm btn-primary" onclick="editGame(${game.game_id})" style="margin-right: 6px; padding: 6px 12px;">✏️</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteGame(${game.game_id}, '${safeName}')" style="padding: 6px 12px;">🗑️</button>
+                                </td>
+                            </tr>
+                            `;
+                            rows.push(row);
+                        } catch (err) {
+                            console.error(`❌ Error rendering game ${game.game_id}:`, err);
+                        }
+                    });
+                    
+                    tbody.innerHTML = rows.join('');
+                    console.log('✅ Rendered', rows.length, 'rows to table');
+                    console.log('HTML length:', tbody.innerHTML.length);
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">Chưa có game nào</td></tr>';
+                    console.log('⚠️ No games found or empty result');
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">Chưa có game nào</td></tr>';
                 }
             } catch (error) {
-                console.error('Load games error:', error);
-                document.getElementById('games-table').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #ff6b6b;">Lỗi khi tải danh sách game</td></tr>';
+                console.error('❌ Load games error:', error);
+                document.getElementById('games-table').innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #ff6b6b;">Lỗi khi tải danh sách game</td></tr>';
             }
         }
 
@@ -832,12 +911,16 @@
             document.getElementById('game-modal-title').textContent = '➕ Thêm Game Mới';
             document.getElementById('game-form').reset();
             document.getElementById('game-id').value = '';
+            document.getElementById('game-image').value = '';
+            const preview = document.getElementById('game-image-preview');
+            preview.innerHTML = '';
+            preview.style.display = 'none';
             document.getElementById('game-form-modal').style.display = 'flex';
         }
 
         async function editGame(gameId) {
             try {
-                const result = await API.get('/api/games');
+                const result = await AdminAPI.getAllGames();
                 const game = result.data.find(g => g.game_id === gameId);
                 
                 if (!game) {
@@ -853,16 +936,20 @@
                 document.getElementById('game-display-order').value = game.display_order || 0;
                 
                 // Show existing image if available
+                const preview = document.getElementById('game-image-preview');
                 if (game.image_url) {
                     document.getElementById('game-image').value = game.image_url;
-                    const preview = document.getElementById('game-image-preview');
+                    preview.style.display = 'block';
                     preview.innerHTML = `
                         <img src="${game.image_url}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
-                        <button type="button" onclick="removeGameImage()" style="margin-top: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
+                        <div style="margin-top: 10px;">
+                            <button type="button" onclick="removeGameImage()" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Xóa ảnh</button>
+                        </div>
                     `;
                 } else {
                     document.getElementById('game-image').value = '';
-                    document.getElementById('game-image-preview').innerHTML = '';
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
                 }
                 
                 document.getElementById('game-form-modal').style.display = 'flex';
@@ -924,7 +1011,7 @@
                 if (result.success) {
                     showNotification(gameId ? '✅ Cập nhật game thành công!' : '✅ Thêm game thành công!', 'success');
                     closeGameFormModal();
-                    loadGamesTable();
+                    await loadGamesTable(); // Đợi table load xong
                     await loadGames(); // Reload games trong select
                 } else {
                     showNotification('❌ ' + (result.message || 'Có lỗi xảy ra'), 'error');
@@ -937,6 +1024,11 @@
 
         function closeGameFormModal() {
             document.getElementById('game-form-modal').style.display = 'none';
+            document.getElementById('game-form').reset();
+            document.getElementById('game-image').value = '';
+            const preview = document.getElementById('game-image-preview');
+            preview.innerHTML = '';
+            preview.style.display = 'none';
         }
 
         // Initialize
@@ -946,6 +1038,7 @@
 
             await loadGames();
             await loadCategories();
+            // Không cần load games table ở đây, nó sẽ load khi mở modal
         });
     </script>
     <script src="/admin/js/notifications.js"></script>

@@ -20,6 +20,9 @@ async function loadGames() {
 function displayGames(games) {
     const gamesContainer = document.getElementById('games-list');
     
+    console.log('🎮 Displaying games:', games.length);
+    games.forEach(g => console.log(`Game: ${g.name}, Slug: ${g.slug}, Image: ${g.image_url}`));
+    
     // Game icons mapping (emoji fallback)
     const gameIcons = {
         'roblox': '🎮',
@@ -41,14 +44,22 @@ function displayGames(games) {
         'fish-it': '🐟'
     };
     
-    gamesContainer.innerHTML = games.map(game => `
+    gamesContainer.innerHTML = games.map(game => {
+        console.log(`Rendering ${game.name}: has image_url = ${!!game.image_url}, value = ${game.image_url}`);
+        return `
         <div class="card game-card" onclick="navigateTo('/game-detail.html?game_id=${game.game_id}')">
-            <div class="game-card-icon">${gameIcons[game.slug] || '🎮'}</div>
+            <div class="game-card-icon">
+                ${game.image_url 
+                    ? `<img src="${game.image_url}" alt="${game.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="console.error('Image load error for ${game.name}:', this.src); this.parentElement.innerHTML='${gameIcons[game.slug] || '🎮'}'">` 
+                    : (gameIcons[game.slug] || '🎮')
+                }
+            </div>
             <h3 class="game-card-name">${game.name}</h3>
             <p class="game-card-desc">${game.description || ''}</p>
             <button class="btn btn-primary">Xem vật phẩm</button>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // Load featured products

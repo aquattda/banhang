@@ -38,6 +38,7 @@ const customerAuthMiddleware = (req, res, next) => {
         }
         
         req.user = decoded;
+        req.customerId = decoded.customer_id; // Add customerId for easy access
         next();
     } catch (error) {
         res.status(401).json({ success: false, message: 'Token không hợp lệ hoặc đã hết hạn' });

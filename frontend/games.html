@@ -144,16 +144,19 @@
                 if (result.success && result.data.length > 0) {
                     const gamesGrid = document.getElementById('games-grid');
                     
-                    gamesGrid.innerHTML = result.data.map(game => `
+                    gamesGrid.innerHTML = result.data.map(game => {
+                        const bgImage = game.image_url || gameBackgrounds[game.name] || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80';
+                        return `
                         <div class="game-card" onclick="showCategories(${game.game_id}, '${game.name.replace(/'/g, "\\'")}')"
-                             style="background-image: url('${gameBackgrounds[game.name] || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80'}')">
-                            <div class="game-card-overlay"></div>
+                             style="background-image: url('${bgImage}')">
+
                             <div class="game-card-content">
                                 <h3>${game.name}</h3>
                                 <p>Nhấn vào để mua ${game.name}</p>
                             </div>
                         </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 } else {
                     document.getElementById('games-grid').innerHTML = '<p style="text-align:center;padding:40px;color:#999;">Chưa có game nào</p>';
                 }
@@ -179,11 +182,10 @@
                 
                 if (result.success && result.data.length > 0) {
                     categoriesList.innerHTML = result.data.map(category => {
-                        const bgImage = categoryBackgrounds[category.name] || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80';
+                        const bgImage = category.image_url || categoryBackgrounds[category.name] || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80';
                         return `
                             <div class="category-card-modal" onclick="window.location.href='/product.html?game_id=${gameId}&category_id=${category.category_id}'"
                                  style="background-image: url('${bgImage}')">
-                                <div class="category-card-overlay"></div>
                                 <div class="category-card-content">
                                     <h4>${category.name}</h4>
                                     <p>${category.description || 'Nhấn vào để mua ' + category.name}</p>
@@ -282,20 +284,6 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.25);
         }
 
-        .game-card-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
-            transition: all 0.4s ease;
-        }
-
-        .game-card:hover .game-card-overlay {
-            background: linear-gradient(180deg, rgba(102,126,234,0.4) 0%, rgba(102,126,234,0.8) 100%);
-        }
-
         .game-card-content {
             position: relative;
             z-index: 2;
@@ -311,14 +299,14 @@
             font-size: 28px;
             font-weight: 700;
             margin: 0 0 10px 0;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 12px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7);
         }
 
         .game-card-content p {
             font-size: 15px;
             margin: 0;
             opacity: 0.95;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 8px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7);
         }
 
         /* Categories Modal */
@@ -429,20 +417,6 @@
             box-shadow: 0 12px 30px rgba(0,0,0,0.2);
         }
 
-        .category-card-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
-            transition: all 0.4s ease;
-        }
-
-        .category-card-modal:hover .category-card-overlay {
-            background: linear-gradient(180deg, rgba(102,126,234,0.4) 0%, rgba(102,126,234,0.8) 100%);
-        }
-
         .category-card-content {
             position: relative;
             z-index: 2;
@@ -458,14 +432,14 @@
             font-size: 22px;
             font-weight: 700;
             margin: 0 0 8px 0;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 12px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7);
         }
 
         .category-card-content p {
             font-size: 14px;
             margin: 0;
             opacity: 0.95;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 8px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7);
         }
 
         .loading-spinner {

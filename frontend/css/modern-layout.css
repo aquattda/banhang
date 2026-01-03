@@ -720,6 +720,8 @@
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    overflow: visible;
+    position: relative;
 }
 
 .category-box:hover {
@@ -731,10 +733,28 @@
 .category-box-image {
     font-size: 48px;
     margin-bottom: 8px;
-    height: 60px;
+    height: 140px;
+    width: calc(100% + 20px);
+    margin-left: -10px;
+    margin-top: -15px;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    border-radius: 10px 10px 8px 8px;
+    position: relative;
+}
+
+.category-box-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px 10px 8px 8px;
+    transition: transform 0.3s ease;
+}
+
+.category-box:hover .category-box-image img {
+    transform: scale(1.05);
 }
 
 .category-box-name {

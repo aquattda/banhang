@@ -220,7 +220,10 @@
                 container.innerHTML = displayGames.map(game => `
                     <div class="category-box" onclick="window.location.href='/games.html?game_id=${game.game_id}'">
                         <div class="category-box-image">
-                            ${gameIcons[game.slug] || '🎮'}
+                            ${game.image_url 
+                                ? `<img src="${game.image_url}" alt="${game.name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;" onerror="this.parentElement.innerHTML='${gameIcons[game.slug] || '🎮'}'">`
+                                : (gameIcons[game.slug] || '🎮')
+                            }
                         </div>
                         <div class="category-box-name">${game.name}</div>
                     </div>
