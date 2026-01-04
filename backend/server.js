@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,6 +33,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/recharge', require('./routes/recharge'));
+app.use('/api/sepay', require('./routes/sepay'));
 app.use('/api', require('./routes/upload'));
 
 // Health check

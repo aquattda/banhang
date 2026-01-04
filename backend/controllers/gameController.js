@@ -6,6 +6,17 @@ const getAllGames = async (req, res) => {
         const [games] = await db.query(
             'SELECT * FROM games WHERE is_active = TRUE ORDER BY display_order ASC, name ASC'
         );
+        
+        // Lấy tất cả slugs cho mỗi game
+        for (let game of games) {
+            const [slugs] = await db.query(
+                'SELECT slug FROM game_slugs WHERE game_id = ? ORDER BY is_primary DESC, slug ASC',
+                [game.game_id]
+            );
+            game.slugs = slugs.map(s => s.slug);
+            game.slug = game.slugs[0] || null; // Slug đầu tiên là primary
+        }
+        
         res.json({ success: true, data: games });
     } catch (error) {
         console.error('Get games error:', error);
@@ -17,14 +28,33 @@ const getAllGames = async (req, res) => {
 const getGameBySlug = async (req, res) => {
     try {
         const { slug } = req.params;
-        const [games] = await db.query(
-            'SELECT * FROM games WHERE slug = ? AND is_active = TRUE',
+        
+        // Tìm game thông qua bảng game_slugs
+        const [slugData] = await db.query(
+            'SELECT game_id FROM game_slugs WHERE slug = ?',
             [slug]
+        );
+        
+        if (slugData.length === 0) {
+            return res.status(404).json({ success: false, error: 'Game not found' });
+        }
+        
+        const [games] = await db.query(
+            'SELECT * FROM games WHERE game_id = ? AND is_active = TRUE',
+            [slugData[0].game_id]
         );
         
         if (games.length === 0) {
             return res.status(404).json({ success: false, error: 'Game not found' });
         }
+        
+        // Lấy tất cả slugs của game này
+        const [slugs] = await db.query(
+            'SELECT slug FROM game_slugs WHERE game_id = ? ORDER BY is_primary DESC',
+            [games[0].game_id]
+        );
+        games[0].slugs = slugs.map(s => s.slug);
+        games[0].slug = games[0].slugs[0] || null;
         
         res.json({ success: true, data: games[0] });
     } catch (error) {
@@ -36,19 +66,41 @@ const getGameBySlug = async (req, res) => {
 // Admin: Tạo game mới
 const createGame = async (req, res) => {
     try {
-        const { name, slug, description, display_order, image_url } = req.body;
+        const { name, slugs, description, display_order, image_url } = req.body;
         
-        console.log('Creating game with data:', { name, slug, description, display_order, image_url });
+        console.log('Creating game with data:', { name, slugs, description, display_order, image_url });
         
+        // Validate slugs
+        if (!slugs || !Array.isArray(slugs) || slugs.length === 0) {
+            return res.status(400).json({ success: false, error: 'At least one slug is required' });
+        }
+        
+        // Tạo game (không cần slug column nữa)
         const [result] = await db.query(
-            'INSERT INTO games (name, slug, description, display_order, image_url) VALUES (?, ?, ?, ?, ?)',
-            [name, slug, description, display_order || 0, image_url || null]
+            'INSERT INTO games (name, description, display_order, image_url) VALUES (?, ?, ?, ?)',
+            [name, description, display_order || 0, image_url || null]
         );
         
-        res.json({ success: true, message: 'Game created', gameId: result.insertId });
+        const gameId = result.insertId;
+        
+        // Thêm tất cả slugs vào bảng game_slugs
+        for (let i = 0; i < slugs.length; i++) {
+            await db.query(
+                'INSERT INTO game_slugs (game_id, slug, is_primary) VALUES (?, ?, ?)',
+                [gameId, slugs[i], i === 0] // Slug đầu tiên là primary
+            );
+        }
+        
+        res.json({ success: true, message: 'Game created', gameId: gameId });
     } catch (error) {
         console.error('Create game error:', error);
         console.error('Error details:', error.message);
+        
+        // Check for duplicate slug error
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({ success: false, error: 'Một trong các slug đã tồn tại' });
+        }
+        
         res.status(500).json({ success: false, error: error.message || 'Server error' });
     }
 };
@@ -57,17 +109,40 @@ const createGame = async (req, res) => {
 const updateGame = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, slug, description, display_order, image_url } = req.body;
+        const { name, slugs, description, display_order, image_url } = req.body;
         
+        // Validate slugs
+        if (!slugs || !Array.isArray(slugs) || slugs.length === 0) {
+            return res.status(400).json({ success: false, error: 'At least one slug is required' });
+        }
+        
+        // Cập nhật thông tin game
         await db.query(
-            'UPDATE games SET name = ?, slug = ?, description = ?, display_order = ?, image_url = ? WHERE game_id = ?',
-            [name, slug, description, display_order || 0, image_url || null, id]
+            'UPDATE games SET name = ?, description = ?, display_order = ?, image_url = ? WHERE game_id = ?',
+            [name, description, display_order || 0, image_url || null, id]
         );
+        
+        // Xóa tất cả slugs cũ
+        await db.query('DELETE FROM game_slugs WHERE game_id = ?', [id]);
+        
+        // Thêm slugs mới
+        for (let i = 0; i < slugs.length; i++) {
+            await db.query(
+                'INSERT INTO game_slugs (game_id, slug, is_primary) VALUES (?, ?, ?)',
+                [id, slugs[i], i === 0] // Slug đầu tiên là primary
+            );
+        }
         
         res.json({ success: true, message: 'Game updated' });
     } catch (error) {
         console.error('Update game error:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        
+        // Check for duplicate slug error
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({ success: false, error: 'Một trong các slug đã tồn tại' });
+        }
+        
+        res.status(500).json({ success: false, error: error.message || 'Server error' });
     }
 };
 
